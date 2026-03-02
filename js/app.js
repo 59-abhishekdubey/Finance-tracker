@@ -325,55 +325,59 @@ function renderStatsScreen() {
 
 // ========== AI CHAT SCREEN ==========
 function renderAIScreen() {
-    const container = document.createElement('div');
-    container.className = 'container-narrow';
-    
-    const header = document.createElement('div');
-    header.style.marginBottom = 'var(--space-xl)';
-    
-    const title = document.createElement('h1');
-    title.textContent = 'AI Finance Advisor';
-    title.style.marginBottom = 'var(--space-xs)';
-    
-    const subtitle = document.createElement('p');
-    subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Get smart advice about your spending';
-    
-    header.appendChild(title);
-    header.appendChild(subtitle);
-    container.appendChild(header);
-    
-    // Coming soon card
-    const comingSoonCard = createCard(
-        '🤖 AI Chat Coming Soon',
-        'We\'re building an intelligent advisor to help you make better financial decisions',
-        null
-    );
-    
-    const featureList = document.createElement('ul');
-    featureList.style.listStyle = 'none';
-    featureList.style.padding = '0';
-    featureList.style.marginTop = 'var(--space-lg)';
-    
-    const features = [
-        'Should I buy this? - Get instant advice',
-        'Spending insights - Understand your patterns',
-        'Goal planning - Reach your financial targets',
-        'Budget optimization - Save smarter'
-    ];
-    
-    features.forEach(feature => {
-        const li = document.createElement('li');
-        li.style.padding = 'var(--space-sm) 0';
-        li.style.borderBottom = '1px solid var(--color-border-light)';
-        li.innerHTML = `<span style="color: var(--color-success); margin-right: var(--space-sm);">✓</span>${feature}`;
-        featureList.appendChild(li);
-    });
-    
-    comingSoonCard.appendChild(featureList);
-    container.appendChild(comingSoonCard);
-    
-    return container;
+  const container = document.createElement("div");
+  container.className = "container-narrow";
+
+  const header = document.createElement("div");
+  header.style.marginBottom = "16px";
+
+  const title = document.createElement("h1");
+  title.textContent = "AI Finance Advisor";
+
+  const subtitle = document.createElement("p");
+  subtitle.className = "text-secondary";
+  subtitle.textContent = "Ask anything about your spending";
+
+  header.appendChild(title);
+  header.appendChild(subtitle);
+  container.appendChild(header);
+
+  const chatBox = document.createElement("div");
+  chatBox.style.border = "1px solid #ddd";
+  chatBox.style.padding = "12px";
+  chatBox.style.borderRadius = "8px";
+  chatBox.style.marginBottom = "12px";
+  chatBox.style.minHeight = "200px";
+  chatBox.id = "chatBox";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Type your question...";
+  input.style.width = "100%";
+  input.style.padding = "10px";
+  input.style.marginBottom = "8px";
+
+  const button = document.createElement("button");
+  button.textContent = "Ask AI";
+  button.onclick = () => {
+    if (!input.value.trim()) return;
+
+    const userMsg = document.createElement("p");
+    userMsg.innerHTML = `<b>You:</b> ${input.value}`;
+    chatBox.appendChild(userMsg);
+
+    const aiMsg = document.createElement("p");
+    aiMsg.innerHTML = `<b>AI:</b> Feature coming soon 🤖`;
+    chatBox.appendChild(aiMsg);
+
+    input.value = "";
+  };
+
+  container.appendChild(chatBox);
+  container.appendChild(input);
+  container.appendChild(button);
+
+  return container;
 }
 
 // ========== ADD EXPENSE MODAL ==========
