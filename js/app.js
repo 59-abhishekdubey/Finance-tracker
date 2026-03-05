@@ -358,54 +358,187 @@ function renderScreen(screenId) {
 // ========== AI CHAT SCREEN ==========
 function renderAIScreen() {
     const container = document.createElement('div');
-    container.className = 'container-narrow';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.height = '100vh';
+    container.style.paddingBottom = '80px'; // Space for bottom nav
     
+    // Header
     const header = document.createElement('div');
-    header.style.marginBottom = 'var(--space-xl)';
+    header.style.padding = 'var(--space-xl)';
+    header.style.borderBottom = '1px solid var(--color-border)';
+    header.style.backgroundColor = 'var(--color-surface)';
     
     const title = document.createElement('h1');
-    title.textContent = 'AI Finance Advisor';
+    title.textContent = '💬 AI Finance Advisor';
     title.style.marginBottom = 'var(--space-xs)';
+    title.style.fontSize = 'var(--font-size-2xl)';
     
     const subtitle = document.createElement('p');
     subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Get smart advice about your spending';
+    subtitle.textContent = 'Ask me anything about your spending';
+    subtitle.style.fontSize = 'var(--font-size-sm)';
     
     header.appendChild(title);
     header.appendChild(subtitle);
-    container.appendChild(header);
     
-    // Coming soon card
-    const comingSoonCard = createCard(
-        '🤖 AI Chat Coming Soon',
-        'We\'re building an intelligent advisor to help you make better financial decisions',
-        null
-    );
+    // Chat messages container
+    const messagesContainer = document.createElement('div');
+    messagesContainer.id = 'chat-messages';
+    messagesContainer.style.flex = '1';
+    messagesContainer.style.overflowY = 'auto';
+    messagesContainer.style.padding = 'var(--space-xl)';
+    messagesContainer.style.display = 'flex';
+    messagesContainer.style.flexDirection = 'column';
+    messagesContainer.style.gap = 'var(--space-md)';
     
-    const featureList = document.createElement('ul');
-    featureList.style.listStyle = 'none';
-    featureList.style.padding = '0';
-    featureList.style.marginTop = 'var(--space-lg)';
+    // Check if there are any messages in storage
+    const chatHistory = localStorage.getItem('chat_history');
+    const messages = chatHistory ? JSON.parse(chatHistory) : [];
     
-    const features = [
-        'Should I buy this? - Get instant advice',
-        'Spending insights - Understand your patterns',
-        'Goal planning - Reach your financial targets',
-        'Budget optimization - Save smarter'
-    ];
+    if (messages.length === 0) {
+        // Show welcome message and suggestions
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.style.textAlign = 'center';
+        welcomeDiv.style.padding = 'var(--space-2xl) 0';
+        
+        const welcomeText = document.createElement('p');
+        welcomeText.className = 'text-secondary';
+        welcomeText.textContent = 'Try asking me:';
+        welcomeText.style.marginBottom = 'var(--space-lg)';
+        welcomeText.style.fontSize = 'var(--font-size-sm)';
+        
+        welcomeDiv.appendChild(welcomeText);
+        
+        // Suggested questions
+        SUGGESTED_QUESTIONS.forEach(question => {
+            const suggestionBtn = document.createElement('button');
+            suggestionBtn.className = 'btn btn-secondary';
+            suggestionBtn.style.width = '100%';
+            suggestionBtn.style.marginBottom = 'var(--space-sm)';
+            suggestionBtn.style.textAlign = 'left';
+            suggestionBtn.style.justifyContent = 'flex-start';
+            suggestionBtn.textContent = `"${question}"`;
+            suggestionBtn.onclick = () => sendChatMessage(question);
+            welcomeDiv.appendChild(suggestionBtn);
+        });
+        
+        messagesContainer.appendChild(welcomeDiv);
+    } else {
+        // Show existing messages
+        messages.forEach(msg => {
+            messagesContainer.appendChild(createChatBubble(msg.role, msg.content));
+        });
+    }
     
-    features.forEach(feature => {
-        const li = document.createElement('li');
-        li.style.padding = 'var(--space-sm) 0';
-        li.style.borderBottom = '1px solid var(--color-border-light)';
-        li.innerHTML = `<span style="color: var(--color-success); margin-right: var(--space-sm);">✓</span>${feature}`;
-        featureList.appendChild(li);
+    // Input container
+    const inputContainer = document.createElement('div');
+    inputContainer.style.padding = 'var(--space-lg)';
+    inputContainer.style.borderTop = '1px solid var(--color-border)';
+    inputContainer.style.backgroundColor = 'var(--color-surface)';
+    inputContainer.style.display = 'flex';
+    inputContainer.style.gap = 'var(--space-md)';
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'chat-input';
+    input.className = 'input';
+    input.placeholder = 'Ask about your finances...';
+    input.style.flex = '1';
+    input.style.marginBottom = '0';
+    
+    const sendBtn = createButton('Send', () => {
+        const message = input.value.trim();
+        if (message) {
+            sendChatMessage(message);
+            input.value = '';
+        }
+    }, 'primary');
+    
+    // Send on Enter key
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const message = input.value.trim();
+            if (message) {
+                sendChatMessage(message);
+                input.value = '';
+            }
+        }
     });
     
-    comingSoonCard.appendChild(featureList);
-    container.appendChild(comingSoonCard);
+    inputContainer.appendChild(input);
+    inputContainer.appendChild(sendBtn);
+    
+    // Assemble
+    container.appendChild(header);
+    container.appendChild(messagesContainer);
+    container.appendChild(inputContainer);
     
     return container;
+}
+
+// Create chat bubble
+function createChatBubble(role, content) {
+    const bubble = document.createElement('div');
+    bubble.style.display = 'flex';
+    bubble.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
+    bubble.className = 'animate-fadeIn';
+    
+    const messageBox = document.createElement('div');
+    messageBox.style.maxWidth = '80%';
+    messageBox.style.padding = 'var(--space-md) var(--space-lg)';
+    messageBox.style.borderRadius = 'var(--radius-lg)';
+    messageBox.style.fontSize = 'var(--font-size-base)';
+    messageBox.style.lineHeight = '1.5';
+    
+    if (role === 'user') {
+        messageBox.style.backgroundColor = 'var(--color-primary)';
+        messageBox.style.color = 'white';
+    } else {
+        messageBox.style.backgroundColor = 'var(--color-surface)';
+        messageBox.style.border = '1px solid var(--color-border)';
+        messageBox.style.color = 'var(--color-text-primary)';
+    }
+    
+    messageBox.textContent = content;
+    bubble.appendChild(messageBox);
+    
+    return bubble;
+}
+
+// Send message function
+function sendChatMessage(message) {
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    // Clear suggestions if they exist
+    const suggestions = messagesContainer.querySelector('div[style*="text-align: center"]');
+    if (suggestions) {
+        messagesContainer.innerHTML = '';
+    }
+    
+    // Add user message
+    messagesContainer.appendChild(createChatBubble('user', message));
+    
+    // Get AI response
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const aiResponse = getAIResponse(message, transactions, budget);
+    
+    // Add AI response after short delay
+    setTimeout(() => {
+        messagesContainer.appendChild(createChatBubble('ai', aiResponse));
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 500);
+    
+    // Save to chat history
+    const chatHistory = localStorage.getItem('chat_history');
+    const messages = chatHistory ? JSON.parse(chatHistory) : [];
+    messages.push({ role: 'user', content: message });
+    messages.push({ role: 'ai', content: aiResponse });
+    localStorage.setItem('chat_history', JSON.stringify(messages));
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 // ========== ADD EXPENSE MODAL ==========
