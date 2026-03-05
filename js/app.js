@@ -509,7 +509,6 @@ function sendChatMessage(message) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-
 // ========== ADD EXPENSE MODAL ==========
 function showAddExpenseModal() {
     const form = document.createElement('form');
