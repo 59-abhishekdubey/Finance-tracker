@@ -9,8 +9,120 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
+    <!-- LANDING PAGE (shown when not logged in) -->
+    <div id="landing-page" style="display: none;">
+        <div class="landing-container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="logo-large">
+                        <span class="logo-icon">🪙</span>
+                        <h1>Finance Tracker</h1>
+                    </div>
+                    <p class="tagline">Take control of your finances with smart budgeting</p>
+                    <p class="subtitle">Track expenses, manage budgets, and reach your financial goals</p>
+                    
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary btn-large" onclick="navigateTo('register')">
+                            Get Started Free
+                        </button>
+                        <button class="btn btn-secondary btn-large" onclick="navigateTo('login')">
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="features-section">
+                <h2>Why Choose Finance Tracker?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Smart Analytics</h3>
+                        <p>Visual insights into your spending patterns with interactive charts and graphs</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Budget Goals</h3>
+                        <p>Set and track financial goals with the proven 50/30/20 budgeting rule</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Advisor</h3>
+                        <p>Get personalized spending advice and financial recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="login-page" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h1>Sign In</h1>
+                <p class="text-secondary">Welcome back to Finance Tracker</p>
+                
+                <form id="login-form" style="margin-top: var(--space-xl);">
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; margin-bottom: var(--space-xs); font-weight: var(--font-medium);">Email</label>
+                        <input type="email" id="login-email" placeholder="your@email.com" class="input" required>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; margin-bottom: var(--space-xs); font-weight: var(--font-medium);">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" class="input" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large btn-block" style="margin-bottom: var(--space-md);">Sign In</button>
+                </form>
+                
+                <div style="text-align: center; color: var(--color-text-secondary);">
+                    Don't have an account? <a href="#" onclick="navigateTo('register'); return false;" style="color: var(--color-primary); text-decoration: none; font-weight: var(--font-medium);">Create one</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h1>Create Account</h1>
+                <p class="text-secondary">Start managing your finances today</p>
+                
+                <form id="register-form" style="margin-top: var(--space-xl);">
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; margin-bottom: var(--space-xs); font-weight: var(--font-medium);">Full Name</label>
+                        <input type="text" id="register-name" placeholder="John Doe" class="input" required>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; margin-bottom: var(--space-xs); font-weight: var(--font-medium);">Email</label>
+                        <input type="email" id="register-email" placeholder="your@email.com" class="input" required>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-lg);">
+                        <label style="display: block; margin-bottom: var(--space-xs); font-weight: var(--font-medium);">Password</label>
+                        <input type="password" id="register-password" placeholder="••••••••" class="input" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large btn-block" style="margin-bottom: var(--space-md);">Create Account</button>
+                </form>
+                
+                <div style="text-align: center; color: var(--color-text-secondary);">
+                    Already have an account? <a href="#" onclick="navigateTo('login'); return false;" style="color: var(--color-primary); text-decoration: none; font-weight: var(--font-medium);">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <!-- App content will be rendered here -->
     </div>
@@ -18,10 +130,12 @@
     <!-- JavaScript -->
     <script src="js/utils.js"></script>
     <script src="js/data.js"></script>
-    <script src="js/settings.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/router.js"></script>
     <script src="js/components.js"></script>
     <script src="js/ai-chat.js"></script>
     <script src="js/analytics.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
