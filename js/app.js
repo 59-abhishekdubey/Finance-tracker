@@ -34,6 +34,9 @@ function renderScreen(screenId) {
         case 'stats':
             screenContent = renderStatsScreen();
             break;
+        case 'analytics':
+            screenContent = renderAnalyticsScreen();
+            break;
         case 'ai':
             screenContent = renderAIScreen();
             break;
@@ -82,8 +85,8 @@ function renderDashboard() {
     container.appendChild(header);
     
     // Today's spending stat
-    const transactions = getTransactions();
-    const todaySpending = getTodaySpending(transactions);
+    const transactions = transactions();
+    const todaySpending = todaySpending(transactions);
     const dailyBudget = getBudget().total / 30;
     const todayPercentage = calculatePercentage(todaySpending, dailyBudget);
     
@@ -169,7 +172,7 @@ function renderDashboard() {
 
 // ========== BUDGET CARD COMPONENT ==========
 function createBudgetCard() {
-    const transactions = getTransactions();
+    const transactions = transactions();
     const spent = calculateSpent(transactions);
     const budget = getBudget();
     
@@ -984,6 +987,223 @@ function renderSettingsScreen() {
     
     return container;
 }
+// ========== ANALYTICS SCREEN ==========
+function renderAnalyticsScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '📊 Analytics';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Understand your spending patterns';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Get data
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const categoryData = getSpendingByCategory(transactions);
+    const totalSpending = getTotalSpending(transactions);
+    
+    // Check if there's data
+    if (categoryData.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.style.textAlign = 'center';
+        emptyState.style.padding = 'var(--space-3xl)';
+        
+        const emptyIcon = document.createElement('div');
+        emptyIcon.textContent = '📊';
+        emptyIcon.style.fontSize = '64px';
+        emptyIcon.style.marginBottom = 'var(--space-lg)';
+        
+        const emptyText = document.createElement('p');
+        emptyText.className = 'text-secondary';
+        emptyText.textContent = 'No spending data yet. Add some expenses to see analytics!';
+        
+        emptyState.appendChild(emptyIcon);
+        emptyState.appendChild(emptyText);
+        container.appendChild(emptyState);
+        
+        return container;
+    }
+    
+    // Budget Health Score
+    const healthScore = calculateHealthScore(transactions, budget);
+    const healthInfo = getHealthScoreLabel(healthScore);
+    const healthCard = createHealthScore(healthScore, healthInfo.label, healthInfo.emoji, healthInfo.color);
+    container.appendChild(healthCard);
+    
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
+    
+    // Week comparison
+    const comparison = getWeekComparison(transactions);
+    const comparisonCard = createCard(
+        'Week Over Week',
+        'How you\'re doing compared to last week',
+        null
+    );
+    
+    const comparisonContent = document.createElement('div');
+    comparisonContent.style.display = 'grid';
+    comparisonContent.style.gridTemplateColumns = '1fr 1fr';
+    comparisonContent.style.gap = 'var(--space-lg)';
+    
+    const thisWeekDiv = document.createElement('div');
+    const thisWeekLabel = document.createElement('div');
+    thisWeekLabel.className = 'text-secondary';
+    thisWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    thisWeekLabel.style.marginBottom = 'var(--space-xs)';
+    thisWeekLabel.textContent = 'This Week';
+    
+    const thisWeekValue = document.createElement('div');
+    thisWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    thisWeekValue.style.fontWeight = 'var(--font-bold)';
+    thisWeekValue.textContent = formatCurrency(comparison.thisWeek);
+    
+    thisWeekDiv.appendChild(thisWeekLabel);
+    thisWeekDiv.appendChild(thisWeekValue);
+    
+    const lastWeekDiv = document.createElement('div');
+    const lastWeekLabel = document.createElement('div');
+    lastWeekLabel.className = 'text-secondary';
+    lastWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    lastWeekLabel.style.marginBottom = 'var(--space-xs)';
+    lastWeekLabel.textContent = 'Last Week';
+    
+    const lastWeekValue = document.createElement('div');
+    lastWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    lastWeekValue.style.fontWeight = 'var(--font-bold)';
+    lastWeekValue.textContent = formatCurrency(comparison.lastWeek);
+    
+    lastWeekDiv.appendChild(lastWeekLabel);
+    lastWeekDiv.appendChild(lastWeekValue);
+    
+    comparisonContent.appendChild(thisWeekDiv);
+    comparisonContent.appendChild(lastWeekDiv);
+    
+    // Difference indicator
+    if (comparison.lastWeek > 0) {
+        const differenceDiv = document.createElement('div');
+        differenceDiv.style.gridColumn = '1 / -1';
+        differenceDiv.style.marginTop = 'var(--space-md)';
+        differenceDiv.style.padding = 'var(--space-md)';
+        differenceDiv.style.borderRadius = 'var(--radius-md)';
+        differenceDiv.style.textAlign = 'center';
+        differenceDiv.style.fontSize = 'var(--font-size-sm)';
+        differenceDiv.style.fontWeight = 'var(--font-medium)';
+        
+        if (comparison.isIncrease) {
+            differenceDiv.style.backgroundColor = 'var(--color-danger-light)';
+            differenceDiv.style.color = 'var(--color-danger)';
+            differenceDiv.textContent = `↑ ${formatCurrency(Math.abs(comparison.difference))} more (${Math.abs(comparison.percentChange)}% increase)`;
+        } else {
+            differenceDiv.style.backgroundColor = 'var(--color-success-light)';
+            differenceDiv.style.color = 'var(--color-success)';
+            differenceDiv.textContent = `↓ ${formatCurrency(Math.abs(comparison.difference))} less (${Math.abs(comparison.percentChange)}% decrease)`;
+        }
+        
+        comparisonContent.appendChild(differenceDiv);
+    }
+    
+    comparisonCard.appendChild(comparisonContent);
+    container.appendChild(comparisonCard);
+    
+    // Spacing
+    const spacer2 = document.createElement('div');
+    spacer2.style.height = 'var(--space-xl)';
+    container.appendChild(spacer2);
+    
+    // Spending by Category
+    const categoryCard = createCard(
+        'Spending by Category',
+        `Total: ${formatCurrency(totalSpending)}`,
+        null
+    );
+    
+    const pieChart = createPieChart(categoryData);
+    categoryCard.appendChild(pieChart);
+    container.appendChild(categoryCard);
+    
+    // Spacing
+    const spacer3 = document.createElement('div');
+    spacer3.style.height = 'var(--space-xl)';
+    container.appendChild(spacer3);
+    
+    // Top 3 Categories
+    const topCategories = getTopCategories(categoryData, 3);
+    const topCard = createCard(
+        'Top Spending Categories',
+        'Where most of your money goes',
+        null
+    );
+    
+    const topList = document.createElement('div');
+    topList.style.display = 'flex';
+    topList.style.flexDirection = 'column';
+    topList.style.gap = 'var(--space-md)';
+    
+    topCategories.forEach((category, index) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = 'var(--space-md)';
+        item.style.padding = 'var(--space-md)';
+        item.style.backgroundColor = 'var(--color-bg-secondary)';
+        item.style.borderRadius = 'var(--radius-lg)';
+        
+        const rank = document.createElement('div');
+        rank.textContent = `#${index + 1}`;
+        rank.style.fontSize = 'var(--font-size-xl)';
+        rank.style.fontWeight = 'var(--font-bold)';
+        rank.style.color = 'var(--color-text-tertiary)';
+        rank.style.width = '40px';
+        rank.style.textAlign = 'center';
+        
+        const icon = document.createElement('div');
+        icon.textContent = category.icon;
+        icon.style.fontSize = '32px';
+        
+        const details = document.createElement('div');
+        details.style.flex = '1';
+        
+        const name = document.createElement('div');
+        name.textContent = category.category.charAt(0).toUpperCase() + category.category.slice(1);
+        name.style.fontWeight = 'var(--font-semibold)';
+        name.style.marginBottom = '4px';
+        
+        const percentage = ((category.amount / totalSpending) * 100).toFixed(1);
+        const amount = document.createElement('div');
+        amount.textContent = `${formatCurrency(category.amount)} (${percentage}%)`;
+        amount.style.fontSize = 'var(--font-size-sm)';
+        amount.style.color = 'var(--color-text-secondary)';
+        
+        details.appendChild(name);
+        details.appendChild(amount);
+        
+        item.appendChild(rank);
+        item.appendChild(icon);
+        item.appendChild(details);
+        topList.appendChild(item);
+    });
+    
+    topCard.appendChild(topList);
+    container.appendChild(topCard);
+    
+    return container;
+}
+
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
