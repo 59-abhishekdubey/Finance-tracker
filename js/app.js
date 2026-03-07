@@ -22,32 +22,87 @@ function switchScreen(screenId) {
 
 function renderScreen(screenId) {
     const app = document.getElementById('app');
-    app.innerHTML = '';
-    app.className = 'animate-fadeIn';
+    const landingPage = document.getElementById('landing-page');
+    const loginPage = document.getElementById('login-page');
+    const registerPage = document.getElementById('register-page');
     
-    let screenContent;
+    // Hide all pages first
+    if (app) app.style.display = 'none';
+    if (landingPage) landingPage.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'none';
+    if (registerPage) registerPage.style.display = 'none';
     
+    // Show appropriate page
     switch(screenId) {
+        case 'landing':
+            if (landingPage) landingPage.style.display = 'block';
+            break;
+            
+        case 'login':
+            if (loginPage) loginPage.style.display = 'block';
+            break;
+            
+        case 'register':
+            if (registerPage) registerPage.style.display = 'block';
+            break;
+            
         case 'home':
-            screenContent = renderDashboard();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderDashboard());
+            }
             break;
+            
         case 'stats':
-            screenContent = renderStatsScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderStatsScreen());
+            }
             break;
+            
         case 'analytics':
-            screenContent = renderAnalyticsScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderAnalyticsScreen());
+            }
             break;
+            
         case 'ai':
-            screenContent = renderAIScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderAIScreen());
+            }
             break;
+            
         case 'settings':
-            screenContent = renderSettingsScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderSettingsScreen());
+            }
             break;
+            
+        case 'profile':
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderProfileScreen());
+            }
+            break;
+            
         default:
-            screenContent = renderDashboard();
+            if (landingPage) landingPage.style.display = 'block';
     }
-    
-    app.appendChild(screenContent);
 }
 
 function updateBottomNav() {
@@ -1309,8 +1364,83 @@ function renderAnalyticsScreen() {
     return container;
 }
 
+// ========== PROFILE SCREEN (Placeholder - Nayan will build this) ==========
+function renderProfileScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = 'Profile';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    header.appendChild(title);
+    container.appendChild(header);
+    
+    const message = document.createElement('p');
+    message.className = 'text-secondary';
+    message.textContent = 'Profile page coming soon...';
+    container.appendChild(message);
+    
+    return container;
+}
+
+// ========== AUTH FORM HANDLERS ==========
+function setupAuthForms() {
+    // Login form handler
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const result = loginUser(email, password);
+            if (result.success) {
+                console.log('✅ Login successful:', result.user);
+                navigateTo('home');
+            } else {
+                alert('❌ ' + result.error);
+                document.getElementById('login-password').value = '';
+            }
+        });
+    }
+    
+    // Register form handler
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            const result = registerUser({
+                name,
+                email,
+                password,
+                avatar: '👤'
+            });
+            
+            if (result.success) {
+                console.log('✅ Registration successful:', result.user);
+                // Auto-login after registration
+                const loginResult = loginUser(email, password);
+                if (loginResult.success) {
+                    navigateTo('home');
+                }
+            } else {
+                alert('❌ ' + result.error);
+            }
+        });
+    }
+}
+
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-    console.log('App ready!');
+    setupAuthForms();
+    initRouter();
+    console.log('App ready with auth!');
 });

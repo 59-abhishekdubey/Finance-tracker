@@ -111,6 +111,39 @@
     line-height: 1.6;
 }
 
+/* ========== AUTH PAGES STYLES ========== */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    padding: var(--space-3xl);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-card h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-xs) 0;
+    text-align: center;
+}
+
+.btn-block {
+    width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .logo-large h1 {
@@ -131,5 +164,9 @@
     
     .cta-buttons .btn {
         width: 100%;
+    }
+    
+    .auth-card {
+        padding: var(--space-xl);
     }
 }
