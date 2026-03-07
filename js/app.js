@@ -34,8 +34,14 @@ function renderScreen(screenId) {
         case 'stats':
             screenContent = renderStatsScreen();
             break;
+        case 'analytics':
+            screenContent = renderAnalyticsScreen();
+            break;
         case 'ai':
             screenContent = renderAIScreen();
+            break;
+        case 'settings':
+            screenContent = renderSettingsScreen();
             break;
         default:
             screenContent = renderDashboard();
@@ -669,6 +675,638 @@ function showAddExpenseModal() {
     setTimeout(() => {
         amountInput.focus();
     }, 100);
+}
+
+// ========== EDIT TRANSACTION MODAL ==========
+function showEditTransactionModal(transaction) {
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = 'var(--space-lg)';
+    
+    // Amount input
+    const amountGroup = document.createElement('div');
+    amountGroup.className = 'input-group';
+    amountGroup.style.marginBottom = '0';
+    
+    const amountLabel = document.createElement('label');
+    amountLabel.className = 'input-label';
+    amountLabel.textContent = 'Amount';
+    
+    const amountInput = document.createElement('input');
+    amountInput.type = 'number';
+    amountInput.className = 'input input-amount';
+    amountInput.value = transaction.amount;
+    amountInput.required = true;
+    amountInput.step = '0.01';
+    amountInput.min = '0';
+    
+    amountGroup.appendChild(amountLabel);
+    amountGroup.appendChild(amountInput);
+    
+    // Category selector
+    const categoryGroup = document.createElement('div');
+    categoryGroup.className = 'input-group';
+    categoryGroup.style.marginBottom = '0';
+    
+    const categoryLabel = document.createElement('label');
+    categoryLabel.className = 'input-label';
+    categoryLabel.textContent = 'Category';
+    
+    const categoryGrid = document.createElement('div');
+    categoryGrid.className = 'category-grid';
+    
+    const categories = ['food', 'transport', 'shopping', 'bills', 'entertainment', 'savings', 'other'];
+    let selectedCategory = transaction.category;
+    
+    categories.forEach(cat => {
+        const pill = createCategoryPill(
+            cat,
+            cat === selectedCategory,
+            (category) => {
+                selectedCategory = category;
+                categoryGrid.querySelectorAll('.category-pill').forEach(p => {
+                    p.classList.remove('active');
+                });
+                event.target.closest('.category-pill').classList.add('active');
+            }
+        );
+        categoryGrid.appendChild(pill);
+    });
+    
+    categoryGroup.appendChild(categoryLabel);
+    categoryGroup.appendChild(categoryGrid);
+    
+    // Note input
+    const noteGroup = document.createElement('div');
+    noteGroup.className = 'input-group';
+    noteGroup.style.marginBottom = '0';
+    
+    const noteLabel = document.createElement('label');
+    noteLabel.className = 'input-label';
+    noteLabel.textContent = 'Note';
+    
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'input';
+    noteInput.value = transaction.name;
+    
+    noteGroup.appendChild(noteLabel);
+    noteGroup.appendChild(noteInput);
+    
+    // Date input
+    const dateGroup = document.createElement('div');
+    dateGroup.className = 'input-group';
+    dateGroup.style.marginBottom = '0';
+    
+    const dateLabel = document.createElement('label');
+    dateLabel.className = 'input-label';
+    dateLabel.textContent = 'Date';
+    
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'input';
+    dateInput.value = transaction.date;
+    dateInput.required = true;
+    
+    dateGroup.appendChild(dateLabel);
+    dateGroup.appendChild(dateInput);
+    
+    // Submit button
+    const submitBtn = createButton(
+        'Save Changes',
+        null,
+        'primary',
+        'large'
+    );
+    submitBtn.type = 'submit';
+    submitBtn.style.width = '100%';
+    
+    // Assemble form
+    form.appendChild(amountGroup);
+    form.appendChild(categoryGroup);
+    form.appendChild(noteGroup);
+    form.appendChild(dateGroup);
+    form.appendChild(submitBtn);
+    
+    // Form submission
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const updates = {
+            amount: amountInput.value,
+            category: selectedCategory,
+            name: noteInput.value,
+            date: dateInput.value
+        };
+        
+        updateTransaction(transaction.id, updates);
+        
+        // Close modal
+        if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+        }
+        
+        // Refresh current screen
+        renderScreen(currentScreen);
+    };
+    
+    // Create and show modal
+    currentModal = createModal('Edit Transaction', form, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+    
+    // Auto-focus amount input
+    setTimeout(() => {
+        amountInput.focus();
+    }, 100);
+}
+
+// ========== DELETE CONFIRMATION ==========
+function showDeleteConfirmation(transaction) {
+    const content = document.createElement('div');
+    content.style.textAlign = 'center';
+    
+    const warning = document.createElement('div');
+    warning.textContent = '⚠️';
+    warning.style.fontSize = '48px';
+    warning.style.marginBottom = 'var(--space-lg)';
+    
+    const message = document.createElement('p');
+    message.textContent = 'Are you sure you want to delete this transaction?';
+    message.style.marginBottom = 'var(--space-md)';
+    message.style.color = 'var(--color-text-primary)';
+    
+    const transactionInfo = document.createElement('div');
+    transactionInfo.style.padding = 'var(--space-md)';
+    transactionInfo.style.backgroundColor = 'var(--color-bg-secondary)';
+    transactionInfo.style.borderRadius = 'var(--radius-md)';
+    transactionInfo.style.marginBottom = 'var(--space-xl)';
+    
+    const name = document.createElement('div');
+    name.textContent = transaction.name;
+    name.style.fontWeight = 'var(--font-semibold)';
+    name.style.marginBottom = 'var(--space-xs)';
+    
+    const amount = document.createElement('div');
+    amount.textContent = formatCurrency(transaction.amount);
+    amount.style.fontSize = 'var(--font-size-xl)';
+    amount.style.color = 'var(--color-danger)';
+    
+    transactionInfo.appendChild(name);
+    transactionInfo.appendChild(amount);
+    
+    const disclaimer = document.createElement('p');
+    disclaimer.textContent = 'This action cannot be undone.';
+    disclaimer.style.fontSize = 'var(--font-size-sm)';
+    disclaimer.style.color = 'var(--color-text-tertiary)';
+    disclaimer.style.marginBottom = 'var(--space-lg)';
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'grid';
+    buttonContainer.style.gridTemplateColumns = '1fr 1fr';
+    buttonContainer.style.gap = 'var(--space-md)';
+    
+    const cancelBtn = createButton('Cancel', () => {
+        currentModal.remove();
+        currentModal = null;
+    }, 'secondary', 'large');
+    
+    const deleteBtn = createButton('Delete', () => {
+        deleteTransaction(transaction.id);
+        currentModal.remove();
+        currentModal = null;
+        renderScreen(currentScreen);
+    }, 'primary', 'large');
+    deleteBtn.style.backgroundColor = 'var(--color-danger)';
+    deleteBtn.style.borderColor = 'var(--color-danger)';
+    
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(deleteBtn);
+    
+    content.appendChild(warning);
+    content.appendChild(message);
+    content.appendChild(transactionInfo);
+    content.appendChild(disclaimer);
+    content.appendChild(buttonContainer);
+    
+    currentModal = createModal('Delete Transaction', content, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+}
+
+// ========== SETTINGS SCREEN ==========
+function renderSettingsScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '⚙️ Settings';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Manage your budget and data';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Budget Settings Card
+    const budgetCard = createCard(
+        'Budget Settings',
+        'Customize your monthly budget',
+        null
+    );
+    
+    const budgetForm = document.createElement('form');
+    budgetForm.style.display = 'flex';
+    budgetForm.style.flexDirection = 'column';
+    budgetForm.style.gap = 'var(--space-lg)';
+    
+    const currentBudget = getBudget();
+    const percentages = getBudgetPercentages();
+    
+    // Total Budget
+    const totalGroup = document.createElement('div');
+    totalGroup.className = 'input-group';
+    totalGroup.style.marginBottom = '0';
+    
+    const totalLabel = document.createElement('label');
+    totalLabel.className = 'input-label';
+    totalLabel.textContent = 'Monthly Budget (₹)';
+    
+    const totalInput = document.createElement('input');
+    totalInput.type = 'number';
+    totalInput.className = 'input';
+    totalInput.value = currentBudget.total;
+    totalInput.required = true;
+    totalInput.min = '0';
+    totalInput.step = '100';
+    
+    totalGroup.appendChild(totalLabel);
+    totalGroup.appendChild(totalInput);
+    
+    // Percentages
+    const percentGroup = document.createElement('div');
+    percentGroup.style.display = 'grid';
+    percentGroup.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    percentGroup.style.gap = 'var(--space-md)';
+    
+    // Needs
+    const needsDiv = document.createElement('div');
+    const needsLabel = document.createElement('label');
+    needsLabel.className = 'input-label';
+    needsLabel.textContent = 'Needs (%)';
+    const needsInput = document.createElement('input');
+    needsInput.type = 'number';
+    needsInput.className = 'input';
+    needsInput.value = percentages.needs;
+    needsInput.min = '0';
+    needsInput.max = '100';
+    needsDiv.appendChild(needsLabel);
+    needsDiv.appendChild(needsInput);
+    
+    // Wants
+    const wantsDiv = document.createElement('div');
+    const wantsLabel = document.createElement('label');
+    wantsLabel.className = 'input-label';
+    wantsLabel.textContent = 'Wants (%)';
+    const wantsInput = document.createElement('input');
+    wantsInput.type = 'number';
+    wantsInput.className = 'input';
+    wantsInput.value = percentages.wants;
+    wantsInput.min = '0';
+    wantsInput.max = '100';
+    wantsDiv.appendChild(wantsLabel);
+    wantsDiv.appendChild(wantsInput);
+    
+    // Savings
+    const savingsDiv = document.createElement('div');
+    const savingsLabel = document.createElement('label');
+    savingsLabel.className = 'input-label';
+    savingsLabel.textContent = 'Savings (%)';
+    const savingsInput = document.createElement('input');
+    savingsInput.type = 'number';
+    savingsInput.className = 'input';
+    savingsInput.value = percentages.savings;
+    savingsInput.min = '0';
+    savingsInput.max = '100';
+    savingsDiv.appendChild(savingsLabel);
+    savingsDiv.appendChild(savingsInput);
+    
+    percentGroup.appendChild(needsDiv);
+    percentGroup.appendChild(wantsDiv);
+    percentGroup.appendChild(savingsDiv);
+    
+    // Save button
+    const saveBtn = createButton('Save Budget', null, 'primary', 'large');
+    saveBtn.type = 'submit';
+    saveBtn.style.width = '100%';
+    
+    budgetForm.appendChild(totalGroup);
+    budgetForm.appendChild(percentGroup);
+    budgetForm.appendChild(saveBtn);
+    
+    budgetForm.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const total = parseFloat(totalInput.value);
+        const needs = parseFloat(needsInput.value);
+        const wants = parseFloat(wantsInput.value);
+        const savings = parseFloat(savingsInput.value);
+        
+        if (needs + wants + savings !== 100) {
+            alert('Percentages must add up to 100%!');
+            return;
+        }
+        
+        updateBudgetAmounts(total, needs, wants, savings);
+        alert('✅ Budget updated successfully!');
+        renderScreen('settings');
+    };
+    
+    budgetCard.appendChild(budgetForm);
+    container.appendChild(budgetCard);
+    
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
+    
+    // Data Management Card
+    const dataCard = createCard(
+        'Data Management',
+        'Export or clear your data',
+        null
+    );
+    
+    const dataActions = document.createElement('div');
+    dataActions.style.display = 'flex';
+    dataActions.style.flexDirection = 'column';
+    dataActions.style.gap = 'var(--space-md)';
+    
+    // Export button
+    const exportBtn = createButton('📥 Export Data (CSV)', exportDataToCSV, 'secondary', 'large');
+    exportBtn.style.width = '100%';
+    exportBtn.style.justifyContent = 'flex-start';
+    
+    // Reset budget button
+    const resetBudgetBtn = createButton('🔄 Reset to Default Budget', () => {
+        if (confirm('Reset budget to default (₹15,000 with 50/30/20 split)?')) {
+            resetToDefaultBudget();
+            alert('✅ Budget reset to defaults!');
+            renderScreen('settings');
+        }
+    }, 'secondary', 'large');
+    resetBudgetBtn.style.width = '100%';
+    resetBudgetBtn.style.justifyContent = 'flex-start';
+    
+    // Clear all button
+    const clearBtn = createButton('🗑️ Clear All Transactions', () => {
+        if (clearAllTransactions()) {
+            alert('✅ All transactions deleted!');
+            renderScreen('settings');
+        }
+    }, 'secondary', 'large');
+    clearBtn.style.width = '100%';
+    clearBtn.style.justifyContent = 'flex-start';
+    clearBtn.style.color = 'var(--color-danger)';
+    
+    dataActions.appendChild(exportBtn);
+    dataActions.appendChild(resetBudgetBtn);
+    dataActions.appendChild(clearBtn);
+    
+    dataCard.appendChild(dataActions);
+    container.appendChild(dataCard);
+    
+    return container;
+}
+
+// ========== ANALYTICS SCREEN ==========
+function renderAnalyticsScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '📊 Analytics';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Understand your spending patterns';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Get data
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const categoryData = getSpendingByCategory(transactions);
+    const totalSpending = getTotalSpending(transactions);
+    
+    // Check if there's data
+    if (categoryData.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.style.textAlign = 'center';
+        emptyState.style.padding = 'var(--space-3xl)';
+        
+        const emptyIcon = document.createElement('div');
+        emptyIcon.textContent = '📊';
+        emptyIcon.style.fontSize = '64px';
+        emptyIcon.style.marginBottom = 'var(--space-lg)';
+        
+        const emptyText = document.createElement('p');
+        emptyText.className = 'text-secondary';
+        emptyText.textContent = 'No spending data yet. Add some expenses to see analytics!';
+        
+        emptyState.appendChild(emptyIcon);
+        emptyState.appendChild(emptyText);
+        container.appendChild(emptyState);
+        
+        return container;
+    }
+    
+    // Budget Health Score
+    const healthScore = calculateHealthScore(transactions, budget);
+    const healthInfo = getHealthScoreLabel(healthScore);
+    const healthCard = createHealthScore(healthScore, healthInfo.label, healthInfo.emoji, healthInfo.color);
+    container.appendChild(healthCard);
+    
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
+    
+    // Week comparison
+    const comparison = getWeekComparison(transactions);
+    const comparisonCard = createCard(
+        'Week Over Week',
+        'How you\'re doing compared to last week',
+        null
+    );
+    
+    const comparisonContent = document.createElement('div');
+    comparisonContent.style.display = 'grid';
+    comparisonContent.style.gridTemplateColumns = '1fr 1fr';
+    comparisonContent.style.gap = 'var(--space-lg)';
+    
+    const thisWeekDiv = document.createElement('div');
+    const thisWeekLabel = document.createElement('div');
+    thisWeekLabel.className = 'text-secondary';
+    thisWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    thisWeekLabel.style.marginBottom = 'var(--space-xs)';
+    thisWeekLabel.textContent = 'This Week';
+    
+    const thisWeekValue = document.createElement('div');
+    thisWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    thisWeekValue.style.fontWeight = 'var(--font-bold)';
+    thisWeekValue.textContent = formatCurrency(comparison.thisWeek);
+    
+    thisWeekDiv.appendChild(thisWeekLabel);
+    thisWeekDiv.appendChild(thisWeekValue);
+    
+    const lastWeekDiv = document.createElement('div');
+    const lastWeekLabel = document.createElement('div');
+    lastWeekLabel.className = 'text-secondary';
+    lastWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    lastWeekLabel.style.marginBottom = 'var(--space-xs)';
+    lastWeekLabel.textContent = 'Last Week';
+    
+    const lastWeekValue = document.createElement('div');
+    lastWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    lastWeekValue.style.fontWeight = 'var(--font-bold)';
+    lastWeekValue.textContent = formatCurrency(comparison.lastWeek);
+    
+    lastWeekDiv.appendChild(lastWeekLabel);
+    lastWeekDiv.appendChild(lastWeekValue);
+    
+    comparisonContent.appendChild(thisWeekDiv);
+    comparisonContent.appendChild(lastWeekDiv);
+    
+    // Difference indicator
+    if (comparison.lastWeek > 0) {
+        const differenceDiv = document.createElement('div');
+        differenceDiv.style.gridColumn = '1 / -1';
+        differenceDiv.style.marginTop = 'var(--space-md)';
+        differenceDiv.style.padding = 'var(--space-md)';
+        differenceDiv.style.borderRadius = 'var(--radius-md)';
+        differenceDiv.style.textAlign = 'center';
+        differenceDiv.style.fontSize = 'var(--font-size-sm)';
+        differenceDiv.style.fontWeight = 'var(--font-medium)';
+        
+        if (comparison.isIncrease) {
+            differenceDiv.style.backgroundColor = 'var(--color-danger-light)';
+            differenceDiv.style.color = 'var(--color-danger)';
+            differenceDiv.textContent = `↑ ${formatCurrency(Math.abs(comparison.difference))} more (${Math.abs(comparison.percentChange)}% increase)`;
+        } else {
+            differenceDiv.style.backgroundColor = 'var(--color-success-light)';
+            differenceDiv.style.color = 'var(--color-success)';
+            differenceDiv.textContent = `↓ ${formatCurrency(Math.abs(comparison.difference))} less (${Math.abs(comparison.percentChange)}% decrease)`;
+        }
+        
+        comparisonContent.appendChild(differenceDiv);
+    }
+    
+    comparisonCard.appendChild(comparisonContent);
+    container.appendChild(comparisonCard);
+    
+    // Spacing
+    const spacer2 = document.createElement('div');
+    spacer2.style.height = 'var(--space-xl)';
+    container.appendChild(spacer2);
+    
+    // Spending by Category
+    const categoryCard = createCard(
+        'Spending by Category',
+        `Total: ${formatCurrency(totalSpending)}`,
+        null
+    );
+    
+    const pieChart = createPieChart(categoryData);
+    categoryCard.appendChild(pieChart);
+    container.appendChild(categoryCard);
+    
+    // Spacing
+    const spacer3 = document.createElement('div');
+    spacer3.style.height = 'var(--space-xl)';
+    container.appendChild(spacer3);
+    
+    // Top 3 Categories
+    const topCategories = getTopCategories(categoryData, 3);
+    const topCard = createCard(
+        'Top Spending Categories',
+        'Where most of your money goes',
+        null
+    );
+    
+    const topList = document.createElement('div');
+    topList.style.display = 'flex';
+    topList.style.flexDirection = 'column';
+    topList.style.gap = 'var(--space-md)';
+    
+    topCategories.forEach((category, index) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = 'var(--space-md)';
+        item.style.padding = 'var(--space-md)';
+        item.style.backgroundColor = 'var(--color-bg-secondary)';
+        item.style.borderRadius = 'var(--radius-lg)';
+        
+        const rank = document.createElement('div');
+        rank.textContent = `#${index + 1}`;
+        rank.style.fontSize = 'var(--font-size-xl)';
+        rank.style.fontWeight = 'var(--font-bold)';
+        rank.style.color = 'var(--color-text-tertiary)';
+        rank.style.width = '40px';
+        rank.style.textAlign = 'center';
+        
+        const icon = document.createElement('div');
+        icon.textContent = category.icon;
+        icon.style.fontSize = '32px';
+        
+        const details = document.createElement('div');
+        details.style.flex = '1';
+        
+        const name = document.createElement('div');
+        name.textContent = category.category.charAt(0).toUpperCase() + category.category.slice(1);
+        name.style.fontWeight = 'var(--font-semibold)';
+        name.style.marginBottom = '4px';
+        
+        const percentage = ((category.amount / totalSpending) * 100).toFixed(1);
+        const amount = document.createElement('div');
+        amount.textContent = `${formatCurrency(category.amount)} (${percentage}%)`;
+        amount.style.fontSize = 'var(--font-size-sm)';
+        amount.style.color = 'var(--color-text-secondary)';
+        
+        details.appendChild(name);
+        details.appendChild(amount);
+        
+        item.appendChild(rank);
+        item.appendChild(icon);
+        item.appendChild(details);
+        topList.appendChild(item);
+    });
+    
+    topCard.appendChild(topList);
+    container.appendChild(topCard);
+    
+    return container;
 }
 
 // ========== START APP ==========
