@@ -77,24 +77,46 @@ const AI_PATTERNS = {
 };
 
 // Main AI response function
-function getAIResponse(message) {
-  message = message.toLowerCase();
-
-  if (message.includes("headphone") || message.includes("earphone")) {
-    return "₹5000 headphones are a good mid-range option 👍 If your monthly savings are stable and essentials are covered, you can buy. Otherwise, consider options under ₹3000.";
-  }
-
-  if (message.includes("how much can i spend today")) {
-    return "Based on your expenses so far, try to limit today's spending and focus only on essentials 💸";
-  }
-
-  if (message.includes("overspending")) {
-    return "You are spending slightly more than usual ⚠️ Try cutting down on food delivery or impulse shopping this week.";
-  }
-
-  return "I'm still learning 🤖 Try asking about budget, spending, or purchases.";
+function getAIResponse(userMessage, transactions, budget) {
+    const message = userMessage.toLowerCase().trim();
+    
+    // Check for "should I buy" pattern with amount extraction
+    for (const trigger of AI_PATTERNS.shouldBuy.triggers) {
+        if (message.includes(trigger)) {
+            // Try to extract amount from message
+            const amountMatch = message.match(/₹?\s*(\d+)/);
+            if (amountMatch) {
+                const amount = parseInt(amountMatch[1]);
+                return AI_PATTERNS.shouldBuy.response(amount, transactions, budget);
+            } else {
+                return "sure! how much is it? tell me like 'should i buy this for ₹2000' and i'll help you decide! 💭";
+            }
+        }
+    }
+    
+    // Check other patterns
+    for (const trigger of AI_PATTERNS.howMuchCanSpend.triggers) {
+        if (message.includes(trigger)) {
+            return AI_PATTERNS.howMuchCanSpend.response(transactions, budget);
+        }
+    }
+    
+    for (const trigger of AI_PATTERNS.overspending.triggers) {
+        if (message.includes(trigger)) {
+            return AI_PATTERNS.overspending.response(transactions, budget);
+        }
+    }
+    
+    for (const trigger of AI_PATTERNS.howAmIDoing.triggers) {
+        if (message.includes(trigger)) {
+            return AI_PATTERNS.howAmIDoing.response(transactions, budget);
+        }
+    }
+    
+    // Default response
+    const defaultResponses = AI_PATTERNS.default.responses;
+    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }
-
 
 // Suggested starter questions
 const SUGGESTED_QUESTIONS = [
