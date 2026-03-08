@@ -212,6 +212,38 @@ function renderStatsScreen() {
     const container = document.createElement('div');
     container.className = 'container-narrow';
     
+    
+function renderScreen(screenId) {
+    const app = document.getElementById('app');
+    app.innerHTML = '';
+    app.className = 'animate-fadeIn';
+    
+    let screenContent;
+    
+    switch(screenId) {
+        case 'home':
+            screenContent = renderDashboard();
+            break;
+        case 'stats':
+            screenContent = renderStatsScreen();
+            break;
+        case 'analytics':
+            screenContent = renderAnalyticsScreen();
+            break;
+        case 'ai':
+            screenContent = renderAIScreen();
+            break;
+        case 'settings':  // ADD THIS CASE
+            screenContent = renderSettingsScreen();
+            break;
+        default:
+            screenContent = renderDashboard();
+    }
+    
+    app.appendChild(screenContent);
+}
+
+
     // Page header
     const header = document.createElement('div');
     header.style.marginBottom = 'var(--space-xl)';
@@ -326,189 +358,55 @@ function renderStatsScreen() {
 // ========== AI CHAT SCREEN ==========
 function renderAIScreen() {
     const container = document.createElement('div');
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.height = '100vh';
-    container.style.paddingBottom = '80px'; // Space for bottom nav
+    container.className = 'container-narrow';
     
-    // Header
     const header = document.createElement('div');
-    header.style.padding = 'var(--space-xl)';
-    header.style.borderBottom = '1px solid var(--color-border)';
-    header.style.backgroundColor = 'var(--color-surface)';
+    header.style.marginBottom = 'var(--space-xl)';
     
     const title = document.createElement('h1');
-    title.textContent = '💬 AI Finance Advisor';
+    title.textContent = 'AI Finance Advisor';
     title.style.marginBottom = 'var(--space-xs)';
-    title.style.fontSize = 'var(--font-size-2xl)';
     
     const subtitle = document.createElement('p');
     subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Ask me anything about your spending';
-    subtitle.style.fontSize = 'var(--font-size-sm)';
+    subtitle.textContent = 'Get smart advice about your spending';
     
     header.appendChild(title);
     header.appendChild(subtitle);
+    container.appendChild(header);
     
-    // Chat messages container
-    const messagesContainer = document.createElement('div');
-    messagesContainer.id = 'chat-messages';
-    messagesContainer.style.flex = '1';
-    messagesContainer.style.overflowY = 'auto';
-    messagesContainer.style.padding = 'var(--space-xl)';
-    messagesContainer.style.display = 'flex';
-    messagesContainer.style.flexDirection = 'column';
-    messagesContainer.style.gap = 'var(--space-md)';
+    // Coming soon card
+    const comingSoonCard = createCard(
+        '🤖 AI Chat Coming Soon',
+        'We\'re building an intelligent advisor to help you make better financial decisions',
+        null
+    );
     
-    // Check if there are any messages in storage
-    const chatHistory = localStorage.getItem('chat_history');
-    const messages = chatHistory ? JSON.parse(chatHistory) : [];
+    const featureList = document.createElement('ul');
+    featureList.style.listStyle = 'none';
+    featureList.style.padding = '0';
+    featureList.style.marginTop = 'var(--space-lg)';
     
-    if (messages.length === 0) {
-        // Show welcome message and suggestions
-        const welcomeDiv = document.createElement('div');
-        welcomeDiv.style.textAlign = 'center';
-        welcomeDiv.style.padding = 'var(--space-2xl) 0';
-        
-        const welcomeText = document.createElement('p');
-        welcomeText.className = 'text-secondary';
-        welcomeText.textContent = 'Try asking me:';
-        welcomeText.style.marginBottom = 'var(--space-lg)';
-        welcomeText.style.fontSize = 'var(--font-size-sm)';
-        
-        welcomeDiv.appendChild(welcomeText);
-        
-        // Suggested questions
-        SUGGESTED_QUESTIONS.forEach(question => {
-            const suggestionBtn = document.createElement('button');
-            suggestionBtn.className = 'btn btn-secondary';
-            suggestionBtn.style.width = '100%';
-            suggestionBtn.style.marginBottom = 'var(--space-sm)';
-            suggestionBtn.style.textAlign = 'left';
-            suggestionBtn.style.justifyContent = 'flex-start';
-            suggestionBtn.textContent = `"${question}"`;
-            suggestionBtn.onclick = () => sendChatMessage(question);
-            welcomeDiv.appendChild(suggestionBtn);
-        });
-        
-        messagesContainer.appendChild(welcomeDiv);
-    } else {
-        // Show existing messages
-        messages.forEach(msg => {
-            messagesContainer.appendChild(createChatBubble(msg.role, msg.content));
-        });
-    }
+    const features = [
+        'Should I buy this? - Get instant advice',
+        'Spending insights - Understand your patterns',
+        'Goal planning - Reach your financial targets',
+        'Budget optimization - Save smarter'
+    ];
     
-    // Input container
-    const inputContainer = document.createElement('div');
-    inputContainer.style.padding = 'var(--space-lg)';
-    inputContainer.style.borderTop = '1px solid var(--color-border)';
-    inputContainer.style.backgroundColor = 'var(--color-surface)';
-    inputContainer.style.display = 'flex';
-    inputContainer.style.gap = 'var(--space-md)';
-    
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.id = 'chat-input';
-    input.className = 'input';
-    input.placeholder = 'Ask about your finances...';
-    input.style.flex = '1';
-    input.style.marginBottom = '0';
-    
-    const sendBtn = createButton('Send', () => {
-        const message = input.value.trim();
-        if (message) {
-            sendChatMessage(message);
-            input.value = '';
-        }
-    }, 'primary');
-    
-    // Send on Enter key
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const message = input.value.trim();
-            if (message) {
-                sendChatMessage(message);
-                input.value = '';
-            }
-        }
+    features.forEach(feature => {
+        const li = document.createElement('li');
+        li.style.padding = 'var(--space-sm) 0';
+        li.style.borderBottom = '1px solid var(--color-border-light)';
+        li.innerHTML = `<span style="color: var(--color-success); margin-right: var(--space-sm);">✓</span>${feature}`;
+        featureList.appendChild(li);
     });
     
-    inputContainer.appendChild(input);
-    inputContainer.appendChild(sendBtn);
-    
-    // Assemble
-    container.appendChild(header);
-    container.appendChild(messagesContainer);
-    container.appendChild(inputContainer);
+    comingSoonCard.appendChild(featureList);
+    container.appendChild(comingSoonCard);
     
     return container;
 }
-
-// Create chat bubble
-function createChatBubble(role, content) {
-    const bubble = document.createElement('div');
-    bubble.style.display = 'flex';
-    bubble.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
-    bubble.className = 'animate-fadeIn';
-    
-    const messageBox = document.createElement('div');
-    messageBox.style.maxWidth = '80%';
-    messageBox.style.padding = 'var(--space-md) var(--space-lg)';
-    messageBox.style.borderRadius = 'var(--radius-lg)';
-    messageBox.style.fontSize = 'var(--font-size-base)';
-    messageBox.style.lineHeight = '1.5';
-    
-    if (role === 'user') {
-        messageBox.style.backgroundColor = 'var(--color-primary)';
-        messageBox.style.color = 'white';
-    } else {
-        messageBox.style.backgroundColor = 'var(--color-surface)';
-        messageBox.style.border = '1px solid var(--color-border)';
-        messageBox.style.color = 'var(--color-text-primary)';
-    }
-    
-    messageBox.textContent = content;
-    bubble.appendChild(messageBox);
-    
-    return bubble;
-}
-
-// Send message function
-function sendChatMessage(message) {
-    const messagesContainer = document.getElementById('chat-messages');
-    
-    // Clear suggestions if they exist
-    const suggestions = messagesContainer.querySelector('div[style*="text-align: center"]');
-    if (suggestions) {
-        messagesContainer.innerHTML = '';
-    }
-    
-    // Add user message
-    messagesContainer.appendChild(createChatBubble('user', message));
-    
-    // Get AI response
-    const transactions = getTransactions();
-    const budget = getBudget();
-    const aiResponse = getAIResponse(message, transactions, budget);
-    
-    // Add AI response after short delay
-    setTimeout(() => {
-        messagesContainer.appendChild(createChatBubble('ai', aiResponse));
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }, 500);
-    
-    // Save to chat history
-    const chatHistory = localStorage.getItem('chat_history');
-    const messages = chatHistory ? JSON.parse(chatHistory) : [];
-    messages.push({ role: 'user', content: message });
-    messages.push({ role: 'ai', content: aiResponse });
-    localStorage.setItem('chat_history', JSON.stringify(messages));
-    
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
 
 // ========== ADD EXPENSE MODAL ==========
 function showAddExpenseModal() {
@@ -670,6 +568,421 @@ function showAddExpenseModal() {
     setTimeout(() => {
         amountInput.focus();
     }, 100);
+}
+
+// ========== EDIT TRANSACTION MODAL ==========
+function showEditTransactionModal(transaction) {
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = 'var(--space-lg)';
+    
+    // Amount input
+    const amountGroup = document.createElement('div');
+    amountGroup.className = 'input-group';
+    amountGroup.style.marginBottom = '0';
+    
+    const amountLabel = document.createElement('label');
+    amountLabel.className = 'input-label';
+    amountLabel.textContent = 'Amount';
+    
+    const amountInput = document.createElement('input');
+    amountInput.type = 'number';
+    amountInput.className = 'input input-amount';
+    amountInput.value = transaction.amount;
+    amountInput.required = true;
+    amountInput.step = '0.01';
+    amountInput.min = '0';
+    
+    amountGroup.appendChild(amountLabel);
+    amountGroup.appendChild(amountInput);
+    
+    // Category selector
+    const categoryGroup = document.createElement('div');
+    categoryGroup.className = 'input-group';
+    categoryGroup.style.marginBottom = '0';
+    
+    const categoryLabel = document.createElement('label');
+    categoryLabel.className = 'input-label';
+    categoryLabel.textContent = 'Category';
+    
+    const categoryGrid = document.createElement('div');
+    categoryGrid.className = 'category-grid';
+    
+    const categories = ['food', 'transport', 'shopping', 'bills', 'entertainment', 'savings', 'other'];
+    let selectedCategory = transaction.category;
+    
+    categories.forEach(cat => {
+        const pill = createCategoryPill(
+            cat,
+            cat === selectedCategory,
+            (category) => {
+                selectedCategory = category;
+                categoryGrid.querySelectorAll('.category-pill').forEach(p => {
+                    p.classList.remove('active');
+                });
+                event.target.closest('.category-pill').classList.add('active');
+            }
+        );
+        categoryGrid.appendChild(pill);
+    });
+    
+    categoryGroup.appendChild(categoryLabel);
+    categoryGroup.appendChild(categoryGrid);
+    
+    // Note input
+    const noteGroup = document.createElement('div');
+    noteGroup.className = 'input-group';
+    noteGroup.style.marginBottom = '0';
+    
+    const noteLabel = document.createElement('label');
+    noteLabel.className = 'input-label';
+    noteLabel.textContent = 'Note';
+    
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'input';
+    noteInput.value = transaction.name;
+    
+    noteGroup.appendChild(noteLabel);
+    noteGroup.appendChild(noteInput);
+    
+    // Date input
+    const dateGroup = document.createElement('div');
+    dateGroup.className = 'input-group';
+    dateGroup.style.marginBottom = '0';
+    
+    const dateLabel = document.createElement('label');
+    dateLabel.className = 'input-label';
+    dateLabel.textContent = 'Date';
+    
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'input';
+    dateInput.value = transaction.date;
+    dateInput.required = true;
+    
+    dateGroup.appendChild(dateLabel);
+    dateGroup.appendChild(dateInput);
+    
+    // Submit button
+    const submitBtn = createButton(
+        'Save Changes',
+        null,
+        'primary',
+        'large'
+    );
+    submitBtn.type = 'submit';
+    submitBtn.style.width = '100%';
+    
+    // Assemble form
+    form.appendChild(amountGroup);
+    form.appendChild(categoryGroup);
+    form.appendChild(noteGroup);
+    form.appendChild(dateGroup);
+    form.appendChild(submitBtn);
+    
+    // Form submission
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const updates = {
+            amount: amountInput.value,
+            category: selectedCategory,
+            name: noteInput.value,
+            date: dateInput.value
+        };
+        
+        updateTransaction(transaction.id, updates);
+        
+        // Close modal
+        if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+        }
+        
+        // Refresh current screen
+        renderScreen(currentScreen);
+    };
+    
+    // Create and show modal
+    currentModal = createModal('Edit Transaction', form, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+    
+    // Auto-focus amount input
+    setTimeout(() => {
+        amountInput.focus();
+    }, 100);
+}
+
+// ========== DELETE CONFIRMATION ==========
+function showDeleteConfirmation(transaction) {
+    const content = document.createElement('div');
+    content.style.textAlign = 'center';
+    
+    const warning = document.createElement('div');
+    warning.textContent = '⚠️';
+    warning.style.fontSize = '48px';
+    warning.style.marginBottom = 'var(--space-lg)';
+    
+    const message = document.createElement('p');
+    message.textContent = 'Are you sure you want to delete this transaction?';
+    message.style.marginBottom = 'var(--space-md)';
+    message.style.color = 'var(--color-text-primary)';
+    
+    const transactionInfo = document.createElement('div');
+    transactionInfo.style.padding = 'var(--space-md)';
+    transactionInfo.style.backgroundColor = 'var(--color-bg-secondary)';
+    transactionInfo.style.borderRadius = 'var(--radius-md)';
+    transactionInfo.style.marginBottom = 'var(--space-xl)';
+    
+    const name = document.createElement('div');
+    name.textContent = transaction.name;
+    name.style.fontWeight = 'var(--font-semibold)';
+    name.style.marginBottom = 'var(--space-xs)';
+    
+    const amount = document.createElement('div');
+    amount.textContent = formatCurrency(transaction.amount);
+    amount.style.fontSize = 'var(--font-size-xl)';
+    amount.style.color = 'var(--color-danger)';
+    
+    transactionInfo.appendChild(name);
+    transactionInfo.appendChild(amount);
+    
+    const disclaimer = document.createElement('p');
+    disclaimer.textContent = 'This action cannot be undone.';
+    disclaimer.style.fontSize = 'var(--font-size-sm)';
+    disclaimer.style.color = 'var(--color-text-tertiary)';
+    disclaimer.style.marginBottom = 'var(--space-lg)';
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'grid';
+    buttonContainer.style.gridTemplateColumns = '1fr 1fr';
+    buttonContainer.style.gap = 'var(--space-md)';
+    
+    const cancelBtn = createButton('Cancel', () => {
+        currentModal.remove();
+        currentModal = null;
+    }, 'secondary', 'large');
+    
+    const deleteBtn = createButton('Delete', () => {
+        deleteTransaction(transaction.id);
+        currentModal.remove();
+        currentModal = null;
+        renderScreen(currentScreen);
+    }, 'primary', 'large');
+    deleteBtn.style.backgroundColor = 'var(--color-danger)';
+    deleteBtn.style.borderColor = 'var(--color-danger)';
+    
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(deleteBtn);
+    
+    content.appendChild(warning);
+    content.appendChild(message);
+    content.appendChild(transactionInfo);
+    content.appendChild(disclaimer);
+    content.appendChild(buttonContainer);
+    
+    currentModal = createModal('Delete Transaction', content, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+}
+
+// ========== SETTINGS SCREEN ==========
+function renderSettingsScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '⚙️ Settings';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Manage your budget and data';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Budget Settings Card
+    const budgetCard = createCard(
+        'Budget Settings',
+        'Customize your monthly budget',
+        null
+    );
+    
+    const budgetForm = document.createElement('form');
+    budgetForm.style.display = 'flex';
+    budgetForm.style.flexDirection = 'column';
+    budgetForm.style.gap = 'var(--space-lg)';
+    
+    const currentBudget = getBudget();
+    const percentages = getBudgetPercentages();
+    
+    // Total Budget
+    const totalGroup = document.createElement('div');
+    totalGroup.className = 'input-group';
+    totalGroup.style.marginBottom = '0';
+    
+    const totalLabel = document.createElement('label');
+    totalLabel.className = 'input-label';
+    totalLabel.textContent = 'Monthly Budget (₹)';
+    
+    const totalInput = document.createElement('input');
+    totalInput.type = 'number';
+    totalInput.className = 'input';
+    totalInput.value = currentBudget.total;
+    totalInput.required = true;
+    totalInput.min = '0';
+    totalInput.step = '100';
+    
+    totalGroup.appendChild(totalLabel);
+    totalGroup.appendChild(totalInput);
+    
+    // Percentages
+    const percentGroup = document.createElement('div');
+    percentGroup.style.display = 'grid';
+    percentGroup.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    percentGroup.style.gap = 'var(--space-md)';
+    
+    // Needs
+    const needsDiv = document.createElement('div');
+    const needsLabel = document.createElement('label');
+    needsLabel.className = 'input-label';
+    needsLabel.textContent = 'Needs (%)';
+    const needsInput = document.createElement('input');
+    needsInput.type = 'number';
+    needsInput.className = 'input';
+    needsInput.value = percentages.needs;
+    needsInput.min = '0';
+    needsInput.max = '100';
+    needsDiv.appendChild(needsLabel);
+    needsDiv.appendChild(needsInput);
+    
+    // Wants
+    const wantsDiv = document.createElement('div');
+    const wantsLabel = document.createElement('label');
+    wantsLabel.className = 'input-label';
+    wantsLabel.textContent = 'Wants (%)';
+    const wantsInput = document.createElement('input');
+    wantsInput.type = 'number';
+    wantsInput.className = 'input';
+    wantsInput.value = percentages.wants;
+    wantsInput.min = '0';
+    wantsInput.max = '100';
+    wantsDiv.appendChild(wantsLabel);
+    wantsDiv.appendChild(wantsInput);
+    
+    // Savings
+    const savingsDiv = document.createElement('div');
+    const savingsLabel = document.createElement('label');
+    savingsLabel.className = 'input-label';
+    savingsLabel.textContent = 'Savings (%)';
+    const savingsInput = document.createElement('input');
+    savingsInput.type = 'number';
+    savingsInput.className = 'input';
+    savingsInput.value = percentages.savings;
+    savingsInput.min = '0';
+    savingsInput.max = '100';
+    savingsDiv.appendChild(savingsLabel);
+    savingsDiv.appendChild(savingsInput);
+    
+    percentGroup.appendChild(needsDiv);
+    percentGroup.appendChild(wantsDiv);
+    percentGroup.appendChild(savingsDiv);
+    
+    // Save button
+    const saveBtn = createButton('Save Budget', null, 'primary', 'large');
+    saveBtn.type = 'submit';
+    saveBtn.style.width = '100%';
+    
+    budgetForm.appendChild(totalGroup);
+    budgetForm.appendChild(percentGroup);
+    budgetForm.appendChild(saveBtn);
+    
+    budgetForm.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const total = parseFloat(totalInput.value);
+        const needs = parseFloat(needsInput.value);
+        const wants = parseFloat(wantsInput.value);
+        const savings = parseFloat(savingsInput.value);
+        
+        if (needs + wants + savings !== 100) {
+            alert('Percentages must add up to 100%!');
+            return;
+        }
+        
+        updateBudgetAmounts(total, needs, wants, savings);
+        alert('✅ Budget updated successfully!');
+        renderScreen('settings');
+    };
+    
+    budgetCard.appendChild(budgetForm);
+    container.appendChild(budgetCard);
+    
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
+    
+    // Data Management Card
+    const dataCard = createCard(
+        'Data Management',
+        'Export or clear your data',
+        null
+    );
+    
+    const dataActions = document.createElement('div');
+    dataActions.style.display = 'flex';
+    dataActions.style.flexDirection = 'column';
+    dataActions.style.gap = 'var(--space-md)';
+    
+    // Export button
+    const exportBtn = createButton('📥 Export Data (CSV)', exportDataToCSV, 'secondary', 'large');
+    exportBtn.style.width = '100%';
+    exportBtn.style.justifyContent = 'flex-start';
+    
+    // Reset budget button
+    const resetBudgetBtn = createButton('🔄 Reset to Default Budget', () => {
+        if (confirm('Reset budget to default (₹15,000 with 50/30/20 split)?')) {
+            resetToDefaultBudget();
+            alert('✅ Budget reset to defaults!');
+            renderScreen('settings');
+        }
+    }, 'secondary', 'large');
+    resetBudgetBtn.style.width = '100%';
+    resetBudgetBtn.style.justifyContent = 'flex-start';
+    
+    // Clear all button
+    const clearBtn = createButton('🗑️ Clear All Transactions', () => {
+        if (clearAllTransactions()) {
+            alert('✅ All transactions deleted!');
+            renderScreen('settings');
+        }
+    }, 'secondary', 'large');
+    clearBtn.style.width = '100%';
+    clearBtn.style.justifyContent = 'flex-start';
+    clearBtn.style.color = 'var(--color-danger)';
+    
+    dataActions.appendChild(exportBtn);
+    dataActions.appendChild(resetBudgetBtn);
+    dataActions.appendChild(clearBtn);
+    
+    dataCard.appendChild(dataActions);
+    container.appendChild(dataCard);
+    
+    return container;
 }
 
 // ========== START APP ==========
