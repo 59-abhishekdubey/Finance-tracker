@@ -85,8 +85,8 @@ function renderDashboard() {
     container.appendChild(header);
     
     // Today's spending stat
-    const transactions = transactions();
-    const todaySpending = todaySpending(transactions);
+    const transactions = getTransactions();
+    const todaySpending = getTodaySpending(transactions);
     const dailyBudget = getBudget().total / 30;
     const todayPercentage = calculatePercentage(todaySpending, dailyBudget);
     
@@ -172,7 +172,7 @@ function renderDashboard() {
 
 // ========== BUDGET CARD COMPONENT ==========
 function createBudgetCard() {
-    const transactions = transactions();
+    const transactions = getTransactions();
     const spent = calculateSpent(transactions);
     const budget = getBudget();
     
@@ -1203,7 +1203,6 @@ function renderAnalyticsScreen() {
     
     return container;
 }
-
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {

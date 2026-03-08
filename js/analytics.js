@@ -106,3 +106,4 @@ function getWeekComparison(transactions) {
         isIncrease: difference > 0
     };
 }
+

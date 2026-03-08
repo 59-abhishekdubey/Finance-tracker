@@ -392,13 +392,169 @@ function createModal(title, content, onClose) {
         overlay.remove();
         if (onClose) onClose();
     };
+    // ========== PIE CHART COMPONENT ==========
+function createPieChart(categoryData) {
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.gap = 'var(--space-xl)';
+    container.style.marginBottom = 'var(--space-xl)';
+    
+    // Calculate total for percentages
+    const total = categoryData.reduce((sum, cat) => sum + cat.amount, 0);
+    
+    // SVG Pie Chart
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '200');
+    svg.setAttribute('height', '200');
+    svg.setAttribute('viewBox', '0 0 200 200');
+    svg.style.transform = 'rotate(-90deg)';
+    
+    let currentAngle = 0;
+    const centerX = 100;
+    const centerY = 100;
+    const radius = 80;
+    
+    categoryData.forEach(category => {
+        const percentage = (category.amount / total);
+        const angle = percentage * 360;
+        
+        // Calculate arc path
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+        
+        const startX = centerX + radius * Math.cos((startAngle * Math.PI) / 180);
+        const startY = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
+        const endX = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
+        const endY = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
+        
+        const largeArc = angle > 180 ? 1 : 0;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const pathData = [
+            `M ${centerX} ${centerY}`,
+            `L ${startX} ${startY}`,
+            `A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}`,
+            'Z'
+        ].join(' ');
+        
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', category.color);
+        path.setAttribute('stroke', 'var(--color-surface)');
+        path.setAttribute('stroke-width', '2');
+        
+        svg.appendChild(path);
+        
+        currentAngle += angle;
+    });
+    
+    // Legend
+    const legend = document.createElement('div');
+    legend.style.flex = '1';
+    
+    categoryData.forEach(category => {
+        const percentage = ((category.amount / total) * 100).toFixed(1);
+        
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = 'var(--space-sm)';
+        item.style.marginBottom = 'var(--space-sm)';
+        item.style.padding = 'var(--space-sm)';
+        item.style.borderRadius = 'var(--radius-md)';
+        item.style.cursor = 'pointer';
+        item.style.transition = 'background var(--transition-base)';
+        
+        item.onmouseenter = () => {
+            item.style.backgroundColor = 'var(--color-surface-hover)';
+        };
+        item.onmouseleave = () => {
+            item.style.backgroundColor = 'transparent';
+        };
+        
+        const colorBox = document.createElement('div');
+        colorBox.style.width = '16px';
+        colorBox.style.height = '16px';
+        colorBox.style.borderRadius = 'var(--radius-sm)';
+        colorBox.style.backgroundColor = category.color;
+        colorBox.style.flexShrink = '0';
+        
+        const icon = document.createElement('span');
+        icon.textContent = category.icon;
+        icon.style.fontSize = '20px';
+        
+        const details = document.createElement('div');
+        details.style.flex = '1';
+        
+        const name = document.createElement('div');
+        name.textContent = category.category.charAt(0).toUpperCase() + category.category.slice(1);
+        name.style.fontWeight = 'var(--font-medium)';
+        name.style.color = 'var(--color-text-primary)';
+        name.style.fontSize = 'var(--font-size-sm)';
+        
+        const amount = document.createElement('div');
+        amount.textContent = `${formatCurrency(category.amount)} (${percentage}%)`;
+        amount.style.fontSize = 'var(--font-size-xs)';
+        amount.style.color = 'var(--color-text-secondary)';
+        
+        details.appendChild(name);
+        details.appendChild(amount);
+        
+        item.appendChild(colorBox);
+        item.appendChild(icon);
+        item.appendChild(details);
+        legend.appendChild(item);
+    });
+    
+    container.appendChild(svg);
+    container.appendChild(legend);
+    
+    return container;
+}
+
+// ========== HEALTH SCORE DISPLAY ==========
+function createHealthScore(score, label, emoji, color) {
+    const container = document.createElement('div');
+    container.style.textAlign = 'center';
+    container.style.padding = 'var(--space-xl)';
+    container.style.backgroundColor = 'var(--color-surface)';
+    container.style.borderRadius = 'var(--radius-lg)';
+    container.style.border = '1px solid var(--color-border)';
+    
+    const emojiDiv = document.createElement('div');
+    emojiDiv.textContent = emoji;
+    emojiDiv.style.fontSize = '48px';
+    emojiDiv.style.marginBottom = 'var(--space-sm)';
+    
+    const scoreDiv = document.createElement('div');
+    scoreDiv.textContent = score;
+    scoreDiv.style.fontSize = 'var(--font-size-4xl)';
+    scoreDiv.style.fontWeight = 'var(--font-bold)';
+    scoreDiv.style.color = color;
+    scoreDiv.style.lineHeight = '1';
+    scoreDiv.style.marginBottom = 'var(--space-xs)';
+    
+    const labelDiv = document.createElement('div');
+    labelDiv.textContent = `${label} Budget Health`;
+    labelDiv.style.fontSize = 'var(--font-size-sm)';
+    labelDiv.style.color = 'var(--color-text-secondary)';
+    labelDiv.style.textTransform = 'uppercase';
+    labelDiv.style.letterSpacing = '0.5px';
+    labelDiv.style.fontWeight = 'var(--font-medium)';
+    
+    container.appendChild(emojiDiv);
+    container.appendChild(scoreDiv);
+    container.appendChild(labelDiv);
+    
+    return container;
+}
 
     const navItems = [
     { icon: getIcon('home'), label: 'Home', id: 'home' },
     { icon: getIcon('chart'), label: 'Stats', id: 'stats' },
     { icon: '📊', label: 'Analytics', id: 'analytics' },
     { icon: getIcon('chat'), label: 'AI', id: 'ai' },
-    { icon: '⚙️', label: 'Settings', id: 'settings' }  // ADD THIS LINE
+    { icon: '⚙️', label: 'Settings', id: 'settings' } 
 ];
 
 
