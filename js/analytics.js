@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // ========== ANALYTICS CALCULATIONS ==========
 
 // Get spending breakdown by category
@@ -107,3 +108,7 @@ function getWeekComparison(transactions) {
     };
 }
 
+=======
+// Analytics placeholder
+console.log("Analytics loaded");
+>>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23

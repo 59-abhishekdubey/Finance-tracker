@@ -392,6 +392,7 @@ function createModal(title, content, onClose) {
         overlay.remove();
         if (onClose) onClose();
     };
+<<<<<<< HEAD
     // ========== PIE CHART COMPONENT ==========
 function createPieChart(categoryData) {
     const container = document.createElement('div');
@@ -548,13 +549,19 @@ function createHealthScore(score, label, emoji, color) {
     
     return container;
 }
+=======
+>>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
 
     const navItems = [
     { icon: getIcon('home'), label: 'Home', id: 'home' },
     { icon: getIcon('chart'), label: 'Stats', id: 'stats' },
     { icon: '📊', label: 'Analytics', id: 'analytics' },
     { icon: getIcon('chat'), label: 'AI', id: 'ai' },
+<<<<<<< HEAD
     { icon: '⚙️', label: 'Settings', id: 'settings' } 
+=======
+    { icon: '⚙️', label: 'Settings', id: 'settings' }  // ADD THIS LINE
+>>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
 ];
 
 
