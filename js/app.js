@@ -1123,3 +1123,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
     console.log('App ready!');
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+const user = JSON.parse(localStorage.getItem("currentUser"));
+
+if(user){
+    navigateTo("home");
+}else{
+    navigateTo("login");
+}
+
+});
