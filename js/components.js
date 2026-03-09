@@ -342,6 +342,7 @@ function createBottomNav(activeScreen) {
     const navItems = [
         { icon: getIcon('home'), label: 'Home', id: 'home' },
         { icon: getIcon('chart'), label: 'Stats', id: 'stats' },
+        { icon: '📊', label: 'Analytics', id: 'analytics' },
         { icon: getIcon('chat'), label: 'AI Chat', id: 'ai' }
     ];
     
