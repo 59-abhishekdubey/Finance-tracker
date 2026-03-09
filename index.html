@@ -9,17 +9,244 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/analytics.css">
 </head>
 <body>
+    <!-- LANDING PAGE (shown when not logged in) -->
+    <div id="landing-page" style="display: none;">
+        <div class="landing-container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="logo-large">
+                        <span class="logo-icon">🪙</span>
+                        <h1>Finance Tracker</h1>
+                    </div>
+                    <p class="tagline">Take control of your finances with smart budgeting</p>
+                    <p class="subtitle">Track expenses, manage budgets, and reach your financial goals</p>
+                    
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary btn-large" onclick="navigateTo('register')">
+                            Get Started Free
+                        </button>
+                        <button class="btn btn-secondary btn-large" onclick="navigateTo('login')">
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="features-section">
+                <h2>Why Choose Finance Tracker?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Smart Analytics</h3>
+                        <p>Visual insights into your spending patterns with interactive charts and graphs</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Budget Goals</h3>
+                        <p>Set and track financial goals with the proven 50/30/20 budgeting rule</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Advisor</h3>
+                        <p>Get personalized spending advice and financial recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <!-- App content will be rendered here -->
     </div>
 
+        <!-- LOGIN PAGE -->
+        <div id="login-page" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <!-- Header -->
+                    <div class="auth-header">
+                        <div class="auth-logo">
+                            <span class="auth-logo-icon">🪙</span>
+                            <h2>Finance Tracker</h2>
+                        </div>
+                        <h3 class="auth-title">Welcome Back!</h3>
+                        <p class="auth-subtitle">Sign in to continue managing your finances</p>
+                    </div>
+                    
+                    <!-- Error/Success Message -->
+                    <div id="login-message" class="auth-message"></div>
+                    
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label class="form-label" for="login-email">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="login-email" 
+                                class="form-input" 
+                                placeholder="your@email.com"
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label class="form-label" for="login-password">Password</label>
+                            <input 
+                                type="password" 
+                                id="login-password" 
+                                class="form-input" 
+                                placeholder="Enter your password"
+                                required
+                                autocomplete="current-password"
+                            >
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-large btn-block auth-submit">
+                            Sign In
+                        </button>
+                    </form>
+                    
+                    <!-- Footer -->
+                    <div class="auth-footer">
+                        <p class="auth-link">
+                            Don't have an account? 
+                            <a onclick="navigateTo('register')">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTER PAGE -->
+        <div id="register-page" style="display: none;">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <!-- Header -->
+                    <div class="auth-header">
+                        <div class="auth-logo">
+                            <span class="auth-logo-icon">🪙</span>
+                            <h2>Finance Tracker</h2>
+                        </div>
+                        <h3 class="auth-title">Create Account</h3>
+                        <p class="auth-subtitle">Join us to start tracking your finances</p>
+                    </div>
+                    
+                    <!-- Error/Success Message -->
+                    <div id="register-message" class="auth-message"></div>
+                    
+                    <!-- Register Form -->
+                    <form id="register-form" class="auth-form">
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label class="form-label" for="register-name">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="register-name" 
+                                class="form-input" 
+                                placeholder="John Doe"
+                                required
+                                autocomplete="name"
+                            >
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label class="form-label" for="register-email">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="register-email" 
+                                class="form-input" 
+                                placeholder="your@email.com"
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label class="form-label" for="register-password">Password</label>
+                            <input 
+                                type="password" 
+                                id="register-password" 
+                                class="form-input" 
+                                placeholder="Create a strong password"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <div class="password-strength">
+                                <div id="password-strength-bar" class="password-strength-bar"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label class="form-label" for="register-password-confirm">Confirm Password</label>
+                            <input 
+                                type="password" 
+                                id="register-password-confirm" 
+                                class="form-input" 
+                                placeholder="Re-enter your password"
+                                required
+                                autocomplete="new-password"
+                            >
+                        </div>
+                        
+                        <!-- Avatar Selector -->
+                        <div class="form-group">
+                            <label class="form-label">Choose Your Avatar</label>
+                            <div class="avatar-selector">
+                                <div class="avatar-grid" id="avatar-grid">
+                                    <div class="avatar-option selected" data-avatar="👤">👤</div>
+                                    <div class="avatar-option" data-avatar="👨">👨</div>
+                                    <div class="avatar-option" data-avatar="👩">👩</div>
+                                    <div class="avatar-option" data-avatar="🧑">🧑</div>
+                                    <div class="avatar-option" data-avatar="👨‍💼">👨‍💼</div>
+                                    <div class="avatar-option" data-avatar="👩‍💼">👩‍💼</div>
+                                    <div class="avatar-option" data-avatar="🧑‍💻">🧑‍💻</div>
+                                    <div class="avatar-option" data-avatar="👨‍🎓">👨‍🎓</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-large btn-block auth-submit">
+                            Create Account
+                        </button>
+                    </form>
+                    
+                    <!-- Footer -->
+                    <div class="auth-footer">
+                        <p class="auth-link">
+                            Already have an account? 
+                            <a onclick="navigateTo('login')">Sign in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <!-- JavaScript -->
 <script src="js/utils.js"></script>
 <script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/router.js"></script>
+<script src="js/auth-ui.js"></script>
 <script src="js/components.js"></script>
-<script src="js/ai-chat.js"></script>  <!-- ADD THIS LINE -->
+<script src="js/analytics.js"></script>
+<script src="js/ai-chat.js"></script>
 <script src="js/app.js"></script>
 
 </body>

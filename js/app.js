@@ -22,26 +22,69 @@ function switchScreen(screenId) {
 
 function renderScreen(screenId) {
     const app = document.getElementById('app');
-    app.innerHTML = '';
-    app.className = 'animate-fadeIn';
+    const landingPage = document.getElementById('landing-page');
+    const loginPage = document.getElementById('login-page');
+    const registerPage = document.getElementById('register-page');
     
-    let screenContent;
+    // Hide all pages first
+    if (app) app.style.display = 'none';
+    if (landingPage) landingPage.style.display = 'none';
+    if (loginPage) loginPage.style.display = 'none';
+    if (registerPage) registerPage.style.display = 'none';
     
+    // Show appropriate page
     switch(screenId) {
+        case 'landing':
+            if (landingPage) landingPage.style.display = 'block';
+            break;
+            
+        case 'login':
+            if (loginPage) loginPage.style.display = 'block';
+            break;
+            
+        case 'register':
+            if (registerPage) registerPage.style.display = 'block';
+            break;
+            
         case 'home':
-            screenContent = renderDashboard();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderDashboard());
+            }
             break;
+            
         case 'stats':
-            screenContent = renderStatsScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderStatsScreen());
+            }
             break;
+            
         case 'ai':
-            screenContent = renderAIScreen();
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderAIScreen());
+            }
             break;
+
+        case 'analytics':
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderAnalyticsScreen());
+            }
+            break;
+            
         default:
-            screenContent = renderDashboard();
+            if (landingPage) landingPage.style.display = 'block';
     }
-    
-    app.appendChild(screenContent);
 }
 
 function updateBottomNav() {
@@ -674,6 +717,6 @@ function showAddExpenseModal() {
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-    console.log('App ready!');
+    initRouter(); // Use router instead of directly calling initApp
+    console.log('App ready with auth!');
 });
