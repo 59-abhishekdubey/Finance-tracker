@@ -34,12 +34,9 @@ function renderScreen(screenId) {
         case 'stats':
             screenContent = renderStatsScreen();
             break;
-<<<<<<< HEAD
         case 'analytics':
             screenContent = renderAnalyticsScreen();
             break;
-=======
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
         case 'ai':
             screenContent = renderAIScreen();
             break;
@@ -364,7 +361,6 @@ function renderScreen(screenId) {
 // ========== AI CHAT SCREEN ==========
 function renderAIScreen() {
     const container = document.createElement('div');
-<<<<<<< HEAD
     container.className = 'container-narrow';
     
     const header = document.createElement('div');
@@ -411,7 +407,6 @@ function renderAIScreen() {
     
     comingSoonCard.appendChild(featureList);
     container.appendChild(comingSoonCard);
-=======
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
     container.style.height = '100vh';
@@ -527,13 +522,10 @@ function renderAIScreen() {
     container.appendChild(header);
     container.appendChild(messagesContainer);
     container.appendChild(inputContainer);
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
     
     return container;
 }
 
-<<<<<<< HEAD
-=======
 // Create chat bubble
 function createChatBubble(role, content) {
     const bubble = document.createElement('div');
@@ -598,7 +590,6 @@ function sendChatMessage(message) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
 // ========== ADD EXPENSE MODAL ==========
 function showAddExpenseModal() {
     const form = document.createElement('form');
@@ -1175,7 +1166,6 @@ function renderSettingsScreen() {
     
     return container;
 }
-<<<<<<< HEAD
 // ========== ANALYTICS SCREEN ==========
 function renderAnalyticsScreen() {
     const container = document.createElement('div');
@@ -1392,26 +1382,16 @@ function renderAnalyticsScreen() {
     
     return container;
 }
-=======
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
     console.log('App ready!');
-<<<<<<< HEAD
-=======
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-
-const user = JSON.parse(localStorage.getItem("currentUser"));
-
-if(user){
-    navigateTo("home");
-}else{
-    navigateTo("login");
-}
-
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+        navigateTo("home");
+    } else {
+        navigateTo("login");
+    }
 });

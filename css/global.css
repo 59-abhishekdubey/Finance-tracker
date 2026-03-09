@@ -8,7 +8,6 @@ html {
     font-size: 16px;
 }
 
-<<<<<<< HEAD
 body {
     font-family: var(--font-family);
     background-color: var(--color-bg-secondary);
@@ -16,23 +15,20 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-=======
-body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background-size:cover;
-background-position:center;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background-size:cover;
+    background-position:center;
 }
 
 .auth-container{
-background:rgba(0,0,0,0.6);
-padding:30px;
-border-radius:10px;
-text-align:center;
-color:white;
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
+    background:rgba(0,0,0,0.6);
+    padding:30px;
+    border-radius:10px;
+    text-align:center;
+    color:white;
 }
 
 #app {
@@ -47,16 +43,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-text-primary);
 }
 
-<<<<<<< HEAD
-h1 { font-size: var(--font-size-4xl); margin-bottom: var(--space-md); }
-=======
-h1 {
-    color: #ebdcdc;
-    font-weight: 750;
-    letter-spacing: 1px;
-    text-shadow: 0 4px 12px rgba(0,0,0,0.8);
-}
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
+h1 { font-size: var(--font-size-4xl); margin-bottom: var(--space-md); color: #ebdcdc; font-weight: 750; letter-spacing: 1px; text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
 h2 { font-size: var(--font-size-3xl); margin-bottom: var(--space-md); }
 h3 { font-size: var(--font-size-2xl); margin-bottom: var(--space-sm); }
 h4 { font-size: var(--font-size-xl); margin-bottom: var(--space-sm); }

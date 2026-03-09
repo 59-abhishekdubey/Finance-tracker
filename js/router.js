@@ -27,3 +27,30 @@ document.getElementById("home-page").style.display = "block";
 }
 
 }
+// Navigate to screen (with protection)
+function navigateTo(screenId) {
+    // Check if screen requires authentication
+    if (!PUBLIC_SCREENS.includes(screenId) && !isLoggedIn()) {
+        showLoginPage();
+        return;
+    }
+    
+    activeScreen = screenId;
+    
+    if (PUBLIC_SCREENS.includes(screenId)) {
+        showAuthLayout();
+    } else {
+        showAppLayout();
+    }
+    
+    renderScreen(screenId);
+    
+    // UPDATE SIDEBAR ACTIVE STATE (ADD THIS LINE)
+    updateSidebarActive(screenId);
+    
+    // UPDATE BOTTOM NAV ACTIVE STATE (existing)
+    updateBottomNav();
+    
+    // CLOSE MOBILE SIDEBAR (ADD THIS LINE)
+    closeMobileSidebar();
+}

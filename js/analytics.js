@@ -1,10 +1,9 @@
-<<<<<<< HEAD
-// ========== ANALYTICS CALCULATIONS ==========
+﻿// ========== ANALYTICS CALCULATIONS ==========
 
 // Get spending breakdown by category
 function getSpendingByCategory(transactions) {
     const categoryTotals = {};
-    
+
     transactions.forEach(transaction => {
         if (transaction.type === 'expense') {
             const category = transaction.category;
@@ -14,7 +13,7 @@ function getSpendingByCategory(transactions) {
             categoryTotals[category] += transaction.amount;
         }
     });
-    
+
     // Convert to array and sort by amount
     const categoryArray = Object.entries(categoryTotals).map(([category, amount]) => ({
         category: category,
@@ -22,9 +21,9 @@ function getSpendingByCategory(transactions) {
         color: getCategoryColor(category),
         icon: getIcon(category)
     }));
-    
+
     categoryArray.sort((a, b) => b.amount - a.amount);
-    
+
     return categoryArray;
 }
 
@@ -39,7 +38,7 @@ function getTotalSpending(transactions) {
 function getSpendingForPeriod(transactions, days) {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
+
     return transactions
         .filter(t => t.type === 'expense' && new Date(t.date) >= cutoffDate)
         .reduce((sum, t) => sum + t.amount, 0);
@@ -48,15 +47,15 @@ function getSpendingForPeriod(transactions, days) {
 // Calculate budget health score (0-100)
 function calculateHealthScore(transactions, budget) {
     const spent = calculateSpent(transactions);
-    
+
     // Calculate how well user is doing in each category
     const needsScore = Math.max(0, 100 - ((spent.needs / budget.needs) * 100));
     const wantsScore = Math.max(0, 100 - ((spent.wants / budget.wants) * 100));
     const savingsScore = (spent.savings / budget.savings) * 100;
-    
+
     // Weighted average (needs and savings more important)
     const healthScore = (needsScore * 0.4) + (wantsScore * 0.3) + (savingsScore * 0.3);
-    
+
     return Math.round(Math.min(healthScore, 100));
 }
 
@@ -76,14 +75,14 @@ function getTopCategories(categoryData, limit = 3) {
 // Compare this week vs last week
 function getWeekComparison(transactions) {
     const now = new Date();
-    
+
     // This week (last 7 days)
     const thisWeekStart = new Date();
     thisWeekStart.setDate(now.getDate() - 7);
     const thisWeek = transactions
         .filter(t => t.type === 'expense' && new Date(t.date) >= thisWeekStart)
         .reduce((sum, t) => sum + t.amount, 0);
-    
+
     // Last week (8-14 days ago)
     const lastWeekStart = new Date();
     lastWeekStart.setDate(now.getDate() - 14);
@@ -95,10 +94,10 @@ function getWeekComparison(transactions) {
             return t.type === 'expense' && date >= lastWeekStart && date < lastWeekEnd;
         })
         .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const difference = thisWeek - lastWeek;
     const percentChange = lastWeek > 0 ? ((difference / lastWeek) * 100) : 0;
-    
+
     return {
         thisWeek: thisWeek,
         lastWeek: lastWeek,
@@ -107,8 +106,3 @@ function getWeekComparison(transactions) {
         isIncrease: difference > 0
     };
 }
-
-=======
-// Analytics placeholder
-console.log("Analytics loaded");
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23

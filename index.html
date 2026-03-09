@@ -1,6 +1,5 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-<<<<<<< HEAD
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,302 +9,218 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/components.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/theme-dark.css">
 </head>
 <body>
     <!-- SIDEBAR (Desktop Navigation) -->
-<aside id="sidebar" style="display: none;">
-    <!-- Brand/Logo -->
-    <div class="sidebar-brand">
-        <span class="sidebar-brand-icon">🪙</span>
-        <span class="sidebar-brand-text">Finance Tracker</span>
-    </div>
-    
-    <!-- Navigation -->
-    <nav class="sidebar-nav">
-        <!-- Main Navigation -->
-        <div class="sidebar-section">
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a class="sidebar-link active" onclick="navigateTo('home')" data-screen="home">
-                        <span class="sidebar-icon">🏠</span>
-                        <span class="sidebar-text">Dashboard</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('stats')" data-screen="stats">
-                        <span class="sidebar-icon">📊</span>
-                        <span class="sidebar-text">Statistics</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('analytics')" data-screen="analytics">
-                        <span class="sidebar-icon">📈</span>
-                        <span class="sidebar-text">Analytics</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('ai')" data-screen="ai">
-                        <span class="sidebar-icon">💬</span>
-                        <span class="sidebar-text">AI Advisor</span>
-                    </a>
-                </li>
-            </ul>
+    <aside id="sidebar" style="display: none;">
+        <!-- Brand/Logo -->
+        <div class="sidebar-brand">
+            <span class="sidebar-brand-icon">🪙</span>
+            <span class="sidebar-brand-text">Finance Tracker</span>
         </div>
         
-        <!-- Preferences -->
-        <div class="sidebar-section">
-            <div class="sidebar-section-title">Preferences</div>
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('settings')" data-screen="settings">
-                        <span class="sidebar-icon">⚙️</span>
-                        <span class="sidebar-text">Settings</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    
-    <!-- User Profile (Footer) -->
-    <div class="sidebar-footer">
-        <div class="sidebar-user" onclick="navigateTo('profile')">
-            <div class="sidebar-user-avatar" id="sidebar-avatar">
-                👤
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <!-- Main Navigation -->
+            <div class="sidebar-section">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link active" onclick="navigateTo('home')" data-screen="home">
+                            <span class="sidebar-icon">🏠</span>
+                            <span class="sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="navigateTo('stats')" data-screen="stats">
+                            <span class="sidebar-icon">📊</span>
+                            <span class="sidebar-text">Statistics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="navigateTo('analytics')" data-screen="analytics">
+                            <span class="sidebar-icon">📈</span>
+                            <span class="sidebar-text">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="navigateTo('ai')" data-screen="ai">
+                            <span class="sidebar-icon">💬</span>
+                            <span class="sidebar-text">AI Advisor</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <div class="sidebar-user-info">
-                <div class="sidebar-user-name" id="sidebar-username">User</div>
-                <div class="sidebar-user-role">Free Plan</div>
+            
+            <!-- Preferences -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Preferences</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="navigateTo('settings')" data-screen="settings">
+                            <span class="sidebar-icon">⚙️</span>
+                            <span class="sidebar-text">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+        <!-- User Profile (Footer) -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user" onclick="navigateTo('profile')">
+                <div class="sidebar-user-avatar" id="sidebar-avatar">
+                    👤
+                </div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebar-username">User</div>
+                    <div class="sidebar-user-role">Free Plan</div>
+                </div>
             </div>
         </div>
-    </div>
-</aside>
+    </aside>
 
-<!-- Mobile Overlay (for sidebar) -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+    <!-- Mobile Overlay (for sidebar) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
-<!-- Hamburger Menu (Mobile) -->
-<button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileSidebar()">
-    <span class="hamburger-icon">☰</span>
-</button>
+    <!-- Hamburger Menu (Mobile) -->
+    <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileSidebar()">
+        <span class="hamburger-icon">☰</span>
+    </button>
 
-<!-- Desktop Header -->
-<header id="header" style="display: none;">
-    <!-- Nayan will build this -->
-</header>
-
-<!-- Rest of your existing HTML below... -->
+    <!-- Desktop Header -->
+    <header id="header" style="display: none;">
+        <!-- Nayan will build this -->
+    </header>
 
     <div id="app">
         <!-- App content will be rendered here -->
     </div>
 
+    <!-- LOGIN PAGE -->
+    <div id="login-page" style="display:none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <span class="auth-logo-icon">🪙</span>
+                        <h2>Finance Tracker</h2>
+                    </div>
+                    <h3 class="auth-title">Welcome Back!</h3>
+                    <p class="auth-subtitle">Sign in to continue managing your finances</p>
+                </div>
+                <div id="login-message" class="auth-message"></div>
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large btn-block auth-submit">Sign In</button>
+                </form>
+                <div class="auth-footer">
+                    <p class="auth-link">
+                        Don't have an account?
+                        <a href="javascript:void(0)" onclick="navigateTo('register')">Sign up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="register-page" style="display:none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <span class="auth-logo-icon">🪙</span>
+                        <h2>Finance Tracker</h2>
+                    </div>
+                    <h3 class="auth-title">Create Account</h3>
+                    <p class="auth-subtitle">Join us to start tracking your finances</p>
+                </div>
+                <div id="register-message" class="auth-message"></div>
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="register-name" class="form-input" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="register-email" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="register-password" class="form-input" placeholder="Create a strong password" required>
+                        <div class="password-strength">
+                            <div id="password-strength-bar" class="password-strength-bar"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="register-password-confirm" class="form-input" placeholder="Re-enter your password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Choose Your Avatar</label>
+                        <div class="avatar-selector">
+                            <div class="avatar-grid" id="avatar-grid">
+                                <div class="avatar-option selected" data-avatar="👤">👤</div>
+                                <div class="avatar-option" data-avatar="👨">👨</div>
+                                <div class="avatar-option" data-avatar="👩">👩</div>
+                                <div class="avatar-option" data-avatar="🧑">🧑</div>
+                                <div class="avatar-option" data-avatar="👨‍💼">👨‍💼</div>
+                                <div class="avatar-option" data-avatar="👩‍💼">👩‍💼</div>
+                                <div class="avatar-option" data-avatar="🧑‍💻">🧑‍💻</div>
+                                <div class="avatar-option" data-avatar="👨‍🎓">👨‍🎓</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large btn-block auth-submit">Create Account</button>
+                </form>
+                <div class="auth-footer">
+                    <p class="auth-link">
+                        Already have an account?
+                        <a href="javascript:void(0)" onclick="navigateTo('login')">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOME PAGE (FINANCE TRACKER DASHBOARD) -->
+    <div id="home-page" style="display:none; padding:40px; text-align:center;">
+        <h1>💰 Finance Tracker Dashboard</h1>
+        <p>Welcome! Your login system is working.</p>
+        <button onclick="navigateTo('login')" style="margin-top:20px;">Logout</button>
+    </div>
+
+    <!-- Temporary Theme Toggle (will move to header later) -->
+    <button 
+        id="theme-toggle" 
+        onclick="toggleTheme()" 
+        style="position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--color-primary); border: none; cursor: pointer; box-shadow: var(--shadow-lg); z-index: 2000; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;"
+        title="Toggle theme"
+    >
+        <span class="theme-icon" style="font-size: 28px;">🌙</span>
+    </button>
+
     <!-- JavaScript -->
     <script src="js/utils.js"></script>
     <script src="js/data.js"></script>
-    <script src="js/settings.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/auth-ui.js"></script>
     <script src="js/components.js"></script>
     <script src="js/ai-chat.js"></script>
     <script src="js/analytics.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
-    
+    <script src="js/theme.js"></script>
 </body>
 </html>
-=======
-
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 Finance Tracker</title>
-
-<!-- CSS -->
-<link rel="stylesheet" href="css/variables.css">
-<link rel="stylesheet" href="css/global.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/auth.css">
-
-</head>
-
-<body>
-
-<!-- LOGIN PAGE -->
-
-<div id="login-page" style="display:none;">
-<div class="auth-container">
-<div class="auth-card">
-
-<div class="auth-header">
-<div class="auth-logo">
-<span class="auth-logo-icon">🪙</span>
-<h2>Finance Tracker</h2>
-</div>
-
-<h3 class="auth-title">Welcome Back!</h3>
-<p class="auth-subtitle">Sign in to continue managing your finances</p>
-</div>
-
-<div id="login-message" class="auth-message"></div>
-
-<form id="login-form" class="auth-form">
-
-<div class="form-group">
-<label class="form-label">Email Address</label>
-<input type="email"
-id="login-email"
-class="form-input"
-placeholder="your@email.com"
-required>
-</div>
-
-<div class="form-group">
-<label class="form-label">Password</label>
-<input type="password"
-id="login-password"
-class="form-input"
-placeholder="Enter your password"
-required>
-</div>
-
-<button type="submit" class="btn btn-primary btn-large btn-block auth-submit">
-Sign In
-</button>
-
-</form>
-
-<div class="auth-footer">
-<p class="auth-link">
-Don't have an account?
-<a href="javascript:void(0)" onclick="navigateTo('register')">Sign up</a>
-</p>
-</div>
-
-</div>
-</div>
-</div>
-
-
-<!-- REGISTER PAGE -->
-<div id="register-page" style="display:none;">
-<div class="auth-container">
-<div class="auth-card">
-
-<div class="auth-header">
-<div class="auth-logo">
-<span class="auth-logo-icon">🪙</span>
-<h2>Finance Tracker</h2>
-</div>
-  
-<h3 class="auth-title">Create Account</h3>
-<p class="auth-subtitle">Join us to start tracking your finances</p>
-</div>
-
-<div id="register-message" class="auth-message"></div>
-
-<form id="register-form" class="auth-form">
-
-<div class="form-group">
-<label class="form-label">Full Name</label>
-<input type="text"
-id="register-name"
-class="form-input"
-placeholder="John Doe"
-required>
-</div>
-
-<div class="form-group">
-<label class="form-label">Email Address</label>
-<input type="email"
-id="register-email"
-class="form-input"
-placeholder="your@email.com"
-required>
-</div>
-
-<div class="form-group">
-<label class="form-label">Password</label>
-<input type="password"
-id="register-password"
-class="form-input"
-placeholder="Create a strong password"
-required>
-
-<div class="password-strength">
-<div id="password-strength-bar" class="password-strength-bar"></div>
-</div>
-</div>
-
-<div class="form-group">
-<label class="form-label">Confirm Password</label>
-<input type="password"
-id="register-password-confirm"
-class="form-input"
-placeholder="Re-enter your password"
-required>
-</div>
-
-<div class="form-group">
-<label class="form-label">Choose Your Avatar</label>
-
-<div class="avatar-selector">
-<div class="avatar-grid" id="avatar-grid">
-
-<div class="avatar-option selected" data-avatar="👤">👤</div>
-<div class="avatar-option" data-avatar="👨">👨</div>
-<div class="avatar-option" data-avatar="👩">👩</div>
-<div class="avatar-option" data-avatar="🧑">🧑</div>
-<div class="avatar-option" data-avatar="👨‍💼">👨‍💼</div>
-<div class="avatar-option" data-avatar="👩‍💼">👩‍💼</div>
-<div class="avatar-option" data-avatar="🧑‍💻">🧑‍💻</div>
-<div class="avatar-option" data-avatar="👨‍🎓">👨‍🎓</div>
-
-</div>
-</div>
-</div>
-
-<button type="submit" class="btn btn-primary btn-large btn-block auth-submit">
-Create Account
-</button>
-
-</form>
-
-<div class="auth-footer">
-<p class="auth-link">
-Already have an account?
-<a href="javascript:void(0)" onclick="navigateTo('login')">Sign in</a>
-</p>
-</div>
-
-</div>
-</div>
-</div>
-
-
-<!-- HOME PAGE (FINANCE TRACKER DASHBOARD) -->
-<div id="home-page" style="display:none; padding:40px; text-align:center;">
-
-<h1>💰 Finance Tracker Dashboard</h1>
-
-<p>Welcome! Your login system is working.</p>
-
-<button onclick="navigateTo('login')" style="margin-top:20px;">
-Logout
-</button>
-
-</div>
-
-
-<!-- JavaScript -->
-<script src="js/utils.js"></script>
-<script src="js/data.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/router.js"></script>
-<script src="js/auth-ui.js"></script>
-<script src="js/components.js"></script>
-<script src="js/ai-chat.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/app.js"></script>
-
-</body>
-</html>
->>>>>>> cb6e3edfdbc57e6afd29969ed796c5426d129c23
