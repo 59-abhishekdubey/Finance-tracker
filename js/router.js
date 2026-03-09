@@ -36,12 +36,12 @@ function initRouter() {
 function showAppLayout() {
     document.body.classList.add('app-layout');
     document.body.classList.remove('auth-layout');
-    
+
     // Show sidebar and header
     const sidebar = document.getElementById('sidebar');
     const header = document.getElementById('header');
     const bottomNav = document.querySelector('.bottom-nav');
-    
+
     if (sidebar) sidebar.style.display = 'flex';
     if (header) header.style.display = 'flex';
     if (bottomNav) bottomNav.style.display = 'flex';
@@ -51,12 +51,12 @@ function showAppLayout() {
 function showAuthLayout() {
     document.body.classList.add('auth-layout');
     document.body.classList.remove('app-layout');
-    
+
     // Hide sidebar and header
     const sidebar = document.getElementById('sidebar');
     const header = document.getElementById('header');
     const bottomNav = document.querySelector('.bottom-nav');
-    
+
     if (sidebar) sidebar.style.display = 'none';
     if (header) header.style.display = 'none';
     if (bottomNav) bottomNav.style.display = 'none';
@@ -91,19 +91,25 @@ function navigateTo(screenId) {
         showLoginPage();
         return;
     }
-    
+
     // Update active screen
     activeScreen = screenId;
-    
+
     // Show appropriate layout
     if (PUBLIC_SCREENS.includes(screenId)) {
         showAuthLayout();
     } else {
         showAppLayout();
     }
-    
-    // Render screen
+
+    // Sync app state and render
+    currentScreen = screenId;
     renderScreen(screenId);
+
+    // Update bottom nav for app screens
+    if (!PUBLIC_SCREENS.includes(screenId) && typeof updateBottomNav === 'function') {
+        updateBottomNav();
+    }
 }
 
 // Handle logout

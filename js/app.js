@@ -15,9 +15,7 @@ function initApp() {
 
 // ========== SCREEN MANAGEMENT ==========
 function switchScreen(screenId) {
-    currentScreen = screenId;
-    renderScreen(screenId);
-    updateBottomNav();
+    navigateTo(screenId);
 }
 
 function renderScreen(screenId) {
