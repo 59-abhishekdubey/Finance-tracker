@@ -269,22 +269,3 @@ function resetData() {
 // ========== INITIALIZE ON LOAD ==========
 initStorage();
 cleanOldData();
-
-// Update existing transaction
-function updateTransaction(id, updates) {
-    const data = getData();
-    const transaction = data.transactions.find(t => t.id === id);
-    
-    if (transaction) {
-        // Update fields
-        if (updates.name) transaction.name = sanitizeString(updates.name);
-        if (updates.amount) transaction.amount = parseFloat(updates.amount);
-        if (updates.category) transaction.category = updates.category;
-        if (updates.date) transaction.date = updates.date;
-        
-        saveData(data);
-        return transaction;
-    }
-    
-    return null;
-}

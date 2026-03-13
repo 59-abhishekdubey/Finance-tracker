@@ -1,4 +1,4 @@
-# Finance Tracker - minimalist edition 
+# Finance Tracker - Gen Z Edition
 
 A modern, mobile-first personal finance tracking application designed for Generation Z users. Track expenses, manage budgets, and get AI-powered financial advice all in one place.
 
