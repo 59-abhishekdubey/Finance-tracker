@@ -86,6 +86,7 @@
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     transition: all var(--transition-base);
+    box-sizing: border-box;
 }
 
 .form-input:focus {

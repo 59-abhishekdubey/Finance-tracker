@@ -7,6 +7,11 @@
   flex-direction: column;
 }
 
+.main-content{
+  margin-left:250px;
+  padding:20px;
+}
+
 .layout-header {
   padding: var(--spacing-xl) var(--spacing-lg);
   padding-bottom: 1rem;
@@ -83,14 +88,9 @@
   width: 100%;
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - hidden, sidebar handles nav */
 .bottom-nav {
-  display: flex;
-  justify-content: around;
-  align-items: center;
-  max-width: 28rem;
-  margin: 0 auto;
-  width: 100%;
+  display: none !important;
 }
 
 .bottom-nav-item {

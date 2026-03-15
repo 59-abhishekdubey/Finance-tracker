@@ -85,6 +85,10 @@
     transition: all var(--transition-base);
 }
 
+.bottom-nav{
+    display:none !important;
+}
+
 .card:hover {
     box-shadow: var(--shadow-md);
 }
@@ -426,17 +430,7 @@
 }
 /* ========== BOTTOM NAVIGATION ========== */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-around;
-    padding: var(--space-md);
-    z-index: 1000;
-    box-shadow: var(--shadow-lg);
+    display: none !important;
 }
 
 .nav-item {

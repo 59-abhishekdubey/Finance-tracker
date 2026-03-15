@@ -1,0 +1,77 @@
+/* ========== DARK THEME VARIABLES ========== */
+
+/* Apply dark theme when data-theme="dark" */
+[data-theme="dark"] {
+    /* Backgrounds */
+    --color-bg: #0F0F1E;
+    --color-bg-secondary: #1A1A2E;
+    --color-bg-tertiary: #252538;
+    
+    --color-surface: #1A1A2E;
+    --color-surface-hover: #252538;
+    
+    /* Borders */
+    --color-border: #2F2F45;
+    --color-border-light: #252538;
+    
+    /* Text */
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #A0A0B8;
+    --color-text-tertiary: #6B6B80;
+    
+    /* Accent - Orange-Brown (inspired by Claude) */
+    --color-primary: #C15F3C;
+    --color-primary-hover: #A84F2F;
+    --color-primary-light: rgba(193, 95, 60, 0.15);
+    --color-primary-lighter: rgba(193, 95, 60, 0.08);
+    
+    /* Status Colors - Keep same but adjust backgrounds */
+    --color-success: #10B981;
+    --color-success-light: rgba(16, 185, 129, 0.15);
+    
+    --color-warning: #F59E0B;
+    --color-warning-light: rgba(245, 158, 11, 0.15);
+    
+    --color-info: #C15F3C;
+    --color-info-light: rgba(193, 95, 60, 0.15);
+    
+    --color-danger: #EF4444;
+    --color-danger-light: rgba(239, 68, 68, 0.15);
+    
+    /* Category Colors - Slightly adjusted for dark bg */
+    --color-food: #10B981;
+    --color-transport: #3B82F6;
+    --color-shopping: #F59E0B;
+    --color-bills: #8B5CF6;
+    --color-entertainment: #EC4899;
+    --color-savings: #C15F3C;
+    --color-other: #6B7280;
+    
+    /* Shadows - Darker, more subtle */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    
+    /* Chart */
+    --chart-grid: #252538;
+    --chart-label: #6B6B80;
+}
+
+/* Sidebar specific dark colors */
+[data-theme="dark"] #sidebar {
+    background: #0A0A14;
+    border-color: #1A1A2E;
+}
+
+/* Dark theme scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+}

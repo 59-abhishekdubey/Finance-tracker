@@ -1,0 +1,227 @@
+/* ========== SIDEBAR NAVIGATION ========== */
+
+/* Sidebar Container */
+#sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100%;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform var(--transition-base);
+}
+
+/* Sidebar Logo/Brand */
+.sidebar-brand {
+    padding: var(--space-xl) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.sidebar-brand-icon {
+    font-size: 32px;
+}
+
+.sidebar-brand-text {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-bold);
+    color: var(--color-text-primary);
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    flex: 1;
+    padding: var(--space-lg) 0;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    margin-bottom: var(--space-xl);
+}
+
+.sidebar-section-title {
+    padding: 0 var(--space-lg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-sm);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Sidebar Menu Item */
+.sidebar-item {
+    margin-bottom: var(--space-xs);
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-medium);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
+}
+
+.sidebar-link.active {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+}
+
+.sidebar-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-text {
+    flex: 1;
+}
+
+/* Sidebar Footer (User Profile) */
+.sidebar-footer {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.sidebar-user:hover {
+    background: var(--color-surface-hover);
+}
+
+.sidebar-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-user-role {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* Main Content Area (when sidebar is visible) */
+.app-layout #app {
+    margin-left: 260px;
+}
+
+.app-layout #header {
+    margin-left: 260px;
+}
+
+/* Mobile: Hide sidebar by default */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-100%);
+    }
+    
+    #sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .app-layout #app,
+    .app-layout #header {
+        margin-left: 0;
+    }
+    
+    /* Mobile Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+/* Hamburger Menu Button (Mobile) */
+.hamburger-btn {
+    display: none;
+    position: fixed;
+    top: var(--space-md);
+    left: var(--space-md);
+    z-index: 1001;
+    width: 44px;
+    height: 44px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.hamburger-btn:hover {
+    background: var(--color-surface-hover);
+}
+
+.hamburger-icon {
+    font-size: 24px;
+}
+
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: flex;
+    }
+}
