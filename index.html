@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/analytics.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    
+    <!-- Chart.js for real charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -23,7 +27,7 @@
 <aside id="sidebar" style="display: none;">
     <!-- Brand/Logo -->
     <div class="sidebar-brand">
-        <span class="sidebar-brand-icon">🪙</span>
+        <img src="assets/logo.svg" alt="Finance Tracker" class="sidebar-brand-icon" style="width: 40px; height: 40px;">
         <span class="sidebar-brand-text">Finance Tracker</span>
     </div>
     
@@ -391,23 +395,6 @@
                                 required 
                                 autocomplete="new-password" 
                             > 
-                        </div> 
-                         
-                        <!-- Avatar Selector --> 
-                        <div class="form-group"> 
-                            <label class="form-label">Choose Your Avatar</label> 
-                            <div class="avatar-selector"> 
-                                <div class="avatar-grid" id="avatar-grid"> 
-                                    <div class="avatar-option selected" data-avatar="👤">👤</div> 
-                                    <div class="avatar-option" data-avatar="👨">👨</div> 
-                                    <div class="avatar-option" data-avatar="👩">👩</div> 
-                                    <div class="avatar-option" data-avatar="🧑">🧑</div> 
-                                    <div class="avatar-option" data-avatar="👨‍💼">👨‍💼</div> 
-                                    <div class="avatar-option" data-avatar="👩‍💼">👩‍💼</div> 
-                                    <div class="avatar-option" data-avatar="🧑‍💻">🧑‍💻</div> 
-                                    <div class="avatar-option" data-avatar="👨‍🎓">👨‍🎓</div> 
-                                </div> 
-                            </div> 
                         </div> 
                          
                         <!-- Submit Button --> 

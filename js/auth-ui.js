@@ -11,11 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
         registerForm.addEventListener('submit', handleRegister);
     }
     
-    const avatarGrid = document.getElementById('avatar-grid');
-    if (avatarGrid) {
-        avatarGrid.addEventListener('click', handleAvatarSelection);
-    }
-    
     const registerPassword = document.getElementById('register-password');
     if (registerPassword) {
         registerPassword.addEventListener('input', updatePasswordStrength);
@@ -58,8 +53,7 @@ function handleRegister(e) {
     const email = document.getElementById('register-email').value.trim();
     const password = document.getElementById('register-password').value;
     const confirmPassword = document.getElementById('register-password-confirm').value;
-    const selectedAvatar = document.querySelector('.avatar-option.selected');
-    const avatar = selectedAvatar ? selectedAvatar.dataset.avatar : '👤';
+    const avatar = '👤'; // Default avatar for all users
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const messageDiv = document.getElementById('register-message');
@@ -105,17 +99,6 @@ function showMessage(element, type, message) {
     if (!element) return;
     element.className = 'auth-message ' + type + ' show';
     element.textContent = message;
-}
-
-// Handle Avatar Selection
-function handleAvatarSelection(e) {
-    const avatarOption = e.target.closest('.avatar-option');
-    if (!avatarOption) return;
-    
-    document.querySelectorAll('.avatar-option').forEach(option => {
-        option.classList.remove('selected');
-    });
-    avatarOption.classList.add('selected');
 }
 
 // Update Password Strength
