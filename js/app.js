@@ -106,115 +106,28 @@ function updateBottomNav() {
     }
 }
 
-// ========== DASHBOARD SCREEN ==========
+// ========== DASHBOARD SCREEN (MODERN WITH CHARTS) ==========
 function renderDashboard() {
-    const container = document.createElement('div');
-    container.className = 'container-narrow';
+    // Create wrapper container
+    const wrapper = document.createElement('div');
     
-    // Page title
-    const header = document.createElement('div');
-    header.style.marginBottom = 'var(--space-xl)';
-    
-    const title = document.createElement('h1');
-    title.innerHTML = '🪙 Finance Tracker';
-    title.style.marginBottom = 'var(--space-xs)';
-    
-    const subtitle = document.createElement('p');
-    subtitle.className = 'text-secondary';
-    const now = new Date();
-    subtitle.textContent = now.toLocaleDateString('en-IN', { 
-        month: 'long', 
-        year: 'numeric' 
-    });
-    
-    header.appendChild(title);
-    header.appendChild(subtitle);
-    container.appendChild(header);
-    
-    // Today's spending stat
-    const transactions = getTransactions();
-    const todaySpending = getTodaySpending(transactions);
-    const dailyBudget = getBudget().total / 30;
-    const todayPercentage = calculatePercentage(todaySpending, dailyBudget);
-    
-    const todayStat = createStatLarge(
-        formatCurrency(todaySpending),
-        "Today's Spending",
-        `${todayPercentage}% of daily budget`
-    );
-    container.appendChild(todayStat);
-    
-    // Spacing
-    const spacer1 = document.createElement('div');
-    spacer1.style.height = 'var(--space-xl)';
-    container.appendChild(spacer1);
-    
-    // Budget breakdown card
-    const budgetCard = createBudgetCard();
-    container.appendChild(budgetCard);
-    
-    // Spacing
-    const spacer2 = document.createElement('div');
-    spacer2.style.height = 'var(--space-xl)';
-    container.appendChild(spacer2);
-    
-    // Quick actions
-    const actionsGrid = document.createElement('div');
-    actionsGrid.style.display = 'grid';
-    actionsGrid.style.gridTemplateColumns = '1fr 1fr';
-    actionsGrid.style.gap = 'var(--space-md)';
-    actionsGrid.style.marginBottom = 'var(--space-xl)';
-    
-    const addExpenseBtn = createButton(
-        'Add Expense',
-        showAddExpenseModal,
-        'primary',
-        'large',
-        getIcon('add')
-    );
-    addExpenseBtn.style.width = '100%';
-    
-    const aiChatBtn = createButton(
-        'AI Advisor',
-        () => switchScreen('ai'),
-        'secondary',
-        'large',
-        getIcon('chat')
-    );
-    aiChatBtn.style.width = '100%';
-    
-    actionsGrid.appendChild(addExpenseBtn);
-    actionsGrid.appendChild(aiChatBtn);
-    container.appendChild(actionsGrid);
-    
-    // Recent transactions
-    const recentHeader = document.createElement('h2');
-    recentHeader.textContent = 'Recent Transactions';
-    recentHeader.style.marginBottom = 'var(--space-lg)';
-    container.appendChild(recentHeader);
-    
-    const transactionList = document.createElement('div');
-    transactionList.className = 'transaction-list';
-    
-    const recentTransactions = transactions.slice(0, 5);
-    
-    if (recentTransactions.length === 0) {
-        const emptyState = document.createElement('p');
-        emptyState.className = 'text-secondary';
-        emptyState.textContent = 'No transactions yet. Add your first expense!';
-        emptyState.style.textAlign = 'center';
-        emptyState.style.padding = 'var(--space-xl)';
-        transactionList.appendChild(emptyState);
-    } else {
-        recentTransactions.forEach(transaction => {
-            const item = createTransactionItem(transaction);
-            transactionList.appendChild(item);
-        });
+    // Add insights widget at top if there's any
+    const insights = createInsightsWidget();
+    if (insights) {
+        wrapper.appendChild(insights);
     }
     
-    container.appendChild(transactionList);
+    // Add modern dashboard
+    const dashboardContent = renderModernDashboard();
+    wrapper.appendChild(dashboardContent);
     
-    return container;
+    // Check for alerts and show if needed
+    const alerts = checkBudgetAlerts();
+    if (alerts.length > 0) {
+        showAlertBanner(alerts[0]);
+    }
+    
+    return wrapper;
 }
 
 // ========== BUDGET CARD COMPONENT ==========
