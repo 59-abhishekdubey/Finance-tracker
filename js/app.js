@@ -106,27 +106,28 @@ function updateBottomNav() {
     }
 }
 
-// ========== DASHBOARD SCREEN (MODERN WITH CHARTS) ==========
+// ========== DASHBOARD SCREEN (UPDATED WITH MODERN CHARTS) ==========
 function renderDashboard() {
-    // Create wrapper container
     const wrapper = document.createElement('div');
     
-    // Add insights widget at top if there's any
+    // Create main dashboard container
+    const dashboardContent = renderModernDashboard();
+    
+    // Add insights widget at top if there are any
     const insights = createInsightsWidget();
     if (insights) {
-        wrapper.appendChild(insights);
+        // Insert insights before grid
+        const firstChild = dashboardContent.firstChild;
+        dashboardContent.insertBefore(insights, firstChild);
     }
     
-    // Add modern dashboard
-    const dashboardContent = renderModernDashboard();
-    wrapper.appendChild(dashboardContent);
-    
-    // Check for alerts and show if needed
+    // Check for alerts and show first one
     const alerts = checkBudgetAlerts();
     if (alerts.length > 0) {
         showAlertBanner(alerts[0]);
     }
     
+    wrapper.appendChild(dashboardContent);
     return wrapper;
 }
 
