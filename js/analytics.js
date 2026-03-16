@@ -84,10 +84,38 @@ function renderAnalyticsScreen() {
 
     container.appendChild(createSpacer());
 
-    // ── Daily Spending Trend ──
+    // ── Daily Spending Trend (Chart.js) ──
     const dailyData = getSpendingByDay(transactions, 7);
-    const histogram = createHistogram(dailyData);
-    container.appendChild(histogram);
+    const dailyChartCard = document.createElement('div');
+    dailyChartCard.className = 'chart-card';
+    dailyChartCard.style.marginBottom = 'var(--space-xl)';
+    
+    const dailyChartHeader = document.createElement('div');
+    dailyChartHeader.className = 'chart-card-header';
+    
+    const dailyChartTitle = document.createElement('h3');
+    dailyChartTitle.className = 'chart-card-title';
+    dailyChartTitle.textContent = 'Daily Spending Trend';
+    dailyChartTitle.style.margin = '0';
+    
+    dailyChartHeader.appendChild(dailyChartTitle);
+    dailyChartCard.appendChild(dailyChartHeader);
+    
+    const dailyCanvasContainer = document.createElement('div');
+    dailyCanvasContainer.style.position = 'relative';
+    dailyCanvasContainer.style.height = '300px';
+    
+    const dailyCanvas = document.createElement('canvas');
+    dailyCanvas.id = 'analytics-daily-chart';
+    dailyCanvasContainer.appendChild(dailyCanvas);
+    dailyChartCard.appendChild(dailyCanvasContainer);
+    
+    container.appendChild(dailyChartCard);
+    
+    // Initialize chart after rendering
+    setTimeout(() => {
+        initAnalyticsDailyChart(dailyData);
+    }, 100);
 
     container.appendChild(createSpacer());
 
@@ -255,4 +283,76 @@ function getSpentPercentage(spent, budget) {
     if (budget <= 0) return '';
     const pct = calculatePercentage(spent, budget);
     return `${pct}% of budget`;
+}
+
+// ── Chart.js Daily Spending Chart ──
+let analyticsDailyChart = null;
+
+function initAnalyticsDailyChart(dailyData) {
+    const canvas = document.getElementById('analytics-daily-chart');
+    if (!canvas) return;
+    
+    if (analyticsDailyChart) {
+        analyticsDailyChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    analyticsDailyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dailyData.map(d => {
+                const date = new Date(d.date);
+                return `${getDayName(d.date)}\n${date.getDate()}/${date.getMonth() + 1}`;
+            }),
+            datasets: [{
+                label: 'Daily Spending',
+                data: dailyData.map(d => d.amount),
+                backgroundColor: '#6366F1',
+                borderColor: '#4F46E5',
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: '#4F46E5',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            return 'Spent: ' + formatCurrency(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
 }

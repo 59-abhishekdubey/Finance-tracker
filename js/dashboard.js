@@ -6,16 +6,54 @@ let budgetChart = null;
 
 // Render complete dashboard
 function renderModernDashboard() {
-    const container = document.createElement('div');
-    container.className = 'dashboard-container';
-    
-    const transactions = getTransactions();
-    const budget = getBudget();
-    const spent = calculateSpent(transactions);
-    
-    // Dashboard Grid
-    const grid = document.createElement('div');
-    grid.className = 'dashboard-grid';
+    try {
+        console.log('📊 Dashboard: renderModernDashboard called');
+        
+        const container = document.createElement('div');
+        container.className = 'dashboard-container';
+        
+        // Add visible header
+        const header = document.createElement('div');
+        header.style.marginBottom = 'var(--space-xl)';
+        header.innerHTML = `
+            <h1 style="margin: 0; font-size: var(--font-size-3xl); color: var(--color-text-primary);">📊 Dashboard</h1>
+            <p style="margin: var(--space-sm) 0 0 0; color: var(--color-text-secondary);">Your financial overview</p>
+        `;
+        container.appendChild(header);
+        
+        const transactions = getTransactions();
+        const budget = getBudget();
+        const spent = calculateSpent(transactions);
+        
+        console.log('📊 Dashboard: Loaded', {
+            transactionCount: transactions.length,
+            totalSpent: spent.total,
+            budget: budget.total
+        });
+        
+        // Dashboard Grid
+        const grid = document.createElement('div');
+        grid.className = 'dashboard-grid';
+        
+        // Check if we have data
+        if (!transactions || transactions.length === 0 || !budget) {
+            console.warn('⚠️ Dashboard: Missing data, showing placeholder');
+            const placeholder = document.createElement('div');
+            placeholder.style.gridColumn = 'span 12';
+            placeholder.style.padding = 'var(--space-xl)';
+            placeholder.style.background = 'var(--color-bg-secondary)';
+            placeholder.style.borderRadius = 'var(--radius-lg)';
+            placeholder.style.textAlign = 'center';
+            placeholder.innerHTML = `
+                <div style="font-size: var(--font-size-2xl); margin-bottom: var(--space-md);">📊</div>
+                <div style="font-size: var(--font-size-lg); font-weight: var(--font-bold); margin-bottom: var(--space-xs);">No transactions yet</div>
+                <div style="color: var(--color-text-secondary);">Add your first expense to see analytics here</div>
+            `;
+            grid.appendChild(placeholder);
+            container.appendChild(grid);
+            console.log('📊 Dashboard: Created with placeholder');
+            return container;
+        }
     
     // Row 1: Top 3 Stat Cards
     const monthlySpendCard = createMonthlySpendCard(spent, budget);
@@ -53,10 +91,30 @@ function renderModernDashboard() {
     container.appendChild(grid);
     
     // Add Floating Action Button (Quick Add Expense)
-    const fab = createFloatingActionButton();
-    container.appendChild(fab);
+    try {
+        const fab = createFloatingActionButton();
+        if (fab) {
+            container.appendChild(fab);
+        }
+    } catch (e) {
+        console.warn('⚠️ Dashboard: FAB creation failed:', e);
+    }
     
+    console.log('✅ Dashboard: renderModernDashboard completed successfully');
     return container;
+    
+} catch (error) {
+    console.error('❌ Dashboard rendering error:', error);
+    const errorContainer = document.createElement('div');
+    errorContainer.style.padding = 'var(--space-xl)';
+    errorContainer.style.color = 'var(--color-danger)';
+    errorContainer.innerHTML = `
+        <h2>❌ Dashboard Error</h2>
+        <p>${error.message}</p>
+        <pre style="background: var(--color-bg-secondary); padding: var(--space-md); border-radius: var(--radius-md); font-size: 12px; overflow-x: auto;">${error.stack}</pre>
+    `;
+    return errorContainer;
+}
 }
 
 // ========== STAT CARDS ==========

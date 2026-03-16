@@ -5,6 +5,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: 80px;
 }
 
 .layout-header {
@@ -16,13 +17,13 @@
   flex: 1;
   padding: var(--spacing-lg);
   overflow-y: auto;
-  padding-bottom: 6rem;
+  padding-bottom: var(--spacing-lg);
 }
 
 .layout-footer {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 250px;
   right: 0;
   background: rgba(26, 26, 46, 0.95);
   backdrop-filter: blur(20px);
@@ -30,6 +31,13 @@
   padding: 1rem;
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 40;
+}
+
+/* Mobile: no sidebar, footer spans full width */
+@media (max-width: 768px) {
+  .layout-footer {
+    left: 0;
+  }
 }
 
 /* Dashboard Screen */

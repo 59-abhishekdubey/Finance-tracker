@@ -72,6 +72,9 @@ function showLandingPage() {
 // Show login page
 function showLoginPage() {
     showAuthLayout();
+    // Hide global footer on login page (login page has its own footer in the card)
+    const globalFooter = document.getElementById('global-footer');
+    if (globalFooter) globalFooter.style.display = 'none';
     activeScreen = SCREENS.LOGIN;
     renderScreen(SCREENS.LOGIN);
 }
@@ -79,6 +82,9 @@ function showLoginPage() {
 // Show register page
 function showRegisterPage() {
     showAuthLayout();
+    // Hide global footer on register page (register page has its own footer in the card)
+    const globalFooter = document.getElementById('global-footer');
+    if (globalFooter) globalFooter.style.display = 'none';
     activeScreen = SCREENS.REGISTER;
     renderScreen(SCREENS.REGISTER);
 }
