@@ -14,10 +14,13 @@ function switchScreen(screenId) {
 }
 
 function renderScreen(screenId) {
+    console.log('🎨 renderScreen called for:', screenId);
     const app = document.getElementById('app');
     const landingPage = document.getElementById('landing-page');
     const loginPage = document.getElementById('login-page');
     const registerPage = document.getElementById('register-page');
+    
+    console.log('🎨 Elements found:', { app: !!app, landingPage: !!landingPage, loginPage: !!loginPage, registerPage: !!registerPage });
     
     // Hide all pages first
     if (app) app.style.display = 'none';
@@ -29,14 +32,17 @@ function renderScreen(screenId) {
     switch(screenId) {
         case 'landing':
             if (landingPage) landingPage.style.display = 'block';
+            console.log('🎨 Showing landing page');
             break;
             
         case 'login':
             if (loginPage) loginPage.style.display = 'block';
+            console.log('🎨 Showing login page');
             break;
             
         case 'register':
             if (registerPage) registerPage.style.display = 'block';
+            console.log('🎨 Showing register page');
             break;
             
         case 'home':
@@ -44,7 +50,12 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                app.appendChild(renderDashboard());
+                const dashboardContent = renderDashboard();
+                console.log('🎨 Dashboard content created, appending to #app');
+                app.appendChild(dashboardContent);
+                console.log('🎨 Dashboard appended, #app innerHTML length:', app.innerHTML.length);
+            } else {
+                console.error('❌ #app element not found!');
             }
             break;
             
@@ -108,26 +119,44 @@ function updateBottomNav() {
 
 // ========== DASHBOARD SCREEN (UPDATED WITH MODERN CHARTS) ==========
 function renderDashboard() {
+    console.log('🏠 App: renderDashboard called');
     const wrapper = document.createElement('div');
     
     // Create main dashboard container
     const dashboardContent = renderModernDashboard();
+    if (!dashboardContent) {
+        console.error('❌ Dashboard: renderModernDashboard returned null');
+        wrapper.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading dashboard</div>';
+        return wrapper;
+    }
+    
+    console.log('🏠 App: Dashboard content created, size:', dashboardContent.children.length);
     
     // Add insights widget at top if there are any
-    const insights = createInsightsWidget();
-    if (insights) {
-        // Insert insights before grid
-        const firstChild = dashboardContent.firstChild;
-        dashboardContent.insertBefore(insights, firstChild);
+    try {
+        const insights = createInsightsWidget();
+        if (insights) {
+            const firstChild = dashboardContent.firstChild;
+            dashboardContent.insertBefore(insights, firstChild);
+            console.log('🏠 App: Insights widget added');
+        }
+    } catch (e) {
+        console.warn('⚠️ App: Insights widget failed:', e);
     }
     
     // Check for alerts and show first one
-    const alerts = checkBudgetAlerts();
-    if (alerts.length > 0) {
-        showAlertBanner(alerts[0]);
+    try {
+        const alerts = checkBudgetAlerts();
+        if (alerts && alerts.length > 0) {
+            showAlertBanner(alerts[0]);
+            console.log('🏠 App: Alert banner shown');
+        }
+    } catch (e) {
+        console.warn('⚠️ App: Budget alerts failed:', e);
     }
     
     wrapper.appendChild(dashboardContent);
+    console.log('🏠 App: renderDashboard finished, wrapper has', wrapper.children.length, 'children');
     return wrapper;
 }
 
@@ -171,8 +200,9 @@ function createBudgetCard() {
     );
 }
 
-// ========== STATS SCREEN ==========
+// ========== STATS SCREEN (WITH PROFESSIONAL CHART) ==========
 function renderStatsScreen() {
+    console.log('📊 Stats: renderStatsScreen called');
     const container = document.createElement('div');
     container.className = 'container-narrow';
     
@@ -181,110 +211,300 @@ function renderStatsScreen() {
     header.style.marginBottom = 'var(--space-xl)';
     
     const title = document.createElement('h1');
-    title.textContent = 'Statistics';
+    title.textContent = '📊 Statistics';
+    title.style.fontSize = 'var(--font-size-3xl)';
     title.style.marginBottom = 'var(--space-xs)';
     
     const subtitle = document.createElement('p');
     subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Your spending insights';
+    subtitle.textContent = 'Your spending insights and trends';
     
     header.appendChild(title);
     header.appendChild(subtitle);
     container.appendChild(header);
     
-    // Histogram
-    const transactions = getTransactions();
-    const dailyData = getSpendingByDay(transactions, 7);
-    const histogram = createHistogram(dailyData);
-    container.appendChild(histogram);
+    // Chart Card - Daily Spending
+    const chartCard = document.createElement('div');
+    chartCard.className = 'chart-card';
+    chartCard.style.gridColumn = 'span 12';
+    chartCard.style.marginBottom = 'var(--space-xl)';
+    
+    const chartHeader = document.createElement('div');
+    chartHeader.className = 'chart-card-header';
+    
+    const chartTitle = document.createElement('h3');
+    chartTitle.className = 'chart-card-title';
+    chartTitle.textContent = 'Daily Spending History';
+    
+    const filterButtons = document.createElement('div');
+    filterButtons.className = 'chart-card-filter';
+    filterButtons.innerHTML = `
+        <button class="filter-btn active" data-days="7" onclick="updateStatsChart(7)">7 Days</button>
+        <button class="filter-btn" data-days="14" onclick="updateStatsChart(14)">14 Days</button>
+        <button class="filter-btn" data-days="30" onclick="updateStatsChart(30)">30 Days</button>
+    `;
+    
+    chartHeader.appendChild(chartTitle);
+    chartHeader.appendChild(filterButtons);
+    chartCard.appendChild(chartHeader);
+    
+    // Canvas container
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.position = 'relative';
+    canvasContainer.style.height = '350px';
+    canvasContainer.style.marginBottom = 'var(--space-lg)';
+    
+    const canvas = document.createElement('canvas');
+    canvas.id = 'stats-spending-chart';
+    canvasContainer.appendChild(canvas);
+    chartCard.appendChild(canvasContainer);
+    
+    container.appendChild(chartCard);
+    
+    // Initialize chart after rendering
+    setTimeout(() => {
+        initStatsChart(7);
+    }, 100);
     
     // Spacing
     const spacer = document.createElement('div');
-    spacer.style.height = 'var(--space-xl)';
+    spacer.style.height = 'var(--space-lg)';
     container.appendChild(spacer);
     
-    // Weekly total card
+    // Weekly Summary Cards
+    const transactions = getTransactions();
+    const dailyData = getSpendingByDay(transactions, 7);
     const weeklyTotal = dailyData.reduce((sum, day) => sum + day.amount, 0);
     const weeklyAverage = Math.round(weeklyTotal / 7);
     
-    const weeklyCard = createCard(
-        'Weekly Summary',
-        'Last 7 days',
-        null
-    );
+    const summarySection = document.createElement('div');
+    summarySection.style.display = 'grid';
+    summarySection.style.gridTemplateColumns = '1fr 1fr';
+    summarySection.style.gap = 'var(--space-lg)';
+    summarySection.style.marginBottom = 'var(--space-xl)';
     
-    const summaryGrid = document.createElement('div');
-    summaryGrid.style.display = 'grid';
-    summaryGrid.style.gridTemplateColumns = '1fr 1fr';
-    summaryGrid.style.gap = 'var(--space-lg)';
+    // Total Card
+    const totalCard = document.createElement('div');
+    totalCard.className = 'stat-card-modern primary';
+    totalCard.innerHTML = `
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Weekly Total</div>
+            </div>
+            <div class="stat-card-icon primary">
+                💰
+            </div>
+        </div>
+        <div class="stat-card-value">${formatCurrency(weeklyTotal)}</div>
+        <div class="stat-card-change" style="color: var(--color-text-secondary);">
+            <span>📅</span>
+            <span>Last 7 days</span>
+        </div>
+    `;
     
-    const totalDiv = document.createElement('div');
-    const totalLabel = document.createElement('div');
-    totalLabel.className = 'text-secondary';
-    totalLabel.style.fontSize = 'var(--font-size-sm)';
-    totalLabel.style.marginBottom = 'var(--space-xs)';
-    totalLabel.textContent = 'Total Spent';
+    // Average Card
+    const avgCard = document.createElement('div');
+    avgCard.className = 'stat-card-modern success';
+    avgCard.innerHTML = `
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Daily Average</div>
+            </div>
+            <div class="stat-card-icon success">
+                📊
+            </div>
+        </div>
+        <div class="stat-card-value">${formatCurrency(weeklyAverage)}</div>
+        <div class="stat-card-change" style="color: var(--color-text-secondary);">
+            <span>📈</span>
+            <span>Per day</span>
+        </div>
+    `;
     
-    const totalValue = document.createElement('div');
-    totalValue.style.fontSize = 'var(--font-size-2xl)';
-    totalValue.style.fontWeight = 'var(--font-bold)';
-    totalValue.textContent = formatCurrency(weeklyTotal);
+    summarySection.appendChild(totalCard);
+    summarySection.appendChild(avgCard);
+    container.appendChild(summarySection);
     
-    totalDiv.appendChild(totalLabel);
-    totalDiv.appendChild(totalValue);
+    // Spending Breakdown by Category
+    const spent = calculateSpent(transactions);
+    const categoryData = getSpendingByCategory(transactions);
     
-    const avgDiv = document.createElement('div');
-    const avgLabel = document.createElement('div');
-    avgLabel.className = 'text-secondary';
-    avgLabel.style.fontSize = 'var(--font-size-sm)';
-    avgLabel.style.marginBottom = 'var(--space-xs)';
-    avgLabel.textContent = 'Daily Average';
+    const categorySection = document.createElement('div');
+    categorySection.style.marginBottom = 'var(--space-xl)';
     
-    const avgValue = document.createElement('div');
-    avgValue.style.fontSize = 'var(--font-size-2xl)';
-    avgValue.style.fontWeight = 'var(--font-bold)';
-    avgValue.textContent = formatCurrency(weeklyAverage);
+    const categoryTitle = document.createElement('h3');
+    categoryTitle.style.fontSize = 'var(--font-size-xl)';
+    categoryTitle.style.marginBottom = 'var(--space-lg)';
+    categoryTitle.innerHTML = '📂 Category Breakdown';
     
-    avgDiv.appendChild(avgLabel);
-    avgDiv.appendChild(avgValue);
+    categorySection.appendChild(categoryTitle);
     
-    summaryGrid.appendChild(totalDiv);
-    summaryGrid.appendChild(avgDiv);
+    const categoryList = document.createElement('div');
+    categoryList.style.display = 'grid';
+    categoryList.style.gap = 'var(--space-md)';
     
-    weeklyCard.appendChild(summaryGrid);
-    container.appendChild(weeklyCard);
+    categoryData.forEach(cat => {
+        const categoryItem = document.createElement('div');
+        categoryItem.style.display = 'flex';
+        categoryItem.style.alignItems = 'center';
+        categoryItem.style.padding = 'var(--space-md)';
+        categoryItem.style.background = 'var(--color-surface)';
+        categoryItem.style.borderRadius = 'var(--radius-lg)';
+        categoryItem.style.border = '1px solid var(--color-border)';
+        
+        const categoryIcon = document.createElement('div');
+        categoryIcon.style.width = '40px';
+        categoryIcon.style.height = '40px';
+        categoryIcon.style.borderRadius = '50%';
+        categoryIcon.style.background = cat.color + '20';
+        categoryIcon.style.display = 'flex';
+        categoryIcon.style.alignItems = 'center';
+        categoryIcon.style.justifyContent = 'center';
+        categoryIcon.style.marginRight = 'var(--space-md)';
+        categoryIcon.style.color = cat.color;
+        categoryIcon.style.fontSize = '20px';
+        categoryIcon.innerHTML = getCategoryIcon(cat.category);
+        
+        const categoryInfo = document.createElement('div');
+        categoryInfo.style.flex = '1';
+        
+        const categoryName = document.createElement('div');
+        categoryName.style.fontWeight = 'var(--font-semibold)';
+        categoryName.style.color = 'var(--color-text-primary)';
+        categoryName.textContent = cat.category.charAt(0).toUpperCase() + cat.category.slice(1);
+        
+        const categoryAmount = document.createElement('div');
+        categoryAmount.style.fontSize = 'var(--font-size-sm)';
+        categoryAmount.style.color = 'var(--color-text-secondary)';
+        categoryAmount.textContent = formatCurrency(cat.amount);
+        
+        categoryInfo.appendChild(categoryName);
+        categoryInfo.appendChild(categoryAmount);
+        
+        const categoryPercentage = document.createElement('div');
+        categoryPercentage.style.minWidth = '80px';
+        categoryPercentage.style.textAlign = 'right';
+        categoryPercentage.style.fontWeight = 'var(--font-semibold)';
+        categoryPercentage.style.color = cat.color;
+        categoryPercentage.textContent = spent.total > 0 ? `${((cat.amount / spent.total) * 100).toFixed(1)}%` : '0%';
+        
+        categoryItem.appendChild(categoryIcon);
+        categoryItem.appendChild(categoryInfo);
+        categoryItem.appendChild(categoryPercentage);
+        
+        categoryList.appendChild(categoryItem);
+    });
     
-    // Spacing
-    const spacer2 = document.createElement('div');
-    spacer2.style.height = 'var(--space-xl)';
-    container.appendChild(spacer2);
+    categorySection.appendChild(categoryList);
+    container.appendChild(categorySection);
     
-    // All transactions
-    const allTransactionsHeader = document.createElement('h2');
-    allTransactionsHeader.textContent = 'All Transactions';
-    allTransactionsHeader.style.marginBottom = 'var(--space-lg)';
-    container.appendChild(allTransactionsHeader);
+    console.log('✅ Stats: renderStatsScreen completed');
+    return container;
+}
+
+// ========== CHART FUNCTIONS FOR STATS SCREEN ==========
+
+let statsChart = null;
+
+// Initialize daily spending chart with Chart.js
+function initStatsChart(days) {
+    const canvas = document.getElementById('stats-spending-chart');
+    if (!canvas) return;
     
-    const transactionList = document.createElement('div');
-    transactionList.className = 'transaction-list';
-    
-    if (transactions.length === 0) {
-        const emptyState = document.createElement('p');
-        emptyState.className = 'text-secondary';
-        emptyState.textContent = 'No transactions yet.';
-        emptyState.style.textAlign = 'center';
-        emptyState.style.padding = 'var(--space-xl)';
-        transactionList.appendChild(emptyState);
-    } else {
-        transactions.forEach(transaction => {
-            const item = createTransactionItem(transaction);
-            transactionList.appendChild(item);
-        });
+    if (statsChart) {
+        statsChart.destroy();
     }
     
-    container.appendChild(transactionList);
+    const transactions = getTransactions();
+    const dailyData = getSpendingByDay(transactions, days);
     
-    return container;
+    const ctx = canvas.getContext('2d');
+    statsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dailyData.map(d => {
+                const date = new Date(d.date);
+                return `${getDayName(d.date)}\n${date.getDate()}/${date.getMonth() + 1}`;
+            }),
+            datasets: [{
+                label: 'Daily Spending',
+                data: dailyData.map(d => d.amount),
+                backgroundColor: '#6366F1',
+                borderColor: '#4F46E5',
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: '#4F46E5',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            return 'Spent: ' + formatCurrency(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update stats chart with different time periods
+function updateStatsChart(days) {
+    const allButtons = document.querySelectorAll('.chart-card-filter .filter-btn');
+    allButtons.forEach(btn => {
+        if (parseInt(btn.getAttribute('data-days')) === days) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    initStatsChart(days);
+}
+
+// Get category icon emoji
+function getCategoryIcon(category) {
+    const icons = {
+        food: '🍔',
+        transport: '🚗',
+        shopping: '🛍️',
+        bills: '💡',
+        entertainment: '🎮',
+        savings: '💰',
+        other: '📦'
+    };
+    return icons[category] || icons.other;
 }
 
 // ========== AI CHAT SCREEN ==========

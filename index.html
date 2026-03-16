@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/analytics.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/footer.css">
     
     <!-- Chart.js for real charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -415,8 +416,103 @@
         </div> 
  
 <!-- Global Footer (visible on all pages) -->
-<footer id="global-footer" class="global-footer" style="display: none;">
-    <p>&copy; 2026 Finance Tracker | Track smart. Spend wiser.</p>
+<footer id="global-footer" class="site-footer" style="display: none;">
+    <div class="footer-container">
+        <!-- Footer Grid -->
+        <div class="footer-grid">
+            <!-- Brand Section -->
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="footer-logo-text">
+                        <div class="footer-logo-title">Finance Tracker</div>
+                        <div class="footer-logo-tagline">Smart money management</div>
+                    </div>
+                </div>
+                <p class="footer-description">
+                    Empower your financial decisions with intelligent tracking, analytics, and AI-driven insights. Take control of your money today.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" class="social-link" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Product Column -->
+            <div class="footer-column">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Features</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Dashboard</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Analytics</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>AI Advisor</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources Column -->
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Documentation</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>API Reference</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Blog</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Column -->
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>About Us</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Contact</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Careers</a></li>
+                    <li><a href="#" class="footer-link"><span class="footer-link-icon">→</span>Press</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div class="footer-newsletter">
+                <h4>Newsletter</h4>
+                <p class="newsletter-description">
+                    Get financial tips and updates delivered to your inbox.
+                </p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input 
+                        type="email" 
+                        class="newsletter-input" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                    <button type="submit" class="newsletter-button">Subscribe</button>
+                </form>
+                <div class="newsletter-success" id="newsletter-success">
+                    ✓ Thank you for subscribing!
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                &copy; 2026 Finance Tracker. All rights reserved. Track smart. Spend wiser.
+            </div>
+            <ul class="footer-bottom-links">
+                <li><a href="#" class="footer-bottom-link">Privacy Policy</a></li>
+                <li><a href="#" class="footer-bottom-link">Terms of Service</a></li>
+                <li><a href="#" class="footer-bottom-link">Cookie Policy</a></li>
+            </ul>
+        </div>
+    </div>
 </footer>
 
 <!-- JavaScript -->
@@ -428,12 +524,14 @@
 <script src="js/header.js"></script>
 <script src="js/router.js"></script>
 <script src="js/auth-ui.js"></script>
+<script src="js/components.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/alerts.js"></script>
-<script src="js/components.js"></script>
+<script src="js/filters.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/ai-chat.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/footer.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

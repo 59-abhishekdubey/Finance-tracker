@@ -30,8 +30,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
+    gap: var(--space-md);
     margin-bottom: var(--space-lg);
+    flex-direction: column;
+}
+
+.auth-logo-svg {
+    filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.2));
 }
 
 .auth-logo-icon {
@@ -43,6 +48,16 @@
     font-weight: var(--font-bold);
     color: var(--color-text-primary);
     margin: 0;
+}
+
+.auth-logo p {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+[data-theme="dark"] .auth-logo-svg circle:nth-child(2) {
+    fill: #1E293B;
 }
 
 .auth-title {

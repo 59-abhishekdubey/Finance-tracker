@@ -23,9 +23,10 @@ body {
 /* Auth/Landing layout - centered */
 body.auth-layout {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* App layout - normal flow */
@@ -43,6 +44,17 @@ body.app-layout {
 
 #app {
     min-height: 100vh;
+    margin-left: 250px;
+    background: var(--color-bg);
+    scroll-behavior: smooth;
+    padding-bottom: 100px;
+}
+
+/* Mobile: no sidebar margin */
+@media (max-width: 768px) {
+    #app {
+        margin-left: 0;
+    }
 }
 
 /* Typography */
@@ -96,10 +108,20 @@ p {
 /* When app layout is active (sidebar visible), offset footer */
 body.app-layout .global-footer {
     margin-left: 250px;
+    display: block !important;
+}
+
+/* Auth layout: footer should not have sidebar margin */
+body.auth-layout .global-footer {
+    margin-left: 0;
+    display: block !important;
 }
 
 @media (max-width: 768px) {
     body.app-layout .global-footer {
+        margin-left: 0;
+    }
+    body.auth-layout .global-footer {
         margin-left: 0;
     }
 }

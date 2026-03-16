@@ -160,6 +160,37 @@ function getMaxValue(arr, key = 'amount') {
     return Math.max(...arr.map(item => item[key]));
 }
 
+// Get spending by category for charts
+function getSpendingByCategory(transactions) {
+    const categoryColors = {
+        food: '#10B981',
+        transport: '#3B82F6',
+        shopping: '#EC4899',
+        bills: '#8B5CF6',
+        entertainment: '#F59E0B',
+        savings: '#06B6D4',
+        other: '#6B7280'
+    };
+    
+    const categoryData = {};
+    
+    transactions.forEach(transaction => {
+        if (transaction.type === 'expense') {
+            const category = transaction.category || 'other';
+            if (!categoryData[category]) {
+                categoryData[category] = {
+                    category: category,
+                    amount: 0,
+                    color: categoryColors[category] || categoryColors.other
+                };
+            }
+            categoryData[category].amount += transaction.amount;
+        }
+    });
+    
+    return Object.values(categoryData).sort((a, b) => b.amount - a.amount);
+}
+
 // ========== VALIDATION ==========
 
 // Validate amount input
