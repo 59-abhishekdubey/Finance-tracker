@@ -373,7 +373,6 @@
 
 .alert-icon {
     font-size: 24px;
-    flex-shrink: 0;
 }
 
 .alert-content {
@@ -383,11 +382,24 @@
 .alert-title {
     font-weight: var(--font-semibold);
     margin-bottom: 2px;
-    font-size: var(--font-size-sm);
 }
 
 .alert-message {
     font-size: var(--font-size-sm);
+}
+
+.alert-action {
+    padding: var(--space-sm) var(--space-lg);
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.alert-action:hover {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .alert-close {
@@ -398,7 +410,6 @@
     padding: var(--space-xs);
     opacity: 0.6;
     transition: opacity var(--transition-fast);
-    flex-shrink: 0;
 }
 
 .alert-close:hover {
@@ -417,8 +428,8 @@
 
 .insights-header h3 {
     font-size: var(--font-size-xl);
-    margin: 0 0 var(--space-lg) 0;
-    color: var(--color-text-primary);
+    margin-bottom: var(--space-lg);
+    margin-top: 0;
 }
 
 .insights-list {
@@ -453,7 +464,6 @@
 
 .insight-icon {
     font-size: 24px;
-    flex-shrink: 0;
 }
 
 .insight-content {
@@ -464,7 +474,6 @@
     font-weight: var(--font-semibold);
     margin-bottom: 4px;
     color: var(--color-text-primary);
-    font-size: var(--font-size-sm);
 }
 
 .insight-message {

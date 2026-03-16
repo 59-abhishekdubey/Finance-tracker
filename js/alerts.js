@@ -9,53 +9,71 @@ function checkBudgetAlerts() {
     const alerts = [];
     
     // Check Needs budget (80% threshold)
-    const needsPercent = budget.needs > 0 ? (spent.needs / budget.needs) * 100 : 0;
+    const needsPercent = (spent.needs / budget.needs) * 100;
     if (needsPercent >= 80 && needsPercent < 100) {
         alerts.push({
             type: 'warning',
             category: 'Needs',
             message: `You've used ${needsPercent.toFixed(0)}% of your Needs budget`,
-            icon: '⚠️'
+            icon: '⚠️',
+            action: 'View Details',
+            actionFn: 'handleAlertAction'
         });
     } else if (needsPercent >= 100) {
         alerts.push({
             type: 'danger',
             category: 'Needs',
             message: `You've exceeded your Needs budget by ${formatCurrency(spent.needs - budget.needs)}`,
-            icon: '🚨'
+            icon: '🚨',
+            action: 'Review Budget',
+            actionFn: 'handleAlertAction'
         });
     }
     
     // Check Wants budget (80% threshold)
-    const wantsPercent = budget.wants > 0 ? (spent.wants / budget.wants) * 100 : 0;
+    const wantsPercent = (spent.wants / budget.wants) * 100;
     if (wantsPercent >= 80 && wantsPercent < 100) {
         alerts.push({
             type: 'warning',
             category: 'Wants',
             message: `You've used ${wantsPercent.toFixed(0)}% of your Wants budget`,
-            icon: '⚠️'
+            icon: '⚠️',
+            action: 'Slow Down',
+            actionFn: 'handleAlertAction'
         });
     } else if (wantsPercent >= 100) {
         alerts.push({
             type: 'danger',
             category: 'Wants',
             message: `You've exceeded your Wants budget by ${formatCurrency(spent.wants - budget.wants)}`,
-            icon: '🚨'
+            icon: '🚨',
+            action: 'AI Advice',
+            actionFn: 'handleAlertAction'
         });
     }
     
     // Check Savings goal (positive alert)
-    const savingsPercent = budget.savings > 0 ? (spent.savings / budget.savings) * 100 : 0;
+    const savingsPercent = (spent.savings / budget.savings) * 100;
     if (savingsPercent >= 100) {
         alerts.push({
             type: 'success',
             category: 'Savings',
             message: `Congratulations! You've hit your savings goal! 🎉`,
-            icon: '🏆'
+            icon: '🏆',
+            action: 'Celebrate',
+            actionFn: 'handleAlertAction'
         });
     }
     
     return alerts;
+}
+
+// Handle alert actions
+function handleAlertAction() {
+    const banner = document.getElementById('alert-banner');
+    if (banner) {
+        banner.remove();
+    }
 }
 
 // Show alert banner
@@ -72,16 +90,11 @@ function showAlertBanner(alert) {
             <div class="alert-title">${alert.category}</div>
             <div class="alert-message">${alert.message}</div>
         </div>
-        <button class="alert-close" onclick="document.getElementById('alert-banner').remove()">✕</button>
+        <button class="alert-action" onclick="handleAlertAction()">${alert.action}</button>
+        <button class="alert-close" onclick="closeAlertBanner()">✕</button>
     `;
     
-    // Insert after header
-    const header = document.querySelector('header');
-    if (header && header.nextSibling) {
-        header.parentNode.insertBefore(banner, header.nextSibling);
-    } else {
-        document.body.insertBefore(banner, document.body.firstChild);
-    }
+    document.body.insertBefore(banner, document.body.firstChild);
     
     // Auto-hide after 10 seconds
     setTimeout(() => {
@@ -101,13 +114,11 @@ function getSpendingInsights() {
     const transactions = getTransactions();
     const insights = [];
     
-    if (transactions.length < 2) {
-        return insights; // Not enough data
-    }
+    if (transactions.length === 0) return insights;
     
     // Week over week comparison
     const comparison = getWeekComparison(transactions);
-    if (comparison && comparison.lastWeek > 0) {
+    if (comparison.lastWeek > 0) {
         if (comparison.isIncrease && Math.abs(comparison.percentChange) > 15) {
             insights.push({
                 type: 'info',
@@ -129,16 +140,18 @@ function getSpendingInsights() {
     const categoryData = getSpendingByCategory(transactions);
     if (categoryData.length > 0) {
         const topCategory = categoryData[0];
-        const totalSpent = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-        const percentage = totalSpent > 0 ? ((topCategory.amount / totalSpent) * 100).toFixed(0) : 0;
-        
-        if (percentage > 40) {
-            insights.push({
-                type: 'warning',
-                title: 'Category Alert',
-                message: `${percentage}% of your spending is on ${topCategory.category}`,
-                icon: '📊'
-            });
+        const totalSpent = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        if (totalSpent > 0) {
+            const percentage = ((topCategory.amount / totalSpent) * 100).toFixed(0);
+            
+            if (percentage > 40) {
+                insights.push({
+                    type: 'warning',
+                    title: 'Category Alert',
+                    message: `${percentage}% of your spending is on ${topCategory.category}`,
+                    icon: getIcon(topCategory.category)
+                });
+            }
         }
     }
     

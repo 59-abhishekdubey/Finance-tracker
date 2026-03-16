@@ -68,7 +68,7 @@ function createMonthlySpendCard(spent, budget) {
     
     const totalSpent = spent.total;
     const percentSpent = (totalSpent / budget.total) * 100;
-    const lastMonthSpent = 38500;
+    const lastMonthSpent = 38500; // Mock data - in real app, calculate from last month
     const change = ((totalSpent - lastMonthSpent) / lastMonthSpent) * 100;
     
     card.innerHTML = `
@@ -76,7 +76,7 @@ function createMonthlySpendCard(spent, budget) {
             <div>
                 <div class="stat-card-title">Monthly Spend</div>
             </div>
-            <div class="stat-card-icon primary" style="background: var(--color-primary-light); color: var(--color-primary);">
+            <div class="stat-card-icon primary">
                 💰
             </div>
         </div>
@@ -111,7 +111,7 @@ function createBudgetRemainingCard(spent, budget) {
             <div>
                 <div class="stat-card-title">Budget Remaining</div>
             </div>
-            <div class="stat-card-icon success" style="background: var(--color-success-light); color: var(--color-success);">
+            <div class="stat-card-icon success">
                 💵
             </div>
         </div>
@@ -142,7 +142,7 @@ function createSavingsGoalCard(spent, budget) {
             <div>
                 <div class="stat-card-title">Savings Goal</div>
             </div>
-            <div class="stat-card-icon info" style="background: var(--color-info-light); color: var(--color-info);">
+            <div class="stat-card-icon info">
                 🎯
             </div>
         </div>
@@ -274,7 +274,7 @@ function updateSpendingChart(period) {
     document.querySelectorAll('.chart-card-filter .filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    if (event) event.target.classList.add('active');
+    event.target.classList.add('active');
     
     // Get days
     const days = period === '7days' ? 7 : period === '30days' ? 30 : 90;
@@ -356,7 +356,7 @@ function initBudgetAnalysisChart(spent, budget) {
                         label: function(context) {
                             const label = context.label || '';
                             const value = formatCurrency(context.parsed);
-                            const percentage = ((context.parsed / (spent.needs + spent.wants + spent.savings)) * 100).toFixed(1);
+                            const percentage = ((context.parsed / spent.total) * 100).toFixed(1);
                             return `${label}: ${value} (${percentage}%)`;
                         }
                     }
@@ -467,7 +467,7 @@ function createRecentTransactionsCard(transactions) {
     header.className = 'chart-card-header';
     header.innerHTML = `
         <h3 class="chart-card-title">Recent Transactions</h3>
-        <select class="filter-btn" id="transaction-filter" onchange="filterTransactions()" style="padding: var(--space-xs) var(--space-md); cursor: pointer;">
+        <select class="filter-btn" id="transaction-filter" onchange="filterTransactions()" style="border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-primary); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-md); cursor: pointer;">
             <option value="all">All Categories</option>
             <option value="food">Food</option>
             <option value="transport">Transport</option>
