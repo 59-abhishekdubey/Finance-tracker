@@ -1,12 +1,19 @@
 // ========== MOCK DATA ==========
 
+// Helper to generate recent dates (relative to today) so cleanOldData doesn't wipe them
+function _recentDate(daysAgo) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return d.toISOString().split('T')[0];
+}
+
 const mockTransactions = [
     {
         id: 1,
         name: 'Lunch at Cafe Coffee Day',
         amount: 350,
         category: 'food',
-        date: new Date(2025, 1, 19).toISOString().split('T')[0],
+        date: _recentDate(0),
         time: '14:30',
         type: 'expense'
     },
@@ -15,7 +22,7 @@ const mockTransactions = [
         name: 'Metro Card Recharge',
         amount: 200,
         category: 'transport',
-        date: new Date(2025, 1, 19).toISOString().split('T')[0],
+        date: _recentDate(0),
         time: '09:15',
         type: 'expense'
     },
@@ -24,7 +31,7 @@ const mockTransactions = [
         name: 'New Headphones',
         amount: 2500,
         category: 'shopping',
-        date: new Date(2025, 1, 18).toISOString().split('T')[0],
+        date: _recentDate(1),
         time: '18:45',
         type: 'expense'
     },
@@ -33,7 +40,7 @@ const mockTransactions = [
         name: 'Electricity Bill',
         amount: 1800,
         category: 'bills',
-        date: new Date(2025, 1, 18).toISOString().split('T')[0],
+        date: _recentDate(1),
         time: '11:00',
         type: 'expense'
     },
@@ -42,7 +49,7 @@ const mockTransactions = [
         name: 'Movie Tickets - Dune 2',
         amount: 600,
         category: 'entertainment',
-        date: new Date(2025, 1, 17).toISOString().split('T')[0],
+        date: _recentDate(2),
         time: '20:00',
         type: 'expense'
     },
@@ -51,7 +58,7 @@ const mockTransactions = [
         name: 'Weekly Groceries',
         amount: 2400,
         category: 'food',
-        date: new Date(2025, 1, 17).toISOString().split('T')[0],
+        date: _recentDate(2),
         time: '17:30',
         type: 'expense'
     },
@@ -60,7 +67,7 @@ const mockTransactions = [
         name: 'Spotify Premium',
         amount: 119,
         category: 'entertainment',
-        date: new Date(2025, 1, 16).toISOString().split('T')[0],
+        date: _recentDate(3),
         time: '00:01',
         type: 'expense'
     },
@@ -69,7 +76,7 @@ const mockTransactions = [
         name: 'Coffee with Friends',
         amount: 450,
         category: 'food',
-        date: new Date(2025, 1, 16).toISOString().split('T')[0],
+        date: _recentDate(3),
         time: '10:30',
         type: 'expense'
     },
@@ -78,7 +85,7 @@ const mockTransactions = [
         name: 'Monthly Savings Transfer',
         amount: 5000,
         category: 'savings',
-        date: new Date(2025, 1, 15).toISOString().split('T')[0],
+        date: _recentDate(4),
         time: '12:00',
         type: 'expense'
     },
@@ -87,7 +94,7 @@ const mockTransactions = [
         name: 'Uber to Office',
         amount: 340,
         category: 'transport',
-        date: new Date(2025, 1, 15).toISOString().split('T')[0],
+        date: _recentDate(4),
         time: '22:15',
         type: 'expense'
     },
@@ -96,7 +103,7 @@ const mockTransactions = [
         name: 'Dinner at Restaurant',
         amount: 1200,
         category: 'food',
-        date: new Date(2025, 1, 14).toISOString().split('T')[0],
+        date: _recentDate(5),
         time: '20:00',
         type: 'expense'
     },
@@ -105,7 +112,7 @@ const mockTransactions = [
         name: 'Internet Bill',
         amount: 999,
         category: 'bills',
-        date: new Date(2025, 1, 13).toISOString().split('T')[0],
+        date: _recentDate(6),
         time: '10:00',
         type: 'expense'
     }
@@ -159,13 +166,14 @@ function getSpendingForDate(transactions, date) {
 // ========== LOCAL STORAGE ==========
 
 const STORAGE_KEY = 'finance_tracker_data';
-const STORAGE_VERSION = '1.0';
+const STORAGE_VERSION = '1.1';
 
 // Initialize storage with mock data
 function initStorage() {
     const stored = localStorage.getItem(STORAGE_KEY);
     
-    if (!stored) {
+    // Reset if no data or version mismatch (stale mock data)
+    if (!stored || JSON.parse(stored).version !== STORAGE_VERSION) {
         const initialData = {
             version: STORAGE_VERSION,
             transactions: mockTransactions,
@@ -269,3 +277,22 @@ function resetData() {
 // ========== INITIALIZE ON LOAD ==========
 initStorage();
 cleanOldData();
+
+// Update existing transaction
+function updateTransaction(id, updates) {
+    const data = getData();
+    const transaction = data.transactions.find(t => t.id === id);
+    
+    if (transaction) {
+        // Update fields
+        if (updates.name) transaction.name = sanitizeString(updates.name);
+        if (updates.amount) transaction.amount = parseFloat(updates.amount);
+        if (updates.category) transaction.category = updates.category;
+        if (updates.date) transaction.date = updates.date;
+        
+        saveData(data);
+        return transaction;
+    }
+    
+    return null;
+}
