@@ -95,8 +95,21 @@ function renderScreen(screenId) {
                 
                 showLoading('Loading analytics...');
                 setTimeout(() => {
-                    hideLoading();
-                    app.appendChild(renderAnalyticsScreen());
+                    try {
+                        hideLoading();
+                        const analyticsContent = renderAnalyticsScreen();
+                        if (analyticsContent) {
+                            app.appendChild(analyticsContent);
+                            console.log('✅ Analytics screen rendered successfully');
+                        } else {
+                            console.error('❌ renderAnalyticsScreen() returned null/undefined');
+                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading analytics</div>';
+                        }
+                    } catch (error) {
+                        console.error('❌ Error rendering analytics:', error);
+                        hideLoading();
+                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
+                    }
                 }, 800);
             }
             break;
@@ -109,8 +122,21 @@ function renderScreen(screenId) {
                 
                 showLoading('Loading income...');
                 setTimeout(() => {
-                    hideLoading();
-                    app.appendChild(renderIncomeScreen());
+                    try {
+                        hideLoading();
+                        const incomeContent = renderIncomeScreen();
+                        if (incomeContent) {
+                            app.appendChild(incomeContent);
+                            console.log('✅ Income screen rendered successfully');
+                        } else {
+                            console.error('❌ renderIncomeScreen() returned null/undefined');
+                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading income</div>';
+                        }
+                    } catch (error) {
+                        console.error('❌ Error rendering income:', error);
+                        hideLoading();
+                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
+                    }
                 }, 600);
             }
             break;
