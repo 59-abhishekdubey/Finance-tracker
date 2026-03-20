@@ -4,11 +4,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
+        
+        // Add email validation
+        const loginEmail = document.getElementById('login-email');
+        if (loginEmail) {
+            addInputValidation(loginEmail, validateEmail, 'Please enter a valid email');
+        }
     }
     
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', handleRegister);
+        
+        // Add email validation
+        const registerEmail = document.getElementById('register-email');
+        if (registerEmail) {
+            addInputValidation(registerEmail, validateEmail, 'Please enter a valid email');
+        }
+        
+        // Add password strength indicator
+        const registerPassword = document.getElementById('register-password');
+        if (registerPassword) {
+            initPasswordStrength(registerPassword);
+        }
     }
     
     const registerPassword = document.getElementById('register-password');
