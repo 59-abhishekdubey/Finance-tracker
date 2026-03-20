@@ -138,11 +138,6 @@ function calculateSpent(transactions) {
     };
     
     transactions.forEach(transaction => {
-        // Skip income transactions
-        if (transaction.transactionType === 'income' || transaction.type === 'income') {
-            return;
-        }
-        
         if (transaction.type === 'expense') {
             const type = getCategoryType(transaction.category);
             spent[type] += transaction.amount;

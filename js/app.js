@@ -1379,7 +1379,8 @@ function renderAnalyticsScreen() {
     const transactions = getTransactions();
     const budget = getBudget();
     const categoryData = getSpendingByCategory(transactions);
-    const totalSpending = getTotalSpending(transactions);
+    const spent = calculateSpent(transactions);
+    const totalSpending = spent.total;
     
     // Check if there's data
     if (categoryData.length === 0) {
@@ -1575,12 +1576,6 @@ function renderAnalyticsScreen() {
 function renderIncomeScreen() {
     const container = document.createElement('div');
     container.className = 'container-narrow';
-    
-    // Check if income functions exist
-    if (typeof getIncomeTransactions !== 'function') {
-        container.innerHTML = '<p style="text-align: center; padding: var(--space-xl); color: var(--color-text-secondary);">Income feature is loading...</p>';
-        return container;
-    }
     
     // Page header
     const header = document.createElement('div');
