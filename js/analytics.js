@@ -1,372 +1,280 @@
-// ========== ANALYTICS SCREEN ==========
+// ========== ANALYTICS FUNCTIONS ==========
 
+// Calculate budget health score (0-100)
+function calculateHealthScore(spent, budget) {
+    // Start with 100 points
+    let score = 100;
+    
+    // Deduct points for overspending
+    const needsPercent = (spent.needs / budget.needs) * 100;
+    const wantsPercent = (spent.wants / budget.wants) * 100;
+    const savingsPercent = (spent.savings / budget.savings) * 100;
+    
+    // Needs overspending (critical)
+    if (needsPercent > 100) {
+        score -= (needsPercent - 100) * 0.5; // -0.5 per % over
+    } else if (needsPercent > 90) {
+        score -= (needsPercent - 90) * 0.2; // -0.2 per % over 90
+    }
+    
+    // Wants overspending
+    if (wantsPercent > 100) {
+        score -= (wantsPercent - 100) * 0.3;
+    } else if (wantsPercent > 90) {
+        score -= (wantsPercent - 90) * 0.1;
+    }
+    
+    // Savings shortfall
+    if (savingsPercent < 50) {
+        score -= (50 - savingsPercent) * 0.2;
+    }
+    
+    // Bonus points for good habits
+    if (savingsPercent >= 100) {
+        score += 10; // Bonus for hitting savings goal
+    }
+    
+    // Keep score between 0-100
+    score = Math.max(0, Math.min(100, score));
+    
+    return Math.round(score);
+}
+
+// Get health score label and emoji
+function getHealthScoreLabel(score) {
+    if (score >= 90) {
+        return { label: 'Excellent', emoji: '🌟', color: 'var(--color-success)' };
+    } else if (score >= 75) {
+        return { label: 'Good', emoji: '😊', color: 'var(--color-success)' };
+    } else if (score >= 60) {
+        return { label: 'Fair', emoji: '😐', color: 'var(--color-warning)' };
+    } else if (score >= 40) {
+        return { label: 'Needs Work', emoji: '😟', color: 'var(--color-warning)' };
+    } else {
+        return { label: 'Critical', emoji: '😰', color: 'var(--color-danger)' };
+    }
+}
+
+// Get week-over-week comparison
+function getWeekComparison(transactions) {
+    const now = new Date();
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(thisWeekStart.getDate() - 7);
+    
+    const lastWeekStart = new Date(now);
+    lastWeekStart.setDate(lastWeekStart.getDate() - 14);
+    const lastWeekEnd = new Date(thisWeekStart);
+    
+    const thisWeekTransactions = transactions.filter(t => {
+        const tDate = new Date(t.date);
+        return tDate >= thisWeekStart && tDate <= now && t.transactionType !== 'income';
+    });
+    
+    const lastWeekTransactions = transactions.filter(t => {
+        const tDate = new Date(t.date);
+        return tDate >= lastWeekStart && tDate < thisWeekStart && t.transactionType !== 'income';
+    });
+    
+    const thisWeekTotal = thisWeekTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const lastWeekTotal = lastWeekTransactions.reduce((sum, t) => sum + t.amount, 0);
+    
+    const difference = thisWeekTotal - lastWeekTotal;
+    const percentChange = lastWeekTotal > 0 ? ((difference / lastWeekTotal) * 100) : 0;
+    
+    return {
+        thisWeek: thisWeekTotal,
+        lastWeek: lastWeekTotal,
+        difference: difference,
+        percentChange: percentChange,
+        isIncrease: difference > 0
+    };
+}
+
+// Get spending by category (for analytics)
+function getSpendingByCategory(transactions) {
+    const categoryMap = {};
+    
+    // Filter out income transactions
+    const expenses = transactions.filter(t => t.transactionType !== 'income');
+    
+    expenses.forEach(transaction => {
+        const category = transaction.category;
+        if (!categoryMap[category]) {
+            categoryMap[category] = {
+                category: category,
+                amount: 0,
+                count: 0,
+                color: getCategoryColor(category),
+                icon: getCategoryIcon(category)
+            };
+        }
+        categoryMap[category].amount += transaction.amount;
+        categoryMap[category].count++;
+    });
+    
+    return Object.values(categoryMap).sort((a, b) => b.amount - a.amount);
+}
+
+// ========== ANALYTICS SCREEN ==========
 function renderAnalyticsScreen() {
     const container = document.createElement('div');
     container.className = 'container-narrow';
-
-    const transactions = getTransactions();
-    const budget = getBudget();
-    const spent = calculateSpent(transactions);
-
+    
     // Page header
     const header = document.createElement('div');
     header.style.marginBottom = 'var(--space-xl)';
-
+    
     const title = document.createElement('h1');
-    title.textContent = '📊 Analytics';
+    title.textContent = '📈 Analytics';
     title.style.marginBottom = 'var(--space-xs)';
-
+    
     const subtitle = document.createElement('p');
     subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Deep dive into your spending';
-
+    subtitle.textContent = 'Insights and trends';
+    
     header.appendChild(title);
     header.appendChild(subtitle);
     container.appendChild(header);
-
-    // Check for empty state
-    if (!transactions || transactions.length === 0) {
-        const emptyState = document.createElement('div');
-        emptyState.style.textAlign = 'center';
-        emptyState.style.padding = 'var(--space-3xl)';
-        emptyState.innerHTML = `
-            <div style="font-size: 64px; margin-bottom: var(--space-lg);">📊</div>
-            <h2 style="margin-bottom: var(--space-sm);">No data yet</h2>
-            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-lg);">Add some transactions to see analytics and insights.</p>
-        `;
-        container.appendChild(emptyState);
+    
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const spent = calculateSpent(transactions);
+    
+    // Empty state
+    if (transactions.length === 0) {
+        container.appendChild(createNoTransactionsEmpty());
         return container;
     }
-
-    // ── Overview Cards ──
-    const overviewGrid = document.createElement('div');
-    overviewGrid.className = 'analytics-overview-grid';
-
-    const totalCard = createAnalyticsMiniCard('Total Spent', formatCurrency(spent.total), getSpentPercentage(spent.total, budget.total));
-    const remainingAmount = Math.max(budget.total - spent.total, 0);
-    const remainingCard = createAnalyticsMiniCard('Remaining', formatCurrency(remainingAmount), null);
-    const txCountCard = createAnalyticsMiniCard('Transactions', String(transactions.length), null);
-    const avgCard = createAnalyticsMiniCard('Avg / Transaction', formatCurrency(transactions.length > 0 ? Math.round(spent.total / transactions.length) : 0), null);
-
-    overviewGrid.appendChild(totalCard);
-    overviewGrid.appendChild(remainingCard);
-    overviewGrid.appendChild(txCountCard);
-    overviewGrid.appendChild(avgCard);
-    container.appendChild(overviewGrid);
-
-    // Spacing
-    container.appendChild(createSpacer());
-
-    // ── Budget vs Actual (Needs / Wants / Savings) ──
-    const budgetContent = document.createElement('div');
-
-    const needsBar = createProgressBar('Needs (50%)', spent.needs, budget.needs, 'needs');
-    const wantsBar = createProgressBar('Wants (30%)', spent.wants, budget.wants, 'wants');
-    const savingsBar = createProgressBar('Savings (20%)', spent.savings, budget.savings, 'savings');
-
-    budgetContent.appendChild(needsBar);
-    budgetContent.appendChild(wantsBar);
-    budgetContent.appendChild(savingsBar);
-
-    const budgetCard = createCard('Budget vs Actual', '50 / 30 / 20 rule', budgetContent);
+    
+    // Budget Health Score Card
+    const healthScore = calculateHealthScore(spent, budget);
+    const healthInfo = getHealthScoreLabel(healthScore);
+    
+    const healthCard = createCard('Budget Health Score', null, null);
+    healthCard.innerHTML = `
+        <div style="text-align: center; padding: var(--space-xl);">
+            <div style="font-size: 80px; margin-bottom: var(--space-md);">
+                ${healthInfo.emoji}
+            </div>
+            <div style="font-size: var(--font-size-4xl); font-weight: var(--font-bold); color: ${healthInfo.color}; margin-bottom: var(--space-sm);">
+                ${healthScore}/100
+            </div>
+            <div style="font-size: var(--font-size-lg); color: var(--color-text-secondary);">
+                ${healthInfo.label}
+            </div>
+            <div style="margin-top: var(--space-lg); padding: var(--space-md); background: var(--color-bg-secondary); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                ${healthScore >= 90 ? '🎉 Excellent financial management!' : 
+                  healthScore >= 75 ? '👍 Keep up the good work!' :
+                  healthScore >= 60 ? '⚠️ Watch your spending carefully' :
+                  healthScore >= 40 ? '🚨 Consider reviewing your budget' :
+                  '⛔ Urgent: Budget adjustments needed'}
+            </div>
+        </div>
+    `;
+    container.appendChild(healthCard);
+    
+    // Week Comparison Card
+    const comparison = getWeekComparison(transactions);
+    
+    const comparisonCard = createCard('Week Over Week', null, null);
+    comparisonCard.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-lg); padding: var(--space-lg);">
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-bottom: var(--space-xs);">Last Week</div>
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-bold);">${formatCurrency(comparison.lastWeek)}</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-bottom: var(--space-xs);">This Week</div>
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-bold);">${formatCurrency(comparison.thisWeek)}</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-bottom: var(--space-xs);">Change</div>
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-bold); color: ${comparison.isIncrease ? 'var(--color-danger)' : 'var(--color-success)'};">
+                    ${comparison.isIncrease ? '↑' : '↓'} ${Math.abs(comparison.percentChange).toFixed(1)}%
+                </div>
+            </div>
+        </div>
+    `;
+    container.appendChild(comparisonCard);
+    
+    // Category Breakdown
+    const categoryData = getSpendingByCategory(transactions);
+    
+    if (categoryData.length > 0) {
+        const categoryCard = createCard('Top Spending Categories', null, null);
+        
+        const categoryList = document.createElement('div');
+        categoryList.style.display = 'flex';
+        categoryList.style.flexDirection = 'column';
+        categoryList.style.gap = 'var(--space-md)';
+        categoryList.style.padding = 'var(--space-lg)';
+        
+        const totalSpent = categoryData.reduce((sum, cat) => sum + cat.amount, 0);
+        
+        categoryData.slice(0, 5).forEach((cat, index) => {
+            const percentage = (cat.amount / totalSpent) * 100;
+            
+            const item = document.createElement('div');
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+                    <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                        <span style="font-size: 24px;">${cat.icon}</span>
+                        <span style="font-weight: var(--font-medium); text-transform: capitalize;">${index + 1}. ${cat.category}</span>
+                        <span style="font-size: var(--font-size-xs); color: var(--color-text-tertiary);">(${cat.count} transactions)</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: var(--font-bold);">${formatCurrency(cat.amount)}</div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary);">${percentage.toFixed(1)}%</div>
+                    </div>
+                </div>
+                <div style="background: var(--color-bg-tertiary); height: 8px; border-radius: var(--radius-full); overflow: hidden;">
+                    <div style="width: ${percentage}%; height: 100%; background: ${cat.color}; border-radius: var(--radius-full); transition: width 0.5s ease;"></div>
+                </div>
+            `;
+            categoryList.appendChild(item);
+        });
+        
+        categoryCard.appendChild(categoryList);
+        container.appendChild(categoryCard);
+    }
+    
+    // Budget Breakdown Card
+    const budgetCard = createCard('Budget Breakdown', '50/30/20 Rule', null);
+    budgetCard.innerHTML = `
+        <div style="padding: var(--space-lg);">
+            ${createBudgetBar('Needs', spent.needs, budget.needs, 'var(--color-success)')}
+            ${createBudgetBar('Wants', spent.wants, budget.wants, 'var(--color-warning)')}
+            ${createBudgetBar('Savings', spent.savings, budget.savings, 'var(--color-info)')}
+        </div>
+    `;
     container.appendChild(budgetCard);
-
-    container.appendChild(createSpacer());
-
-    // ── Category Breakdown ──
-    const categoryData = getCategoryBreakdown(transactions);
-
-    const categoryContent = document.createElement('div');
-    categoryContent.className = 'analytics-category-list';
-
-    if (categoryData.length === 0) {
-        const empty = document.createElement('p');
-        empty.className = 'text-secondary';
-        empty.textContent = 'No expenses to analyze.';
-        empty.style.textAlign = 'center';
-        empty.style.padding = 'var(--space-lg)';
-        categoryContent.appendChild(empty);
-    } else {
-        const maxCategoryAmount = categoryData[0].amount; // already sorted desc
-        categoryData.forEach(cat => {
-            categoryContent.appendChild(createCategoryBar(cat, maxCategoryAmount, spent.total));
-        });
-    }
-
-    const categoryCard = createCard('Spending by Category', 'Where your money goes', categoryContent);
-    container.appendChild(categoryCard);
-
-    container.appendChild(createSpacer());
-
-    // ── Daily Spending Trend (Chart.js) ──
-    const dailyData = getSpendingByDay(transactions, 7);
-    const dailyChartCard = document.createElement('div');
-    dailyChartCard.className = 'chart-card';
-    dailyChartCard.style.marginBottom = 'var(--space-xl)';
     
-    const dailyChartHeader = document.createElement('div');
-    dailyChartHeader.className = 'chart-card-header';
-    
-    const dailyChartTitle = document.createElement('h3');
-    dailyChartTitle.className = 'chart-card-title';
-    dailyChartTitle.textContent = 'Daily Spending Trend';
-    dailyChartTitle.style.margin = '0';
-    
-    dailyChartHeader.appendChild(dailyChartTitle);
-    dailyChartCard.appendChild(dailyChartHeader);
-    
-    const dailyCanvasContainer = document.createElement('div');
-    dailyCanvasContainer.style.position = 'relative';
-    dailyCanvasContainer.style.height = '300px';
-    
-    const dailyCanvas = document.createElement('canvas');
-    dailyCanvas.id = 'analytics-daily-chart';
-    dailyCanvasContainer.appendChild(dailyCanvas);
-    dailyChartCard.appendChild(dailyCanvasContainer);
-    
-    container.appendChild(dailyChartCard);
-    
-    // Initialize chart after rendering
-    setTimeout(() => {
-        initAnalyticsDailyChart(dailyData);
-    }, 100);
-
-    container.appendChild(createSpacer());
-
-    // ── Top Expenses ──
-    const topExpenses = transactions
-        .filter(t => t.type === 'expense')
-        .sort((a, b) => b.amount - a.amount)
-        .slice(0, 5);
-
-    if (topExpenses.length > 0) {
-        const topHeader = document.createElement('h2');
-        topHeader.textContent = 'Top Expenses';
-        topHeader.style.marginBottom = 'var(--space-lg)';
-        container.appendChild(topHeader);
-
-        const topList = document.createElement('div');
-        topList.className = 'transaction-list';
-
-        topExpenses.forEach((tx, index) => {
-            const row = document.createElement('div');
-            row.className = 'analytics-top-row';
-
-            const rank = document.createElement('span');
-            rank.className = 'analytics-rank';
-            rank.textContent = `#${index + 1}`;
-
-            const info = document.createElement('div');
-            info.className = 'analytics-top-info';
-
-            const name = document.createElement('div');
-            name.className = 'analytics-top-name';
-            name.textContent = tx.name;
-
-            const meta = document.createElement('div');
-            meta.className = 'text-secondary';
-            meta.style.fontSize = 'var(--font-size-sm)';
-            meta.textContent = `${tx.category.charAt(0).toUpperCase() + tx.category.slice(1)} · ${formatDate(tx.date)}`;
-
-            info.appendChild(name);
-            info.appendChild(meta);
-
-            const amount = document.createElement('div');
-            amount.className = 'analytics-top-amount';
-            amount.textContent = formatCurrency(tx.amount);
-
-            row.appendChild(rank);
-            row.appendChild(info);
-            row.appendChild(amount);
-            topList.appendChild(row);
-        });
-
-        container.appendChild(topList);
-    }
-
-    // Bottom padding for nav
-    const bottomPad = document.createElement('div');
-    bottomPad.style.height = '100px';
-    container.appendChild(bottomPad);
-
     return container;
 }
 
-// ── Helper: category breakdown from transactions ──
-function getCategoryBreakdown(transactions) {
-    const map = {};
-    transactions.forEach(t => {
-        if (t.type === 'expense') {
-            if (!map[t.category]) {
-                map[t.category] = 0;
-            }
-            map[t.category] += t.amount;
-        }
-    });
-
-    return Object.entries(map)
-        .map(([category, amount]) => ({ category, amount, color: getCategoryColor(category) }))
-        .sort((a, b) => b.amount - a.amount);
-}
-
-// ── Helper: mini stat card ──
-function createAnalyticsMiniCard(label, value, badge) {
-    const card = document.createElement('div');
-    card.className = 'analytics-mini-card';
-
-    const labelEl = document.createElement('div');
-    labelEl.className = 'analytics-mini-label text-secondary';
-    labelEl.textContent = label;
-
-    const valueEl = document.createElement('div');
-    valueEl.className = 'analytics-mini-value';
-    valueEl.textContent = value;
-
-    card.appendChild(labelEl);
-    card.appendChild(valueEl);
-
-    if (badge) {
-        const badgeEl = document.createElement('div');
-        badgeEl.className = 'analytics-mini-badge';
-        badgeEl.textContent = badge;
-        card.appendChild(badgeEl);
-    }
-
-    return card;
-}
-
-// ── Helper: horizontal category bar ──
-function createCategoryBar(catData, maxAmount, totalSpent) {
-    const row = document.createElement('div');
-    row.className = 'analytics-cat-row';
-
-    const left = document.createElement('div');
-    left.className = 'analytics-cat-left';
-
-    const icon = document.createElement('span');
-    icon.textContent = getIcon(catData.category);
-    icon.style.marginRight = 'var(--space-sm)';
-
-    const name = document.createElement('span');
-    name.textContent = catData.category.charAt(0).toUpperCase() + catData.category.slice(1);
-
-    left.appendChild(icon);
-    left.appendChild(name);
-
-    const right = document.createElement('div');
-    right.className = 'analytics-cat-right';
-
-    const amount = document.createElement('span');
-    amount.className = 'analytics-cat-amount';
-    amount.textContent = formatCurrency(catData.amount);
-
-    const pct = document.createElement('span');
-    pct.className = 'analytics-cat-pct text-secondary';
-    pct.textContent = `${calculatePercentage(catData.amount, totalSpent)}%`;
-
-    right.appendChild(amount);
-    right.appendChild(pct);
-
-    const barTrack = document.createElement('div');
-    barTrack.className = 'analytics-cat-bar-track';
-
-    const barFill = document.createElement('div');
-    barFill.className = 'analytics-cat-bar-fill';
-    const widthPct = maxAmount > 0 ? (catData.amount / maxAmount) * 100 : 0;
-    barFill.style.width = `${widthPct}%`;
-    barFill.style.backgroundColor = catData.color;
-
-    barTrack.appendChild(barFill);
-
-    row.appendChild(left);
-    row.appendChild(right);
-    row.appendChild(barTrack);
-
-    return row;
-}
-
-// ── Helper: spacer ──
-function createSpacer() {
-    const s = document.createElement('div');
-    s.style.height = 'var(--space-xl)';
-    return s;
-}
-
-// ── Helper: percentage badge text ──
-function getSpentPercentage(spent, budget) {
-    if (budget <= 0) return '';
-    const pct = calculatePercentage(spent, budget);
-    return `${pct}% of budget`;
-}
-
-// ── Chart.js Daily Spending Chart ──
-let analyticsDailyChart = null;
-
-function initAnalyticsDailyChart(dailyData) {
-    const canvas = document.getElementById('analytics-daily-chart');
-    if (!canvas) return;
+// Helper function to create budget bar
+function createBudgetBar(label, spent, budget, color) {
+    const percentage = (spent / budget) * 100;
+    const isOver = percentage > 100;
     
-    if (analyticsDailyChart) {
-        analyticsDailyChart.destroy();
-    }
-    
-    const ctx = canvas.getContext('2d');
-    analyticsDailyChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: dailyData.map(d => {
-                const date = new Date(d.date);
-                return `${getDayName(d.date)}\n${date.getDate()}/${date.getMonth() + 1}`;
-            }),
-            datasets: [{
-                label: 'Daily Spending',
-                data: dailyData.map(d => d.amount),
-                backgroundColor: '#6366F1',
-                borderColor: '#4F46E5',
-                borderWidth: 2,
-                borderRadius: 8,
-                hoverBackgroundColor: '#4F46E5',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: { size: 14, weight: 'bold' },
-                    bodyFont: { size: 13 },
-                    callbacks: {
-                        label: function(context) {
-                            return 'Spent: ' + formatCurrency(context.parsed.y);
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return '₹' + value.toLocaleString('en-IN');
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
+    return `
+        <div style="margin-bottom: var(--space-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs);">
+                <span style="font-weight: var(--font-semibold);">${label}</span>
+                <span style="font-weight: var(--font-bold); color: ${isOver ? 'var(--color-danger)' : 'var(--color-text-primary)'};">
+                    ${formatCurrency(spent)} / ${formatCurrency(budget)}
+                </span>
+            </div>
+            <div style="background: var(--color-bg-tertiary); height: 12px; border-radius: var(--radius-full); overflow: hidden; position: relative;">
+                <div style="width: ${Math.min(percentage, 100)}%; height: 100%; background: ${isOver ? 'var(--color-danger)' : color}; border-radius: var(--radius-full); transition: width 0.5s ease;"></div>
+                ${isOver ? `<div style="position: absolute; top: 0; right: 0; height: 100%; width: ${percentage - 100}%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(239, 68, 68, 0.3) 10px, rgba(239, 68, 68, 0.3) 20px);"></div>` : ''}
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: var(--space-xs); font-size: var(--font-size-xs); color: var(--color-text-tertiary);">
+                <span>${percentage.toFixed(1)}% used</span>
+                <span>${formatCurrency(Math.max(0, budget - spent))} remaining</span>
+            </div>
+        </div>
+    `;
 }
+
+
