@@ -6,8 +6,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 250px;
-    height: 100%;
+    width: 260px;
     background: var(--color-surface);
     border-right: 1px solid var(--color-border);
     display: flex;
@@ -153,10 +152,7 @@
 }
 
 /* Main Content Area (when sidebar is visible) */
-.app-layout #app {
-    margin-left: 260px;
-}
-
+.app-layout #app,
 .app-layout #header {
     margin-left: 260px;
 }

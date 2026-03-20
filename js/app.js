@@ -5,12 +5,19 @@ let currentModal = null;
 // ========== INITIALIZATION ==========
 function initApp() {
     console.log('Finance Tracker initialized');
-    initStorage();
+    
+    // Render initial screen
+    renderScreen('home');
+    
+    // Add bottom navigation
+    updateBottomNav();
 }
 
 // ========== SCREEN MANAGEMENT ==========
 function switchScreen(screenId) {
-    navigateTo(screenId);
+    currentScreen = screenId;
+    renderScreen(screenId);
+    updateBottomNav();
 }
 
 function renderScreen(screenId) {
@@ -79,7 +86,7 @@ function renderScreen(screenId) {
                 }, 600);
             }
             break;
-
+            
         case 'analytics':
             if (app) {
                 app.style.display = 'block';
@@ -102,7 +109,7 @@ function renderScreen(screenId) {
                 app.appendChild(renderAIScreen());
             }
             break;
-
+            
         case 'settings':
             if (app) {
                 app.style.display = 'block';
@@ -111,7 +118,7 @@ function renderScreen(screenId) {
                 app.appendChild(renderSettingsScreen());
             }
             break;
-
+            
         case 'profile':
             if (app) {
                 app.style.display = 'block';
@@ -132,11 +139,15 @@ function renderScreen(screenId) {
 }
 
 function updateBottomNav() {
-    // Remove old nav if exists - sidebar handles navigation on desktop
+    // Remove old nav if exists
     const oldNav = document.querySelector('.bottom-nav');
     if (oldNav) {
         oldNav.remove();
     }
+    
+    // Add new nav
+    const nav = createBottomNav(currentScreen);
+    document.body.appendChild(nav);
 }
 
 // ========== DASHBOARD SCREEN (UPDATED WITH MODERN CHARTS) ==========
@@ -585,19 +596,17 @@ function renderAIScreen() {
         welcomeDiv.appendChild(welcomeText);
         
         // Suggested questions
-        if (typeof SUGGESTED_QUESTIONS !== 'undefined') {
-            SUGGESTED_QUESTIONS.forEach(question => {
-                const suggestionBtn = document.createElement('button');
-                suggestionBtn.className = 'btn btn-secondary';
-                suggestionBtn.style.width = '100%';
-                suggestionBtn.style.marginBottom = 'var(--space-sm)';
-                suggestionBtn.style.textAlign = 'left';
-                suggestionBtn.style.justifyContent = 'flex-start';
-                suggestionBtn.textContent = `"${question}"`;
-                suggestionBtn.onclick = () => sendChatMessage(question);
-                welcomeDiv.appendChild(suggestionBtn);
-            });
-        }
+        SUGGESTED_QUESTIONS.forEach(question => {
+            const suggestionBtn = document.createElement('button');
+            suggestionBtn.className = 'btn btn-secondary';
+            suggestionBtn.style.width = '100%';
+            suggestionBtn.style.marginBottom = 'var(--space-sm)';
+            suggestionBtn.style.textAlign = 'left';
+            suggestionBtn.style.justifyContent = 'flex-start';
+            suggestionBtn.textContent = `"${question}"`;
+            suggestionBtn.onclick = () => sendChatMessage(question);
+            welcomeDiv.appendChild(suggestionBtn);
+        });
         
         messagesContainer.appendChild(welcomeDiv);
     } else {
@@ -708,15 +717,14 @@ function sendChatMessage(message) {
     
     // Save to chat history
     const chatHistory = localStorage.getItem('chat_history');
-    const chatMessages = chatHistory ? JSON.parse(chatHistory) : [];
-    chatMessages.push({ role: 'user', content: message });
-    chatMessages.push({ role: 'ai', content: aiResponse });
-    localStorage.setItem('chat_history', JSON.stringify(chatMessages));
+    const messages = chatHistory ? JSON.parse(chatHistory) : [];
+    messages.push({ role: 'user', content: message });
+    messages.push({ role: 'ai', content: aiResponse });
+    localStorage.setItem('chat_history', JSON.stringify(messages));
     
     // Scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
-
 
 // ========== ADD EXPENSE MODAL ==========
 function showAddExpenseModal() {
@@ -768,6 +776,7 @@ function showAddExpenseModal() {
             cat === selectedCategory,
             (category) => {
                 selectedCategory = category;
+                // Update all pills
                 categoryGrid.querySelectorAll('.category-pill').forEach(p => {
                     p.classList.remove('active');
                 });
@@ -1294,288 +1303,300 @@ function renderSettingsScreen() {
     return container;
 }
 
-// NOTE: renderAnalyticsScreen is defined in analytics.js
-
-// ========== PROFILE SCREEN ==========
-function renderProfileScreen() {
+// ========== ANALYTICS SCREEN ==========
+function renderAnalyticsScreen() {
     const container = document.createElement('div');
-    container.className = 'container profile-container';
+    container.className = 'container-narrow';
     
-    const user = getCurrentUser();
-    const stats = getUserStats();
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
     
-    if (!user) {
-        container.innerHTML = '<p>Please log in to view profile</p>';
+    const title = document.createElement('h1');
+    title.textContent = '📊 Analytics';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Understand your spending patterns';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Get data
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const categoryData = getSpendingByCategory(transactions);
+    const totalSpending = getTotalSpending(transactions);
+    
+    // Check if there's data
+    if (categoryData.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.style.textAlign = 'center';
+        emptyState.style.padding = 'var(--space-3xl)';
+        
+        const emptyIcon = document.createElement('div');
+        emptyIcon.textContent = '📊';
+        emptyIcon.style.fontSize = '64px';
+        emptyIcon.style.marginBottom = 'var(--space-lg)';
+        
+        const emptyText = document.createElement('p');
+        emptyText.className = 'text-secondary';
+        emptyText.textContent = 'No spending data yet. Add some expenses to see analytics!';
+        
+        emptyState.appendChild(emptyIcon);
+        emptyState.appendChild(emptyText);
+        container.appendChild(emptyState);
+        
         return container;
     }
     
-    // Profile Header
-    const profileHeader = document.createElement('div');
-    profileHeader.className = 'profile-header';
+    // Budget Health Score
+    const healthScore = calculateHealthScore(transactions, budget);
+    const healthInfo = getHealthScoreLabel(healthScore);
+    const healthCard = createHealthScore(healthScore, healthInfo.label, healthInfo.emoji, healthInfo.color);
+    container.appendChild(healthCard);
     
-    const avatar = document.createElement('div');
-    avatar.className = 'profile-avatar-large';
-    avatar.textContent = user.avatar || '👤';
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
     
-    const nameEl = document.createElement('h1');
-    nameEl.className = 'profile-name-large';
-    nameEl.textContent = user.name;
+    // Week comparison
+    const comparison = getWeekComparison(transactions);
+    const comparisonCard = createCard(
+        'Week Over Week',
+        'How you\'re doing compared to last week',
+        null
+    );
     
-    const emailEl = document.createElement('p');
-    emailEl.className = 'profile-email-large';
-    emailEl.textContent = user.email;
+    const comparisonContent = document.createElement('div');
+    comparisonContent.style.display = 'grid';
+    comparisonContent.style.gridTemplateColumns = '1fr 1fr';
+    comparisonContent.style.gap = 'var(--space-lg)';
     
-    const badge = document.createElement('div');
-    badge.className = 'profile-badge';
-    badge.innerHTML = `<span>⭐</span><span>${user.accountType || 'Free Plan'}</span>`;
+    const thisWeekDiv = document.createElement('div');
+    const thisWeekLabel = document.createElement('div');
+    thisWeekLabel.className = 'text-secondary';
+    thisWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    thisWeekLabel.style.marginBottom = 'var(--space-xs)';
+    thisWeekLabel.textContent = 'This Week';
     
-    profileHeader.appendChild(avatar);
-    profileHeader.appendChild(nameEl);
-    profileHeader.appendChild(emailEl);
-    profileHeader.appendChild(badge);
-    container.appendChild(profileHeader);
+    const thisWeekValue = document.createElement('div');
+    thisWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    thisWeekValue.style.fontWeight = 'var(--font-bold)';
+    thisWeekValue.textContent = formatCurrency(comparison.thisWeek);
     
-    // Account Stats
-    if (stats) {
-        const statsGrid = document.createElement('div');
-        statsGrid.className = 'account-stats';
+    thisWeekDiv.appendChild(thisWeekLabel);
+    thisWeekDiv.appendChild(thisWeekValue);
+    
+    const lastWeekDiv = document.createElement('div');
+    const lastWeekLabel = document.createElement('div');
+    lastWeekLabel.className = 'text-secondary';
+    lastWeekLabel.style.fontSize = 'var(--font-size-sm)';
+    lastWeekLabel.style.marginBottom = 'var(--space-xs)';
+    lastWeekLabel.textContent = 'Last Week';
+    
+    const lastWeekValue = document.createElement('div');
+    lastWeekValue.style.fontSize = 'var(--font-size-2xl)';
+    lastWeekValue.style.fontWeight = 'var(--font-bold)';
+    lastWeekValue.textContent = formatCurrency(comparison.lastWeek);
+    
+    lastWeekDiv.appendChild(lastWeekLabel);
+    lastWeekDiv.appendChild(lastWeekValue);
+    
+    comparisonContent.appendChild(thisWeekDiv);
+    comparisonContent.appendChild(lastWeekDiv);
+    
+    // Difference indicator
+    if (comparison.lastWeek > 0) {
+        const differenceDiv = document.createElement('div');
+        differenceDiv.style.gridColumn = '1 / -1';
+        differenceDiv.style.marginTop = 'var(--space-md)';
+        differenceDiv.style.padding = 'var(--space-md)';
+        differenceDiv.style.borderRadius = 'var(--radius-md)';
+        differenceDiv.style.textAlign = 'center';
+        differenceDiv.style.fontSize = 'var(--font-size-sm)';
+        differenceDiv.style.fontWeight = 'var(--font-medium)';
         
-        const transactionsStat = createStatCard('📊', stats.totalTransactions, 'Total Transactions');
-        const daysStat = createStatCard('📅', stats.daysSince, 'Days Active');
-        const spendingStat = createStatCard('💰', formatCurrency(stats.monthlySpending), 'This Month');
+        if (comparison.isIncrease) {
+            differenceDiv.style.backgroundColor = 'var(--color-danger-light)';
+            differenceDiv.style.color = 'var(--color-danger)';
+            differenceDiv.textContent = `↑ ${formatCurrency(Math.abs(comparison.difference))} more (${Math.abs(comparison.percentChange)}% increase)`;
+        } else {
+            differenceDiv.style.backgroundColor = 'var(--color-success-light)';
+            differenceDiv.style.color = 'var(--color-success)';
+            differenceDiv.textContent = `↓ ${formatCurrency(Math.abs(comparison.difference))} less (${Math.abs(comparison.percentChange)}% decrease)`;
+        }
         
-        const healthColor = stats.budgetUsed > 90 ? 'var(--color-danger)' : 
-                           stats.budgetUsed > 70 ? 'var(--color-warning)' : 
-                           'var(--color-success)';
-        const healthStat = createStatCard('🎯', `${stats.budgetUsed}%`, 'Budget Used');
-        healthStat.querySelector('.stat-value').style.color = healthColor;
-        
-        statsGrid.appendChild(transactionsStat);
-        statsGrid.appendChild(daysStat);
-        statsGrid.appendChild(spendingStat);
-        statsGrid.appendChild(healthStat);
-        container.appendChild(statsGrid);
+        comparisonContent.appendChild(differenceDiv);
     }
     
-    // Account Info Card
-    const infoCard = createCard('Account Information', null, null);
+    comparisonCard.appendChild(comparisonContent);
+    container.appendChild(comparisonCard);
     
-    const infoContent = document.createElement('div');
-    const memberRow = createInfoRow('Member Since', formatDateLong(user.createdAt));
-    const typeRow = createInfoRow('Account Type', user.accountType || 'Free Plan');
-    const emailRow = createInfoRow('Email Address', user.email);
-    
-    infoContent.appendChild(memberRow);
-    infoContent.appendChild(typeRow);
-    infoContent.appendChild(emailRow);
-    infoCard.appendChild(infoContent);
-    container.appendChild(infoCard);
-    
-    // Spacer
-    const spacer = document.createElement('div');
-    spacer.style.height = 'var(--space-xl)';
-    container.appendChild(spacer);
-    
-    // Profile Actions
-    const actionsGrid = document.createElement('div');
-    actionsGrid.className = 'profile-actions';
-    
-    const editBtn = createButton('✏️ Edit Profile', showEditProfileModal, 'secondary', 'large');
-    editBtn.style.width = '100%';
-    
-    const settingsBtn = createButton('⚙️ Settings', () => navigateTo('settings'), 'secondary', 'large');
-    settingsBtn.style.width = '100%';
-    
-    actionsGrid.appendChild(editBtn);
-    actionsGrid.appendChild(settingsBtn);
-    container.appendChild(actionsGrid);
-    
-    // Spacer
+    // Spacing
     const spacer2 = document.createElement('div');
     spacer2.style.height = 'var(--space-xl)';
     container.appendChild(spacer2);
     
-    // Danger Zone
-    const dangerZone = document.createElement('div');
-    dangerZone.className = 'danger-zone';
+    // Spending by Category
+    const categoryCard = createCard(
+        'Spending by Category',
+        `Total: ${formatCurrency(totalSpending)}`,
+        null
+    );
     
-    const dangerTitle = document.createElement('h3');
-    dangerTitle.className = 'danger-zone-title';
-    dangerTitle.innerHTML = '<span>⚠️</span> Danger Zone';
+    const pieChart = createPieChart(categoryData);
+    categoryCard.appendChild(pieChart);
+    container.appendChild(categoryCard);
     
-    const dangerDesc = document.createElement('p');
-    dangerDesc.className = 'danger-zone-description';
-    dangerDesc.textContent = 'Once you logout, you\'ll need to sign in again to access your data.';
+    // Spacing
+    const spacer3 = document.createElement('div');
+    spacer3.style.height = 'var(--space-xl)';
+    container.appendChild(spacer3);
     
-    const logoutBtn = createButton('🚪 Logout', handleLogout, 'secondary', 'large');
-    logoutBtn.style.color = 'var(--color-danger)';
-    logoutBtn.style.borderColor = 'var(--color-danger)';
-    logoutBtn.style.width = '100%';
+    // Top 3 Categories
+    const topCategories = getTopCategories(categoryData, 3);
+    const topCard = createCard(
+        'Top Spending Categories',
+        'Where most of your money goes',
+        null
+    );
     
-    dangerZone.appendChild(dangerTitle);
-    dangerZone.appendChild(dangerDesc);
-    dangerZone.appendChild(logoutBtn);
-    container.appendChild(dangerZone);
+    const topList = document.createElement('div');
+    topList.style.display = 'flex';
+    topList.style.flexDirection = 'column';
+    topList.style.gap = 'var(--space-md)';
+    
+    topCategories.forEach((category, index) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.gap = 'var(--space-md)';
+        item.style.padding = 'var(--space-md)';
+        item.style.backgroundColor = 'var(--color-bg-secondary)';
+        item.style.borderRadius = 'var(--radius-lg)';
+        
+        const rank = document.createElement('div');
+        rank.textContent = `#${index + 1}`;
+        rank.style.fontSize = 'var(--font-size-xl)';
+        rank.style.fontWeight = 'var(--font-bold)';
+        rank.style.color = 'var(--color-text-tertiary)';
+        rank.style.width = '40px';
+        rank.style.textAlign = 'center';
+        
+        const icon = document.createElement('div');
+        icon.textContent = category.icon;
+        icon.style.fontSize = '32px';
+        
+        const details = document.createElement('div');
+        details.style.flex = '1';
+        
+        const name = document.createElement('div');
+        name.textContent = category.category.charAt(0).toUpperCase() + category.category.slice(1);
+        name.style.fontWeight = 'var(--font-semibold)';
+        name.style.marginBottom = '4px';
+        
+        const percentage = ((category.amount / totalSpending) * 100).toFixed(1);
+        const amount = document.createElement('div');
+        amount.textContent = `${formatCurrency(category.amount)} (${percentage}%)`;
+        amount.style.fontSize = 'var(--font-size-sm)';
+        amount.style.color = 'var(--color-text-secondary)';
+        
+        details.appendChild(name);
+        details.appendChild(amount);
+        
+        item.appendChild(rank);
+        item.appendChild(icon);
+        item.appendChild(details);
+        topList.appendChild(item);
+    });
+    
+    topCard.appendChild(topList);
+    container.appendChild(topCard);
     
     return container;
 }
 
-// Helper: Create stat card for profile
-function createStatCard(icon, value, label) {
-    const card = document.createElement('div');
-    card.className = 'stat-card';
+// ========== PROFILE SCREEN (Placeholder - Nayan will build this) ==========
+function renderProfileScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
     
-    const iconEl = document.createElement('div');
-    iconEl.className = 'stat-icon';
-    iconEl.textContent = icon;
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
     
-    const valueEl = document.createElement('div');
-    valueEl.className = 'stat-value';
-    valueEl.textContent = value;
+    const title = document.createElement('h1');
+    title.textContent = 'Profile';
+    title.style.marginBottom = 'var(--space-xs)';
     
-    const labelEl = document.createElement('div');
-    labelEl.className = 'stat-label';
-    labelEl.textContent = label;
+    header.appendChild(title);
+    container.appendChild(header);
     
-    card.appendChild(iconEl);
-    card.appendChild(valueEl);
-    card.appendChild(labelEl);
+    const message = document.createElement('p');
+    message.className = 'text-secondary';
+    message.textContent = 'Profile page coming soon...';
+    container.appendChild(message);
     
-    return card;
+    return container;
 }
 
-// Helper: Create info row
-function createInfoRow(label, value) {
-    const row = document.createElement('div');
-    row.className = 'info-row';
+// ========== AUTH FORM HANDLERS ==========
+function setupAuthForms() {
+    // Login form handler
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const result = loginUser(email, password);
+            if (result.success) {
+                console.log('✅ Login successful:', result.user);
+                navigateTo('home');
+            } else {
+                alert('❌ ' + result.error);
+                document.getElementById('login-password').value = '';
+            }
+        });
+    }
     
-    const labelEl = document.createElement('div');
-    labelEl.className = 'info-label';
-    labelEl.textContent = label;
-    
-    const valueEl = document.createElement('div');
-    valueEl.className = 'info-value';
-    valueEl.textContent = value;
-    
-    row.appendChild(labelEl);
-    row.appendChild(valueEl);
-    
-    return row;
-}
-
-// Helper: Format date long
-function formatDateLong(dateString) {
-    if (!dateString) return 'Unknown';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
-        month: 'long', 
-        day: 'numeric', 
-        year: 'numeric' 
-    });
-}
-
-// Edit Profile Modal
-function showEditProfileModal() {
-    const user = getCurrentUser();
-    if (!user) return;
-    
-    const form = document.createElement('form');
-    form.style.display = 'flex';
-    form.style.flexDirection = 'column';
-    form.style.gap = 'var(--space-lg)';
-    
-    // Name input
-    const nameGroup = document.createElement('div');
-    nameGroup.className = 'input-group';
-    nameGroup.style.marginBottom = '0';
-    
-    const nameLabel = document.createElement('label');
-    nameLabel.className = 'input-label';
-    nameLabel.textContent = 'Name';
-    
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'input';
-    nameInput.value = user.name;
-    nameInput.required = true;
-    
-    nameGroup.appendChild(nameLabel);
-    nameGroup.appendChild(nameInput);
-    
-    // Avatar selector
-    const avatarGroup = document.createElement('div');
-    avatarGroup.className = 'input-group';
-    avatarGroup.style.marginBottom = '0';
-    
-    const avatarLabel = document.createElement('label');
-    avatarLabel.className = 'input-label';
-    avatarLabel.textContent = 'Avatar';
-    
-    const avatarGrid = document.createElement('div');
-    avatarGrid.className = 'avatar-grid';
-    
-    const avatars = ['👤', '👨', '👩', '🧑', '👨‍💼', '👩‍💼', '🧑‍💻', '👨‍🎓'];
-    let selectedAvatar = user.avatar || '👤';
-    
-    avatars.forEach(av => {
-        const pill = document.createElement('div');
-        pill.className = 'avatar-option';
-        if (av === selectedAvatar) pill.classList.add('selected');
-        pill.dataset.avatar = av;
-        pill.textContent = av;
-        pill.onclick = () => {
-            selectedAvatar = av;
-            avatarGrid.querySelectorAll('.avatar-option').forEach(p => p.classList.remove('selected'));
-            pill.classList.add('selected');
-        };
-        avatarGrid.appendChild(pill);
-    });
-    
-    avatarGroup.appendChild(avatarLabel);
-    avatarGroup.appendChild(avatarGrid);
-    
-    // Submit button
-    const submitBtn = createButton('Save Changes', null, 'primary', 'large');
-    submitBtn.type = 'submit';
-    submitBtn.style.width = '100%';
-    
-    form.appendChild(nameGroup);
-    form.appendChild(avatarGroup);
-    form.appendChild(submitBtn);
-    
-    form.onsubmit = (e) => {
-        e.preventDefault();
-        
-        const updates = {
-            name: nameInput.value,
-            avatar: selectedAvatar
-        };
-        
-        updateUserProfile(updates);
-        
-        // Update UI
-        if (typeof updateHeaderUser === 'function') updateHeaderUser();
-        if (typeof updateSidebarUser === 'function') updateSidebarUser();
-        
-        // Close modal and refresh
-        if (currentModal) {
-            currentModal.remove();
-            currentModal = null;
-        }
-        
-        renderScreen('profile');
-    };
-    
-    currentModal = createModal('Edit Profile', form, () => {
-        currentModal = null;
-    });
-    
-    document.body.appendChild(currentModal);
+    // Register form handler
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            const result = registerUser({
+                name,
+                email,
+                password,
+                avatar: '👤'
+            });
+            
+            if (result.success) {
+                console.log('✅ Registration successful:', result.user);
+                // Auto-login after registration
+                const loginResult = loginUser(email, password);
+                if (loginResult.success) {
+                    navigateTo('home');
+                }
+            } else {
+                alert('❌ ' + result.error);
+            }
+        });
+    }
 }
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
-    initApp();
+    setupAuthForms();
     initRouter();
     console.log('App ready with auth!');
 });

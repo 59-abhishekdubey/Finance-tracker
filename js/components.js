@@ -134,12 +134,10 @@ function createProgressBar(label, spent, total, type) {
     return group;
 }
 
-
 // Create transaction item
-function createTransactionItem(transaction, showActions = true) {
+function createTransactionItem(transaction) {
     const item = document.createElement('div');
     item.className = 'transaction-item';
-    item.style.position = 'relative';
     
     // Icon
     const icon = document.createElement('div');
@@ -179,45 +177,9 @@ function createTransactionItem(transaction, showActions = true) {
     amount.className = 'transaction-amount';
     amount.textContent = formatCurrency(transaction.amount);
     
-    // Actions container
-    const actions = document.createElement('div');
-    actions.style.display = 'flex';
-    actions.style.gap = 'var(--space-xs)';
-    actions.style.marginLeft = 'var(--space-sm)';
-    
-    if (showActions) {
-        // Edit button
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn btn-ghost btn-small';
-        editBtn.textContent = '✏️';
-        editBtn.style.minHeight = '32px';
-        editBtn.style.padding = 'var(--space-xs)';
-        editBtn.onclick = (e) => {
-            e.stopPropagation();
-            showEditTransactionModal(transaction);
-        };
-        
-        // Delete button
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn btn-ghost btn-small';
-        deleteBtn.textContent = '🗑️';
-        deleteBtn.style.minHeight = '32px';
-        deleteBtn.style.padding = 'var(--space-xs)';
-        deleteBtn.onclick = (e) => {
-            e.stopPropagation();
-            showDeleteConfirmation(transaction);
-        };
-        
-        actions.appendChild(editBtn);
-        actions.appendChild(deleteBtn);
-    }
-    
     item.appendChild(icon);
     item.appendChild(details);
     item.appendChild(amount);
-    if (showActions) {
-        item.appendChild(actions);
-    }
     
     return item;
 }
@@ -393,7 +355,7 @@ function createModal(title, content, onClose) {
         closeModalAnimated(overlay);
         if (onClose) onClose();
     };
-
+    
     header.appendChild(titleEl);
     header.appendChild(closeBtn);
     
