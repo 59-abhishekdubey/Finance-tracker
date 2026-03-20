@@ -224,10 +224,6 @@ function createIncomeExpenseCard() {
     card.className = 'stat-card-modern primary';
     
     // Track transactions with income type
-    const allTransactions = getTransactions();
-    const incomeTransactions = getIncomeTransactions();
-    const expenseTransactions = getExpenseTransactions();
-    
     const totalIncome = calculateTotalIncome();
     const totalExpense = calculateSpent(getTransactions()).total;
     const netIncome = totalIncome - totalExpense;

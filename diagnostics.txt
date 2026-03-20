@@ -1,0 +1,26 @@
+=== FINANCE TRACKER DIAGNOSTICS === 
+ 
+Files with potential issues: 
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\ai-chat.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\alerts.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\analytics.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\animations.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\app.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\auth-ui.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\auth.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\components.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\dashboard.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\data.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\empty-states.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\filters.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\footer.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\header.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\loading.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\router.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\settings.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\sidebar.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\theme.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\utils.js
+C:\Users\Lenovo\OneDrive\Desktop\Finance Tracker\js\validation.js
+ 
+=== END ===

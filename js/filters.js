@@ -19,17 +19,18 @@ function applyFilters(transactions) {
     
     // Date range filter
     const now = new Date();
+    let weekAgo, monthAgo;
     switch(currentFilters.dateRange) {
         case 'today':
             filtered = filtered.filter(t => t.date === getToday());
             break;
         case 'week':
-            const weekAgo = new Date(now);
+            weekAgo = new Date(now);
             weekAgo.setDate(weekAgo.getDate() - 7);
             filtered = filtered.filter(t => new Date(t.date) >= weekAgo);
             break;
         case 'month':
-            const monthAgo = new Date(now);
+            monthAgo = new Date(now);
             monthAgo.setMonth(monthAgo.getMonth() - 1);
             filtered = filtered.filter(t => new Date(t.date) >= monthAgo);
             break;
