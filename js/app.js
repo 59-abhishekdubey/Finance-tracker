@@ -155,13 +155,6 @@ function renderDashboard() {
     console.log('🏠 App: renderDashboard called');
     const wrapper = document.createElement('div');
     
-    // Check if empty
-    const transactions = getTransactions();
-    if (transactions.length === 0) {
-        wrapper.appendChild(createNoTransactionsEmpty());
-        return wrapper;
-    }
-    
     // Create main dashboard container
     const dashboardContent = renderModernDashboard();
     if (!dashboardContent) {
@@ -245,13 +238,6 @@ function renderStatsScreen() {
     console.log('📊 Stats: renderStatsScreen called');
     const container = document.createElement('div');
     container.className = 'container-narrow';
-    
-    // Check if empty
-    const transactions = getTransactions();
-    if (transactions.length === 0) {
-        container.appendChild(createNoTransactionsEmpty());
-        return container;
-    }
     
     // Page header
     const header = document.createElement('div');
@@ -878,6 +864,17 @@ function showAddExpenseModal() {
         };
         
         addTransaction(transaction);
+        
+        // Show success toast
+        showSuccessToast(
+            'Transaction Added!',
+            `${note} - ${formatCurrency(amount)}`
+        );
+        
+        // Trigger confetti if it's a savings transaction
+        if (transaction.type === 'savings') {
+            triggerConfetti(30);
+        }
         
         // Close modal and refresh
         if (currentModal) {
