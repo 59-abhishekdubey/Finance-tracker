@@ -27,6 +27,8 @@ function initRouter() {
         // User is logged in, show dashboard
         showAppLayout();
         switchScreen(SCREENS.DASHBOARD);
+        // Update sidebar active indicator
+        updateSidebarActive(SCREENS.DASHBOARD);
     } else {
         // User not logged in, show landing page
         showLandingPage();
@@ -90,6 +92,21 @@ function showRegisterPage() {
     renderScreen(SCREENS.REGISTER);
 }
 
+// Update sidebar active indicator
+function updateSidebarActive(screenId) {
+    // Remove active class from all sidebar links
+    const allLinks = document.querySelectorAll('.sidebar-link');
+    allLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Add active class to the current screen link
+    const currentLink = document.querySelector(`.sidebar-link[data-screen="${screenId}"]`);
+    if (currentLink) {
+        currentLink.classList.add('active');
+    }
+}
+
 // Navigate to screen (with protection)
 function navigateTo(screenId) {
     // Check if screen requires authentication
@@ -107,6 +124,8 @@ function navigateTo(screenId) {
         showAuthLayout();
     } else {
         showAppLayout();
+        // Update sidebar active indicator for app screens
+        updateSidebarActive(screenId);
     }
     
     // Render screen
