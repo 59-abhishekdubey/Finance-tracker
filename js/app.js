@@ -1576,6 +1576,12 @@ function renderIncomeScreen() {
     const container = document.createElement('div');
     container.className = 'container-narrow';
     
+    // Check if income functions exist
+    if (typeof getIncomeTransactions !== 'function') {
+        container.innerHTML = '<p style="text-align: center; padding: var(--space-xl); color: var(--color-text-secondary);">Income feature is loading...</p>';
+        return container;
+    }
+    
     // Page header
     const header = document.createElement('div');
     header.style.marginBottom = 'var(--space-xl)';

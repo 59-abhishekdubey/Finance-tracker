@@ -30,7 +30,18 @@ function getIcon(name) {
 
 // Format currency (Indian Rupees)
 function formatCurrency(amount) {
-    return `₹${amount.toLocaleString('en-IN')}`;
+    // Handle undefined, null, or invalid numbers
+    if (amount === undefined || amount === null || isNaN(amount)) {
+        amount = 0;
+    }
+    
+    // Convert to number if it's a string
+    amount = Number(amount);
+    
+    return '₹' + amount.toLocaleString('en-IN', {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0
+    });
 }
 
 // Format date (e.g., "Feb 19")

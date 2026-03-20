@@ -5,6 +5,21 @@ function renderAnalyticsScreen() {
     container.className = 'container-narrow';
 
     const transactions = getTransactions();
+    
+    // Empty state check
+    if (!transactions || transactions.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.style.textAlign = 'center';
+        emptyState.style.padding = 'var(--space-3xl) var(--space-lg)';
+        emptyState.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: var(--space-lg);">📊</div>
+            <h2 style="margin-bottom: var(--space-sm);">No Analytics Data</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-lg);">Add some transactions to see analytics and insights.</p>
+            <button class="btn btn-primary" onclick="navigateTo('home')">Go to Dashboard</button>
+        `;
+        container.appendChild(emptyState);
+        return container;
+    }
     const budget = getBudget();
     const spent = calculateSpent(transactions);
 
