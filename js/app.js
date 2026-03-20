@@ -50,12 +50,15 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                const dashboardContent = renderDashboard();
-                console.log('🎨 Dashboard content created, appending to #app');
-                app.appendChild(dashboardContent);
-                console.log('🎨 Dashboard appended, #app innerHTML length:', app.innerHTML.length);
-            } else {
-                console.error('❌ #app element not found!');
+                
+                // Show skeleton first
+                app.appendChild(createSkeletonDashboard());
+                
+                // Load real content after delay
+                setTimeout(() => {
+                    app.innerHTML = '';
+                    app.appendChild(renderDashboard());
+                }, 600);
             }
             break;
             
@@ -64,7 +67,16 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                app.appendChild(renderStatsScreen());
+                
+                // Show skeleton
+                const skeleton = createSkeletonTransactions(7);
+                app.appendChild(skeleton);
+                
+                // Load real content
+                setTimeout(() => {
+                    app.innerHTML = '';
+                    app.appendChild(renderStatsScreen());
+                }, 600);
             }
             break;
 
@@ -73,7 +85,12 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                app.appendChild(renderAnalyticsScreen());
+                
+                showLoading('Loading analytics...');
+                setTimeout(() => {
+                    hideLoading();
+                    app.appendChild(renderAnalyticsScreen());
+                }, 800);
             }
             break;
             
@@ -100,7 +117,12 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                app.appendChild(renderProfileScreen());
+                
+                showLoading('Loading profile...');
+                setTimeout(() => {
+                    hideLoading();
+                    app.appendChild(renderProfileScreen());
+                }, 600);
             }
             break;
             

@@ -390,7 +390,7 @@ function createModal(title, content, onClose) {
     closeBtn.className = 'modal-close';
     closeBtn.textContent = getIcon('close');
     closeBtn.onclick = () => {
-        overlay.remove();
+        closeModalAnimated(overlay);
         if (onClose) onClose();
     };
 
@@ -408,7 +408,7 @@ function createModal(title, content, onClose) {
     // Close on overlay click
     overlay.onclick = (e) => {
         if (e.target === overlay) {
-            overlay.remove();
+            closeModalAnimated(overlay);
             if (onClose) onClose();
         }
     };

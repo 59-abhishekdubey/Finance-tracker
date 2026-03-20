@@ -26,23 +26,34 @@ function handleLogin(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const messageDiv = document.getElementById('login-message');
     
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
+    // Show button loading
+    setButtonLoading(submitBtn, true);
+    
+    // Clear previous messages
     messageDiv.className = 'auth-message';
     messageDiv.textContent = '';
     
+    // Simulate API delay
     setTimeout(() => {
         const result = loginUser(email, password);
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
+        
+        // Remove loading
+        setButtonLoading(submitBtn, false);
         
         if (result.success) {
             showMessage(messageDiv, 'success', 'Login successful! Redirecting...');
-            setTimeout(() => { navigateTo('home'); }, 1000);
+            
+            // Show full screen loading while redirecting
+            showLoading('Loading your dashboard...');
+            
+            setTimeout(() => {
+                hideLoading();
+                navigateTo('home');
+            }, 1000);
         } else {
             showMessage(messageDiv, 'error', result.error || 'Login failed. Please try again.');
         }
-    }, 500);
+    }, 800); // Realistic loading time
 }
 
 // Handle Register
@@ -58,9 +69,11 @@ function handleRegister(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const messageDiv = document.getElementById('register-message');
     
+    // Clear previous messages
     messageDiv.className = 'auth-message';
     messageDiv.textContent = '';
     
+    // Validation
     if (password !== confirmPassword) {
         showMessage(messageDiv, 'error', 'Passwords do not match!');
         return;
@@ -71,9 +84,10 @@ function handleRegister(e) {
         return;
     }
     
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
+    // Show button loading
+    setButtonLoading(submitBtn, true);
     
+    // Simulate API delay
     setTimeout(() => {
         const result = registerUser({
             name: name,
@@ -82,16 +96,19 @@ function handleRegister(e) {
             avatar: avatar
         });
         
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
+        // Remove loading
+        setButtonLoading(submitBtn, false);
         
         if (result.success) {
             showMessage(messageDiv, 'success', 'Account created successfully! Redirecting to login...');
-            setTimeout(() => { navigateTo('login'); }, 1500);
+            
+            setTimeout(() => {
+                navigateTo('login');
+            }, 1500);
         } else {
             showMessage(messageDiv, 'error', result.error || 'Registration failed. Please try again.');
         }
-    }, 500);
+    }, 800);
 }
 
 // Show Message Helper

@@ -33,7 +33,7 @@ function renderModernDashboard() {
         
         // Dashboard Grid
         const grid = document.createElement('div');
-        grid.className = 'dashboard-grid';
+        grid.className = 'dashboard-grid stagger-children';
         
         // Check if we have data
         if (!transactions || transactions.length === 0 || !budget) {
