@@ -487,3 +487,120 @@
         top: 70px;
     }
 }
+
+/* ========== FAB MENU STYLES ========== */
+
+.fab-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(20px);
+    transform-origin: bottom right;
+    transition: all var(--transition-base);
+    pointer-events: none;
+}
+
+.fab-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.fab-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    animation: slidInUp 0.3s ease backwards;
+}
+
+.fab-menu-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.fab-menu-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.fab-menu-item:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: var(--color-bg-secondary);
+}
+
+.fab-menu-item.income {
+    color: #10B981;
+    border-color: #10B981;
+}
+
+.fab-menu-item.income:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.fab-menu-item.expense {
+    color: #EF4444;
+    border-color: #EF4444;
+}
+
+.fab-menu-item.expense:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.fab-button.active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    transform: rotate(45deg);
+}
+
+@keyframes slidInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .fab-container {
+        bottom: 80px;
+        right: var(--space-md);
+    }
+    
+    .fab-menu {
+        bottom: 70px;
+    }
+    
+    .fab-menu-item {
+        padding: var(--space-md) var(--space-lg);
+        font-size: var(--font-size-xs);
+    }
+}

@@ -274,6 +274,102 @@ function resetData() {
     initStorage();
 }
 
+// ========== INCOME FUNCTIONS ==========
+
+// Add income transaction
+function addIncome(income) {
+    const data = getData();
+    
+    const newIncome = {
+        id: Date.now(),
+        name: income.name,
+        amount: parseFloat(income.amount),
+        category: income.category,
+        date: income.date || getToday(),
+        time: income.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        note: income.note || '',
+        transactionType: 'income',
+        type: 'income'
+    };
+    
+    data.transactions.push(newIncome);
+    saveData(data);
+    
+    return newIncome;
+}
+
+// Get income transactions only
+function getIncomeTransactions() {
+    const transactions = getTransactions();
+    return transactions.filter(t => t.transactionType === 'income');
+}
+
+// Get expense transactions only
+function getExpenseTransactions() {
+    const transactions = getTransactions();
+    return transactions.filter(t => t.transactionType !== 'income');
+}
+
+// Calculate total income
+function calculateTotalIncome(transactions = null) {
+    if (!transactions) {
+        transactions = getIncomeTransactions();
+    }
+    
+    return transactions.reduce((sum, t) => sum + t.amount, 0);
+}
+
+// Calculate net income (Income - Expenses)
+function calculateNetIncome() {
+    const allTransactions = getTransactions();
+    const income = calculateTotalIncome();
+    const expenses = calculateSpent(allTransactions).total;
+    
+    return income - expenses;
+}
+
+// Get income by category
+function getIncomeByCategory(transactions = null) {
+    if (!transactions) {
+        transactions = getIncomeTransactions();
+    }
+    
+    const categoryMap = {};
+    
+    transactions.forEach(transaction => {
+        const category = transaction.category;
+        if (!categoryMap[category]) {
+            categoryMap[category] = {
+                category: category,
+                amount: 0,
+                count: 0,
+                color: getIncomeCategoryColor(category),
+                icon: getIncomeCategoryIcon(category)
+            };
+        }
+        categoryMap[category].amount += transaction.amount;
+        categoryMap[category].count++;
+    });
+    
+    return Object.values(categoryMap).sort((a, b) => b.amount - a.amount);
+}
+
+// Get income category icon
+function getIncomeCategoryIcon(category) {
+    const icons = {
+        'salary': '💼',
+        'freelance': '💻',
+        'business': '🏢',
+        'investment': '📈',
+        'gift': '🎁',
+        'refund': '↩️',
+        'rental': '🏠',
+        'other': '💰'
+    };
+    
+    return icons[category] || '💰';
+}
+
 // ========== INITIALIZE ON LOAD ==========
 initStorage();
 cleanOldData();

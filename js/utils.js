@@ -98,6 +98,21 @@ function getCategoryType(category) {
     return 'savings';
 }
 
+// Get income category color
+function getIncomeCategoryColor(category) {
+    const colors = {
+        salary: '#10B981',
+        freelance: '#06B6D4',
+        business: '#8B5CF6',
+        investment: '#3B82F6',
+        gift: '#EC4899',
+        refund: '#F59E0B',
+        rental: '#6366F1',
+        other: '#6B7280'
+    };
+    return colors[category.toLowerCase()] || colors.other;
+}
+
 // ========== DATE HELPERS ==========
 
 // Get last N days as array of date strings

@@ -101,6 +101,20 @@ function renderScreen(screenId) {
             }
             break;
             
+        case 'income':
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                
+                showLoading('Loading income...');
+                setTimeout(() => {
+                    hideLoading();
+                    app.appendChild(renderIncomeScreen());
+                }, 600);
+            }
+            break;
+            
         case 'ai':
             if (app) {
                 app.style.display = 'block';
@@ -1531,6 +1545,171 @@ function renderAnalyticsScreen() {
     return container;
 }
 
+// ========== INCOME SCREEN ==========
+function renderIncomeScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    // Page header
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '💰 Income';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Track and manage your income sources';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    // Get income data
+    const incomeTransactions = getIncomeTransactions();
+    const totalIncome = calculateTotalIncome();
+    const incomeByCategory = getIncomeByCategory(incomeTransactions);
+    
+    // Check if there's income data
+    if (incomeTransactions.length === 0) {
+        const emptyState = createEmptyState(
+            '💰',
+            'No Income Yet',
+            'Start tracking your income by adding your first income source',
+            createButton('Add Income', showAddIncomeModal, 'primary', 'large')
+        );
+        container.appendChild(emptyState);
+        return container;
+    }
+    
+    // Total Income Card
+    const totalCard = createCard(
+        'Total Income',
+        'This month',
+        null
+    );
+    
+    const totalValue = document.createElement('div');
+    totalValue.style.fontSize = 'var(--font-size-3xl)';
+    totalValue.style.fontWeight = 'var(--font-bold)';
+    totalValue.style.color = '#10B981';
+    totalValue.style.margin = 'var(--space-lg) 0';
+    totalValue.textContent = formatCurrency(totalIncome);
+    
+    totalCard.appendChild(totalValue);
+    container.appendChild(totalCard);
+    
+    // Spacing
+    const spacer1 = document.createElement('div');
+    spacer1.style.height = 'var(--space-xl)';
+    container.appendChild(spacer1);
+    
+    // Income by Category
+    if (incomeByCategory.length > 0) {
+        const categoryCard = createCard(
+            'Income by Category',
+            'Breakdown of income sources',
+            null
+        );
+        
+        const categoryList = document.createElement('div');
+        categoryList.style.display = 'flex';
+        categoryList.style.flexDirection = 'column';
+        categoryList.style.gap = 'var(--space-md)';
+        
+        incomeByCategory.forEach((item) => {
+            const categoryItem = document.createElement('div');
+            categoryItem.style.display = 'flex';
+            categoryItem.style.alignItems = 'center';
+            categoryItem.style.justifyContent = 'space-between';
+            categoryItem.style.padding = 'var(--space-md)';
+            categoryItem.style.backgroundColor = 'var(--color-bg-secondary)';
+            categoryItem.style.borderRadius = 'var(--radius-lg)';
+            categoryItem.style.borderLeft = `4px solid ${getIncomeCategoryColor(item.category)}`;
+            
+            const categoryInfo = document.createElement('div');
+            categoryInfo.style.display = 'flex';
+            categoryInfo.style.alignItems = 'center';
+            categoryInfo.style.gap = 'var(--space-md)';
+            
+            const icon = document.createElement('span');
+            icon.style.fontSize = '24px';
+            icon.textContent = getIncomeCategoryIcon(item.category);
+            
+            const details = document.createElement('div');
+            const categoryName = document.createElement('div');
+            categoryName.style.fontWeight = 'var(--font-semibold)';
+            categoryName.textContent = item.category.charAt(0).toUpperCase() + item.category.slice(1);
+            
+            const count = document.createElement('div');
+            count.style.fontSize = 'var(--font-size-sm)';
+            count.style.color = 'var(--color-text-secondary)';
+            count.textContent = `${item.count} transactions`;
+            
+            details.appendChild(categoryName);
+            details.appendChild(count);
+            categoryInfo.appendChild(icon);
+            categoryInfo.appendChild(details);
+            
+            const amount = document.createElement('div');
+            amount.style.fontWeight = 'var(--font-bold)';
+            amount.style.color = getIncomeCategoryColor(item.category);
+            amount.textContent = formatCurrency(item.total);
+            
+            categoryItem.appendChild(categoryInfo);
+            categoryItem.appendChild(amount);
+            categoryList.appendChild(categoryItem);
+        });
+        
+        categoryCard.appendChild(categoryList);
+        container.appendChild(categoryCard);
+        
+        // Spacing
+        const spacer2 = document.createElement('div');
+        spacer2.style.height = 'var(--space-xl)';
+        container.appendChild(spacer2);
+    }
+    
+    // Recent Income Transactions
+    const recentCard = createCard(
+        'Recent Income',
+        'Latest income transactions',
+        null
+    );
+    
+    const transactionList = document.createElement('div');
+    transactionList.style.display = 'flex';
+    transactionList.style.flexDirection = 'column';
+    transactionList.style.gap = 'var(--space-md)';
+    
+    const recentIncome = incomeTransactions.slice(0, 5);
+    recentIncome.forEach(transaction => {
+        transactionList.appendChild(createTransactionItem(transaction, true));
+    });
+    
+    recentCard.appendChild(transactionList);
+    container.appendChild(recentCard);
+    
+    // Spacing
+    const spacer3 = document.createElement('div');
+    spacer3.style.height = 'var(--space-xl)';
+    container.appendChild(spacer3);
+    
+    // Add Income Button
+    const addBtnContainer = document.createElement('div');
+    addBtnContainer.style.display = 'flex';
+    addBtnContainer.style.gap = 'var(--space-md)';
+    
+    const addBtn = createButton('+ Add Income', showAddIncomeModal, 'primary', 'large');
+    addBtn.style.flex = '1';
+    
+    addBtnContainer.appendChild(addBtn);
+    container.appendChild(addBtnContainer);
+    
+    return container;
+}
+
 // ========== PROFILE SCREEN (Placeholder - Nayan will build this) ==========
 function renderProfileScreen() {
     const container = document.createElement('div');
@@ -1603,6 +1782,178 @@ function setupAuthForms() {
             }
         });
     }
+}
+
+// ========== ADD INCOME MODAL ==========
+function showAddIncomeModal() {
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = 'var(--space-lg)';
+    
+    // Amount input
+    const amountGroup = document.createElement('div');
+    amountGroup.className = 'input-group';
+    amountGroup.style.marginBottom = '0';
+    
+    const amountLabel = document.createElement('label');
+    amountLabel.className = 'input-label';
+    amountLabel.textContent = 'Amount';
+    
+    const amountInput = document.createElement('input');
+    amountInput.type = 'number';
+    amountInput.className = 'input input-amount';
+    amountInput.id = 'income-amount';
+    amountInput.placeholder = '0';
+    amountInput.required = true;
+    amountInput.step = '0.01';
+    amountInput.min = '0';
+    
+    amountGroup.appendChild(amountLabel);
+    amountGroup.appendChild(amountInput);
+    
+    // Category selector
+    const categoryGroup = document.createElement('div');
+    categoryGroup.className = 'input-group';
+    categoryGroup.style.marginBottom = '0';
+    
+    const categoryLabel = document.createElement('label');
+    categoryLabel.className = 'input-label';
+    categoryLabel.textContent = 'Income Source';
+    
+    const categoryGrid = document.createElement('div');
+    categoryGrid.className = 'category-grid';
+    categoryGrid.id = 'income-category-grid';
+    
+    const incomeCategories = ['salary', 'freelance', 'business', 'investment', 'gift', 'refund', 'rental', 'other'];
+    let selectedCategory = 'salary';
+    
+    incomeCategories.forEach(cat => {
+        const pill = createCategoryPill(
+            cat,
+            cat === selectedCategory,
+            (category) => {
+                selectedCategory = category;
+                // Update all pills
+                categoryGrid.querySelectorAll('.category-pill').forEach(p => {
+                    p.classList.remove('active');
+                });
+                event.target.closest('.category-pill').classList.add('active');
+            }
+        );
+        pill.style.backgroundColor = getIncomeCategoryColor(cat);
+        categoryGrid.appendChild(pill);
+    });
+    
+    categoryGroup.appendChild(categoryLabel);
+    categoryGroup.appendChild(categoryGrid);
+    
+    // Note/Description input
+    const noteGroup = document.createElement('div');
+    noteGroup.className = 'input-group';
+    noteGroup.style.marginBottom = '0';
+    
+    const noteLabel = document.createElement('label');
+    noteLabel.className = 'input-label';
+    noteLabel.textContent = 'Description (Optional)';
+    
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'input';
+    noteInput.id = 'income-note';
+    noteInput.placeholder = 'Where did this income come from?';
+    
+    noteGroup.appendChild(noteLabel);
+    noteGroup.appendChild(noteInput);
+    
+    // Date input
+    const dateGroup = document.createElement('div');
+    dateGroup.className = 'input-group';
+    dateGroup.style.marginBottom = '0';
+    
+    const dateLabel = document.createElement('label');
+    dateLabel.className = 'input-label';
+    dateLabel.textContent = 'Date';
+    
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'input';
+    dateInput.id = 'income-date';
+    dateInput.value = getToday();
+    dateInput.required = true;
+    
+    dateGroup.appendChild(dateLabel);
+    dateGroup.appendChild(dateInput);
+    
+    // Submit button
+    const submitBtn = createButton(
+        'Add Income',
+        null,
+        'primary',
+        'large'
+    );
+    submitBtn.type = 'submit';
+    submitBtn.style.width = '100%';
+    
+    // Assemble form
+    form.appendChild(amountGroup);
+    form.appendChild(categoryGroup);
+    form.appendChild(noteGroup);
+    form.appendChild(dateGroup);
+    form.appendChild(submitBtn);
+    
+    // Form submission
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const amount = amountInput.value;
+        const description = noteInput.value || selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+        const date = dateInput.value;
+        
+        if (!isValidAmount(amount)) {
+            showErrorToast('Invalid Amount', 'Please enter a valid amount');
+            return;
+        }
+        
+        const incomeTransaction = {
+            name: description,
+            amount: amount,
+            category: selectedCategory,
+            date: date
+        };
+        
+        addIncome(incomeTransaction);
+        
+        // Show success toast
+        showSuccessToast(
+            '💰 Income Added!',
+            `${description} - ${formatCurrency(amount)}`
+        );
+        
+        // Trigger confetti celebration
+        triggerConfetti(40);
+        
+        // Close modal and refresh
+        if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+        }
+        
+        // Refresh current screen
+        renderScreen(currentScreen);
+    };
+    
+    // Create and show modal
+    currentModal = createModal('Add Income', form, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+    
+    // Auto-focus amount input
+    setTimeout(() => {
+        amountInput.focus();
+    }, 100);
 }
 
 // ========== START APP ==========

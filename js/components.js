@@ -135,15 +135,28 @@ function createProgressBar(label, spent, total, type) {
 }
 
 // Create transaction item
-function createTransactionItem(transaction) {
+function createTransactionItem(transaction, isIncomeScreen = false) {
     const item = document.createElement('div');
     item.className = 'transaction-item';
+    
+    // Check if this is an income transaction
+    const isIncome = transaction.transactionType === 'income' || transaction.type === 'income' || isIncomeScreen;
     
     // Icon
     const icon = document.createElement('div');
     icon.className = 'transaction-icon';
-    icon.style.backgroundColor = getCategoryColor(transaction.category) + '20';
-    icon.textContent = getIcon(transaction.category);
+    
+    let categoryColor, categoryIcon;
+    if (isIncome) {
+        categoryColor = getIncomeCategoryColor(transaction.category);
+        categoryIcon = getIncomeCategoryIcon(transaction.category);
+    } else {
+        categoryColor = getCategoryColor(transaction.category);
+        categoryIcon = getIcon(transaction.category);
+    }
+    
+    icon.style.backgroundColor = categoryColor + '20';
+    icon.textContent = categoryIcon;
     
     // Details
     const details = document.createElement('div');
@@ -158,12 +171,12 @@ function createTransactionItem(transaction) {
     
     const category = document.createElement('span');
     category.className = 'transaction-category';
-    category.style.backgroundColor = getCategoryColor(transaction.category) + '20';
-    category.style.color = getCategoryColor(transaction.category);
+    category.style.backgroundColor = categoryColor + '20';
+    category.style.color = categoryColor;
     category.textContent = transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1);
     
     const time = document.createElement('span');
-    time.textContent = transaction.time;
+    time.textContent = transaction.time || formatTime(transaction.date);
     
     meta.appendChild(category);
     meta.appendChild(document.createTextNode(' • '));
@@ -175,7 +188,14 @@ function createTransactionItem(transaction) {
     // Amount
     const amount = document.createElement('div');
     amount.className = 'transaction-amount';
-    amount.textContent = formatCurrency(transaction.amount);
+    amount.style.color = categoryColor;
+    
+    if (isIncome) {
+        amount.textContent = '+ ' + formatCurrency(transaction.amount);
+        amount.style.fontWeight = 'bold';
+    } else {
+        amount.textContent = '- ' + formatCurrency(transaction.amount);
+    }
     
     item.appendChild(icon);
     item.appendChild(details);

@@ -217,6 +217,52 @@ function createSavingsGoalCard(spent, budget) {
     return card;
 }
 
+// ========== INCOME VS EXPENSE CARD ==========
+
+function createIncomeExpenseCard() {
+    const card = document.createElement('div');
+    card.className = 'stat-card-modern primary';
+    
+    // Track transactions with income type
+    const allTransactions = getTransactions();
+    const incomeTransactions = getIncomeTransactions();
+    const expenseTransactions = getExpenseTransactions();
+    
+    const totalIncome = calculateTotalIncome();
+    const totalExpense = calculateSpent(getTransactions()).total;
+    const netIncome = totalIncome - totalExpense;
+    
+    card.innerHTML = `
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-title">Income vs Expense</div>
+            </div>
+            <div class="stat-card-icon primary">
+                📈
+            </div>
+        </div>
+        <div class="stat-card-value" style="font-size: var(--font-size-4xl); margin: var(--space-lg) 0;">
+            ${formatCurrency(netIncome)}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-top: var(--space-lg);">
+            <div style="padding: var(--space-md); background: var(--color-bg-secondary); border-radius: var(--radius-lg); text-align: center;">
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-xs);">💰 Income</div>
+                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-bold); color: #10B981;">
+                    ${formatCurrency(totalIncome)}
+                </div>
+            </div>
+            <div style="padding: var(--space-md); background: var(--color-bg-secondary); border-radius: var(--radius-lg); text-align: center;">
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-xs);">💸 Expense</div>
+                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-bold); color: #EF4444;">
+                    ${formatCurrency(totalExpense)}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
 // ========== SPENDING FLOW CHART (Line Chart) ==========
 
 function createSpendingFlowChart(transactions) {
@@ -515,6 +561,161 @@ function initCategoryChart(transactions) {
     });
 }
 
+// ========== INCOME VS EXPENSE CHART ==========
+
+function createIncomeExpenseChart() {
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    
+    const header = document.createElement('div');
+    header.className = 'chart-card-header';
+    header.innerHTML = `
+        <h3 class="chart-card-title">Income vs Expense Comparison</h3>
+        <div class="chart-card-filter">
+            <button class="filter-btn active" onclick="updateIncomeExpenseChart('7days')">7 Days</button>
+            <button class="filter-btn" onclick="updateIncomeExpenseChart('30days')">30 Days</button>
+            <button class="filter-btn" onclick="updateIncomeExpenseChart('90days')">90 Days</button>
+        </div>
+    `;
+    
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.position = 'relative';
+    canvasContainer.style.height = '300px';
+    
+    const canvas = document.createElement('canvas');
+    canvas.id = 'income-expense-chart';
+    canvasContainer.appendChild(canvas);
+    
+    card.appendChild(header);
+    card.appendChild(canvasContainer);
+    
+    setTimeout(() => {
+        initIncomeExpenseChart(7);
+    }, 100);
+    
+    return card;
+}
+
+function initIncomeExpenseChart(days = 7) {
+    const canvas = document.getElementById('income-expense-chart');
+    if (!canvas) return;
+    
+    const allTransactions = getTransactions();
+    const lastNDays = getLastNDays(days);
+    
+    // Group transactions by date
+    const incomeByDate = {};
+    const expenseByDate = {};
+    
+    lastNDays.forEach(date => {
+        incomeByDate[date] = 0;
+        expenseByDate[date] = 0;
+    });
+    
+    // Filter and sum transactions
+    allTransactions.forEach(transaction => {
+        if (lastNDays.includes(transaction.date)) {
+            if (transaction.transactionType === 'income' || transaction.type === 'income') {
+                incomeByDate[transaction.date] += transaction.amount;
+            } else if (transaction.transactionType === 'expense' || transaction.type === 'expense') {
+                expenseByDate[transaction.date] += transaction.amount;
+            }
+        }
+    });
+    
+    // Destroy previous chart
+    if (window.incomeExpenseChartInstance) {
+        window.incomeExpenseChartInstance.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    window.incomeExpenseChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: lastNDays.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Income',
+                    data: lastNDays.map(date => incomeByDate[date]),
+                    backgroundColor: '#10B98180',
+                    borderColor: '#10B981',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    order: 2
+                },
+                {
+                    label: 'Expense',
+                    data: lastNDays.map(date => expenseByDate[date]),
+                    backgroundColor: '#EF444480',
+                    borderColor: '#EF4444',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        color: 'var(--color-text-primary)',
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateIncomeExpenseChart(period) {
+    let days = 7;
+    if (period === '30days') days = 30;
+    if (period === '90days') days = 90;
+    
+    initIncomeExpenseChart(days);
+}
+
 // ========== RECENT TRANSACTIONS WITH FILTERS ==========
 
 function createRecentTransactionsCard(transactions) {
@@ -586,16 +787,79 @@ function filterTransactions() {
 // ========== FLOATING ACTION BUTTON ==========
 
 function createFloatingActionButton() {
-    const fab = document.createElement('div');
-    fab.className = 'quick-actions';
+    const fabContainer = document.createElement('div');
+    fabContainer.className = 'fab-container';
+    fabContainer.id = 'fab-container';
     
-    const button = document.createElement('button');
-    button.className = 'fab-button';
-    button.innerHTML = '+';
-    button.onclick = showAddExpenseModal;
-    button.title = 'Quick Add Expense';
+    // Main FAB button
+    const fabButton = document.createElement('button');
+    fabButton.className = 'fab-button';
+    fabButton.id = 'fab-button';
+    fabButton.innerHTML = '➕';
+    fabButton.title = 'Add Transaction';
+    fabButton.onclick = toggleFABMenu;
     
-    fab.appendChild(button);
+    // FAB Menu
+    const fabMenu = document.createElement('div');
+    fabMenu.className = 'fab-menu';
+    fabMenu.id = 'fab-menu';
     
-    return fab;
+    // Income option
+    const incomeOption = document.createElement('button');
+    incomeOption.className = 'fab-menu-item income';
+    incomeOption.innerHTML = '💰 Income';
+    incomeOption.title = 'Add Income';
+    incomeOption.onclick = (e) => {
+        e.stopPropagation();
+        closeFABMenu();
+        showAddIncomeModal();
+    };
+    
+    // Expense option
+    const expenseOption = document.createElement('button');
+    expenseOption.className = 'fab-menu-item expense';
+    expenseOption.innerHTML = '💸 Expense';
+    expenseOption.title = 'Add Expense';
+    expenseOption.onclick = (e) => {
+        e.stopPropagation();
+        closeFABMenu();
+        showAddExpenseModal();
+    };
+    
+    fabMenu.appendChild(incomeOption);
+    fabMenu.appendChild(expenseOption);
+    
+    fabContainer.appendChild(fabButton);
+    fabContainer.appendChild(fabMenu);
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!fabContainer.contains(e.target) && e.target !== fabButton) {
+            closeFABMenu();
+        }
+    }, true);
+    
+    return fabContainer;
+}
+
+// Toggle FAB menu visibility
+function toggleFABMenu() {
+    const fabMenu = document.getElementById('fab-menu');
+    const fabButton = document.getElementById('fab-button');
+    
+    if (fabMenu && fabButton) {
+        fabMenu.classList.toggle('active');
+        fabButton.classList.toggle('active');
+    }
+}
+
+// Close FAB menu
+function closeFABMenu() {
+    const fabMenu = document.getElementById('fab-menu');
+    const fabButton = document.getElementById('fab-button');
+    
+    if (fabMenu && fabButton) {
+        fabMenu.classList.remove('active');
+        fabButton.classList.remove('active');
+    }
 }

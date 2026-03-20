@@ -8,6 +8,7 @@ const SCREENS = {
     DASHBOARD: 'home',
     STATS: 'stats',
     ANALYTICS: 'analytics',
+    INCOME: 'income',
     AI: 'ai',
     SETTINGS: 'settings',
     PROFILE: 'profile'
