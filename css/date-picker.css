@@ -1,0 +1,186 @@
+/* ========== DATE RANGE PICKER ========== */
+
+.date-range-picker {
+    position: relative;
+    display: inline-block;
+}
+
+.date-range-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-text-primary);
+}
+
+.date-range-trigger:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+}
+
+.date-range-trigger-icon {
+    font-size: 18px;
+}
+
+.date-range-trigger-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.date-range-trigger-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+.date-range-trigger-value {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    font-weight: var(--font-semibold);
+}
+
+/* Dropdown Panel */
+.date-range-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-lg);
+    z-index: 1000;
+    min-width: 320px;
+    display: none;
+    animation: dropdownSlideIn 0.2s ease;
+}
+
+.date-range-panel.show {
+    display: block;
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Presets */
+.date-range-presets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.preset-btn {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+.preset-btn:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+}
+
+.preset-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* Custom Date Inputs */
+.date-range-custom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.date-range-custom-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.date-input-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.date-input {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    transition: all var(--transition-base);
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+}
+
+/* Action Buttons */
+.date-range-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.date-range-actions .btn {
+    flex: 1;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .date-range-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .date-range-presets {
+        grid-template-columns: 1fr;
+    }
+}
