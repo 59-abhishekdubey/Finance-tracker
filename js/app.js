@@ -1,3 +1,34 @@
+// ========== GLOBAL ERROR HANDLER ==========
+window.addEventListener('error', function(e) {
+    console.error('❌ Global Error Caught:', {
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        error: e.error
+    });
+    
+    // Show user-friendly error instead of blank page
+    const app = document.getElementById('app');
+    if (app && !app.innerHTML) {
+        app.innerHTML = `
+            <div style="padding: 40px; text-align: center; color: #EF4444;">
+                <h2>⚠️ Something went wrong</h2>
+                <p style="color: #6B7280; margin: 16px 0;">The page failed to load. Please refresh.</p>
+                <button onclick="location.reload()" style="padding: 12px 24px; background: #6366F1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Reload Page
+                </button>
+                <details style="margin-top: 24px; text-align: left; background: #1F2937; padding: 16px; border-radius: 8px; color: #F3F4F6;">
+                    <summary style="cursor: pointer; font-weight: 600; margin-bottom: 8px;">Error Details</summary>
+                    <pre style="font-size: 12px; overflow-x: auto;">${e.message}\nat ${e.filename}:${e.lineno}:${e.colno}</pre>
+                </details>
+            </div>
+        `;
+    }
+});
+
+console.log('✅ Global error handler installed');
+
 // ========== APP STATE ==========
 let currentScreen = 'home';
 let currentModal = null;
@@ -146,7 +177,25 @@ function renderScreen(screenId) {
                 app.style.display = 'block';
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
-                app.appendChild(renderAIScreen());
+                
+                showLoading('AI analyzing your data...');
+                setTimeout(() => {
+                    try {
+                        hideLoading();
+                        const aiContent = renderAIScreen();
+                        if (aiContent) {
+                            app.appendChild(aiContent);
+                            console.log('✅ AI Advisor screen rendered successfully');
+                        } else {
+                            console.error('❌ renderAIScreen() returned null/undefined');
+                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading AI Advisor</div>';
+                        }
+                    } catch (error) {
+                        console.error('❌ Error rendering AI Advisor:', error);
+                        hideLoading();
+                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
+                    }
+                }, 1000);
             }
             break;
             
@@ -156,6 +205,33 @@ function renderScreen(screenId) {
                 app.innerHTML = '';
                 app.className = 'animate-fadeIn';
                 app.appendChild(renderSettingsScreen());
+            }
+            break;
+            
+        case 'reports':
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                
+                showLoading('Loading reports...');
+                setTimeout(() => {
+                    try {
+                        hideLoading();
+                        const reportsContent = renderReportsScreen();
+                        if (reportsContent) {
+                            app.appendChild(reportsContent);
+                            console.log('✅ Reports screen rendered successfully');
+                        } else {
+                            console.error('❌ renderReportsScreen() returned null/undefined');
+                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading reports</div>';
+                        }
+                    } catch (error) {
+                        console.error('❌ Error rendering reports:', error);
+                        hideLoading();
+                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
+                    }
+                }, 800);
             }
             break;
             
@@ -1981,6 +2057,244 @@ function showAddIncomeModal() {
     setTimeout(() => {
         amountInput.focus();
     }, 100);
+}
+
+// ========== PROFILE SCREEN ==========
+function renderProfileScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    const user = getCurrentUser();
+    
+    if (!user) {
+        container.innerHTML = '<p>Please log in to view profile</p>';
+        return container;
+    }
+    
+    // Profile Header
+    const profileHeader = document.createElement('div');
+    profileHeader.style.cssText = 'text-align: center; padding: 40px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; margin-bottom: 32px; color: white;';
+    
+    profileHeader.innerHTML = `
+        <div style="font-size: 80px; margin-bottom: 16px;">${user.avatar || '👤'}</div>
+        <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">${user.name}</h1>
+        <p style="font-size: 16px; opacity: 0.9; margin-bottom: 16px;">${user.email}</p>
+        <span style="background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">Free Plan</span>
+    `;
+    container.appendChild(profileHeader);
+    
+    // User Stats
+    const stats = getUserStats();
+    const statsCard = document.createElement('div');
+    statsCard.className = 'card';
+    statsCard.style.marginBottom = '24px';
+    
+    statsCard.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 24px;">Your Activity</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="text-align: center; padding: 20px; background: var(--color-bg-secondary, #F3F4F6); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--color-primary, #6366F1); margin-bottom: 8px;">${stats.totalTransactions}</div>
+                <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">Total Transactions</div>
+            </div>
+            <div style="text-align: center; padding: 20px; background: var(--color-bg-secondary, #F3F4F6); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--color-success, #10B981); margin-bottom: 8px;">${stats.daysActive}</div>
+                <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">Days Active</div>
+            </div>
+            <div style="text-align: center; padding: 20px; background: var(--color-bg-secondary, #F3F4F6); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--color-warning, #F59E0B); margin-bottom: 8px;">${formatCurrency(stats.thisMonthSpending)}</div>
+                <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">This Month</div>
+            </div>
+            <div style="text-align: center; padding: 20px; background: var(--color-bg-secondary, #F3F4F6); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: ${stats.budgetUsedPercent > 100 ? 'var(--color-danger, #EF4444)' : 'var(--color-info, #06B6D4)'}; margin-bottom: 8px;">${stats.budgetUsedPercent}%</div>
+                <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">Budget Used</div>
+            </div>
+        </div>
+    `;
+    container.appendChild(statsCard);
+    
+    // Actions Card
+    const actionsCard = document.createElement('div');
+    actionsCard.className = 'card';
+    actionsCard.style.marginBottom = '24px';
+    
+    actionsCard.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 20px;">Quick Actions</h2>
+        <div style="display: grid; gap: 12px;">
+            <button onclick="showEditProfileModal()" style="width: 100%; padding: 16px; background: var(--color-surface, white); border: 1px solid var(--color-border, #E5E7EB); border-radius: 12px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <span style="font-size: 24px;">✏️</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Edit Profile</div>
+                    <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">Update your name and avatar</div>
+                </div>
+                <span style="color: var(--color-text-tertiary, #9CA3AF);">→</span>
+            </button>
+            <button onclick="navigateTo('settings')" style="width: 100%; padding: 16px; background: var(--color-surface, white); border: 1px solid var(--color-border, #E5E7EB); border-radius: 12px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <span style="font-size: 24px;">⚙️</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Settings</div>
+                    <div style="font-size: 14px; color: var(--color-text-secondary, #6B7280);">Manage budget and preferences</div>
+                </div>
+                <span style="color: var(--color-text-tertiary, #9CA3AF);">→</span>
+            </button>
+            <button onclick="handleLogout()" style="width: 100%; padding: 16px; background: var(--color-surface, white); border: 1px solid var(--color-danger-light, #FEE2E2); border-radius: 12px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; color: var(--color-danger, #EF4444);">
+                <span style="font-size: 24px;">🚪</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Logout</div>
+                    <div style="font-size: 14px; opacity: 0.8;">Sign out of your account</div>
+                </div>
+                <span style="opacity: 0.5;">→</span>
+            </button>
+        </div>
+    `;
+    container.appendChild(actionsCard);
+    
+    // Account Info
+    const infoCard = document.createElement('div');
+    infoCard.className = 'card';
+    
+    const memberSince = new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    infoCard.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 20px;">Account Information</h2>
+        <div style="display: grid; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--color-border, #E5E7EB);">
+                <span style="color: var(--color-text-secondary, #6B7280);">Member Since</span>
+                <span style="font-weight: 600;">${memberSince}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--color-border, #E5E7EB);">
+                <span style="color: var(--color-text-secondary, #6B7280);">Account Type</span>
+                <span style="font-weight: 600;">Free Plan</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--color-border, #E5E7EB);">
+                <span style="color: var(--color-text-secondary, #6B7280);">Email</span>
+                <span style="font-weight: 600;">${user.email}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                <span style="color: var(--color-text-secondary, #6B7280);">User ID</span>
+                <span style="font-weight: 600; font-family: monospace; font-size: 12px;">#${user.id.toString().slice(0, 8)}</span>
+            </div>
+        </div>
+    `;
+    container.appendChild(infoCard);
+    
+    return container;
+}
+
+// Edit Profile Modal
+function showEditProfileModal() {
+    const user = getCurrentUser();
+    
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = '20px';
+    
+    const avatars = ['👤', '😀', '😎', '🤓', '🧑‍💻', '👨‍💼', '👩‍💼', '🦸'];
+    
+    form.innerHTML = `
+        <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Name</label>
+            <input type="text" id="edit-name" value="${user.name}" class="input" required style="width: 100%; padding: 12px; border: 1px solid var(--color-border, #E5E7EB); border-radius: 8px;">
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 12px; font-weight: 600;">Avatar</label>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                ${avatars.map(avatar => `
+                    <div class="avatar-option ${user.avatar === avatar ? 'selected' : ''}" onclick="selectAvatar('${avatar}')" 
+                         style="font-size: 40px; padding: 16px; text-align: center; border: 2px solid ${user.avatar === avatar ? 'var(--color-primary, #6366F1)' : 'var(--color-border, #E5E7EB)'}; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                        ${avatar}
+                    </div>
+                `).join('')}
+            </div>
+            <input type="hidden" id="selected-avatar" value="${user.avatar || '👤'}">
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-large" style="width: 100%; padding: 14px; background: var(--color-primary, #6366F1); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            Save Changes
+        </button>
+    `;
+    
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const newName = document.getElementById('edit-name').value;
+        const newAvatar = document.getElementById('selected-avatar').value;
+        
+        updateUserProfile({ name: newName, avatar: newAvatar });
+        
+        showSuccessToast('Profile Updated!', 'Your changes have been saved');
+        
+        if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+        }
+        
+        renderScreen('profile');
+    };
+    
+    currentModal = createModal('Edit Profile', form, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+}
+
+// Select avatar helper
+function selectAvatar(emoji) {
+    document.querySelectorAll('.avatar-option').forEach(option => {
+        option.style.borderColor = 'var(--color-border, #E5E7EB)';
+        option.classList.remove('selected');
+    });
+    
+    event.target.style.borderColor = 'var(--color-primary, #6366F1)';
+    event.target.classList.add('selected');
+    
+    document.getElementById('selected-avatar').value = emoji;
+}
+
+// Logout handler
+function handleLogout() {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (confirmed) {
+        logoutUser();
+        navigateTo('landing');
+    }
+}
+
+// Get user stats
+function getUserStats() {
+    const transactions = getTransactions();
+    const budget = getBudget();
+    const spent = calculateSpent(transactions);
+    
+    // Count total transactions
+    const totalTransactions = transactions.length;
+    
+    // Count days active (unique dates)
+    const uniqueDates = new Set(transactions.map(t => new Date(t.date).toDateString()));
+    const daysActive = uniqueDates.size;
+    
+    // Calculate this month spending
+    const now = new Date();
+    const thisMonth = transactions.filter(t => {
+        const date = new Date(t.date);
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear() && t.transactionType !== 'income';
+    }).reduce((sum, t) => sum + (t.amount || 0), 0);
+    
+    // Calculate budget used percent
+    const budgetUsedPercent = budget.total > 0 ? Math.round((spent.total / budget.total) * 100) : 0;
+    
+    return {
+        totalTransactions,
+        daysActive,
+        thisMonthSpending: thisMonth,
+        budgetUsedPercent
+    };
 }
 
 // ========== START APP ==========
