@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="css/loading.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/empty-states.css">
+    <link rel="stylesheet" href="css/recurring.css">
+    <link rel="stylesheet" href="css/date-picker.css">
+    <link rel="stylesheet" href="css/onboarding.css">
     
     <!-- Chart.js for real charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -63,6 +66,12 @@
                     <a class="sidebar-link" onclick="navigateTo('reports')" data-screen="reports">
                         <span class="sidebar-icon">📑</span>
                         <span class="sidebar-text">Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" onclick="navigateTo('recurring')" data-screen="recurring">
+                        <span class="sidebar-icon">🔄</span>
+                        <span class="sidebar-text">Recurring</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -541,6 +550,8 @@
 <script src="js/components.js"></script>
 <script src="js/validation.js"></script>
 <script src="js/empty-states.js"></script>
+<script src="js/date-picker.js"></script>
+<script src="js/onboarding.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/header.js"></script>
 <script src="js/router.js"></script>
