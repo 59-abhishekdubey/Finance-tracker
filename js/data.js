@@ -392,3 +392,172 @@ function updateTransaction(id, updates) {
     
     return null;
 }
+
+// ========== RECURRING TRANSACTIONS ==========
+
+const RECURRING_STORAGE_KEY = 'finance_tracker_recurring';
+
+// Get all recurring transactions
+function getRecurringTransactions() {
+    const data = localStorage.getItem(RECURRING_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+// Save recurring transactions
+function saveRecurringTransactions(recurring) {
+    localStorage.setItem(RECURRING_STORAGE_KEY, JSON.stringify(recurring));
+}
+
+// Add recurring transaction
+function addRecurringTransaction(recurringData) {
+    const recurring = getRecurringTransactions();
+    
+    const newRecurring = {
+        id: Date.now(),
+        ...recurringData,
+        createdAt: new Date().toISOString(),
+        lastProcessed: null,
+        nextDue: calculateNextDueDate(recurringData.frequency, recurringData.startDate),
+        isActive: true
+    };
+    
+    recurring.push(newRecurring);
+    saveRecurringTransactions(recurring);
+    
+    return newRecurring;
+}
+
+// Calculate next due date
+function calculateNextDueDate(frequency, fromDate) {
+    const date = new Date(fromDate);
+    
+    switch(frequency) {
+        case 'daily':
+            date.setDate(date.getDate() + 1);
+            break;
+        case 'weekly':
+            date.setDate(date.getDate() + 7);
+            break;
+        case 'biweekly':
+            date.setDate(date.getDate() + 14);
+            break;
+        case 'monthly':
+            date.setMonth(date.getMonth() + 1);
+            break;
+        case 'quarterly':
+            date.setMonth(date.getMonth() + 3);
+            break;
+        case 'yearly':
+            date.setFullYear(date.getFullYear() + 1);
+            break;
+    }
+    
+    return date.toISOString().split('T')[0];
+}
+
+// Get frequency label
+function getFrequencyLabel(frequency) {
+    const labels = {
+        'daily': 'Daily',
+        'weekly': 'Weekly',
+        'biweekly': 'Every 2 Weeks',
+        'monthly': 'Monthly',
+        'quarterly': 'Every 3 Months',
+        'yearly': 'Yearly'
+    };
+    
+    return labels[frequency] || frequency;
+}
+
+// Update recurring transaction
+function updateRecurringTransaction(id, updates) {
+    const recurring = getRecurringTransactions();
+    const index = recurring.findIndex(r => r.id === id);
+    
+    if (index !== -1) {
+        recurring[index] = { ...recurring[index], ...updates };
+        saveRecurringTransactions(recurring);
+        return recurring[index];
+    }
+    
+    return null;
+}
+
+// Delete recurring transaction
+function deleteRecurringTransaction(id) {
+    let recurring = getRecurringTransactions();
+    recurring = recurring.filter(r => r.id !== id);
+    saveRecurringTransactions(recurring);
+}
+
+// Toggle recurring transaction active status
+function toggleRecurringActive(id) {
+    const recurring = getRecurringTransactions();
+    const index = recurring.findIndex(r => r.id === id);
+    
+    if (index !== -1) {
+        recurring[index].isActive = !recurring[index].isActive;
+        saveRecurringTransactions(recurring);
+        return recurring[index];
+    }
+    
+    return null;
+}
+
+// Process due recurring transactions
+function processDueRecurring() {
+    const recurring = getRecurringTransactions();
+    const today = getToday();
+    let processedCount = 0;
+    
+    recurring.forEach(rec => {
+        if (!rec.isActive) return;
+        
+        // Check if due
+        if (rec.nextDue <= today) {
+            // Create transaction
+            const transaction = {
+                name: rec.name,
+                amount: rec.amount,
+                category: rec.category,
+                date: today,
+                note: `Recurring: ${getFrequencyLabel(rec.frequency)}`,
+                transactionType: rec.transactionType || 'expense',
+                type: rec.type || getCategoryType(rec.category)
+            };
+            
+            if (rec.transactionType === 'income') {
+                addIncome(transaction);
+            } else {
+                addTransaction(transaction);
+            }
+            
+            // Update recurring record
+            rec.lastProcessed = today;
+            rec.nextDue = calculateNextDueDate(rec.frequency, today);
+            processedCount++;
+        }
+    });
+    
+    if (processedCount > 0) {
+        saveRecurringTransactions(recurring);
+    }
+    
+    return processedCount;
+}
+
+// Get upcoming recurring transactions (next 7 days)
+function getUpcomingRecurring() {
+    const recurring = getRecurringTransactions();
+    const today = new Date();
+    const next7Days = new Date();
+    next7Days.setDate(next7Days.getDate() + 7);
+    
+    return recurring
+        .filter(r => r.isActive)
+        .filter(r => {
+            const dueDate = new Date(r.nextDue);
+            return dueDate >= today && dueDate <= next7Days;
+        })
+        .sort((a, b) => new Date(a.nextDue) - new Date(b.nextDue));
+}

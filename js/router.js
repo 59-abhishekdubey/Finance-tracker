@@ -10,6 +10,7 @@ const SCREENS = {
     ANALYTICS: 'analytics',
     INCOME: 'income',
     REPORTS: 'reports',
+    RECURRING: 'recurring',
     AI: 'ai',
     SETTINGS: 'settings',
     PROFILE: 'profile'

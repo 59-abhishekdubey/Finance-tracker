@@ -172,6 +172,15 @@ function renderScreen(screenId) {
             }
             break;
             
+        case 'recurring':
+            if (app) {
+                app.style.display = 'block';
+                app.innerHTML = '';
+                app.className = 'animate-fadeIn';
+                app.appendChild(renderRecurringScreen());
+            }
+            break;
+            
         case 'ai':
             if (app) {
                 app.style.display = 'block';
@@ -2059,6 +2068,369 @@ function showAddIncomeModal() {
     }, 100);
 }
 
+// ========== ADD RECURRING TRANSACTION MODAL ==========
+function showAddRecurringModal() {
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = 'var(--space-lg)';
+    
+    form.innerHTML = `
+        <div class="input-group">
+            <label class="input-label">Transaction Type</label>
+            <select class="input" id="recurring-type" required onchange="updateRecurringCategories()">
+                <option value="expense">💸 Expense</option>
+                <option value="income">💰 Income</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Name</label>
+            <input type="text" class="input" id="recurring-name" placeholder="e.g., Monthly Rent" required>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Amount (₹)</label>
+            <input type="number" class="input" id="recurring-amount" placeholder="0" min="1" step="1" required>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Category</label>
+            <select class="input" id="recurring-category" required>
+                <option value="">Select category</option>
+                <optgroup label="Expense Categories" id="expense-categories">
+                    <option value="food">🍔 Food</option>
+                    <option value="transport">🚗 Transport</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="bills">💡 Bills</option>
+                    <option value="entertainment">🎮 Entertainment</option>
+                    <option value="other">📦 Other</option>
+                </optgroup>
+                <optgroup label="Income Categories" id="income-categories" style="display: none;">
+                    <option value="salary">💼 Salary</option>
+                    <option value="freelance">💻 Freelance</option>
+                    <option value="business">🏢 Business</option>
+                    <option value="investment">📈 Investment</option>
+                    <option value="rental">🏠 Rental</option>
+                    <option value="other">💰 Other</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Frequency</label>
+            <select class="input" id="recurring-frequency" required>
+                <option value="daily">📅 Daily</option>
+                <option value="weekly">🗓️ Weekly</option>
+                <option value="biweekly">📆 Every 2 Weeks</option>
+                <option value="monthly" selected>🗓️ Monthly</option>
+                <option value="quarterly">📊 Every 3 Months</option>
+                <option value="yearly">🎂 Yearly</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Start Date</label>
+            <input type="date" class="input" id="recurring-start-date" value="${getToday()}" required>
+        </div>
+        
+        <div class="input-group">
+            <label class="input-label">Description (Optional)</label>
+            <input type="text" class="input" id="recurring-note" placeholder="Additional details">
+        </div>
+        
+        <div style="padding: var(--space-md); background: var(--color-info-light); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+            💡 <strong>Tip:</strong> This transaction will be automatically added to your account based on the frequency you choose.
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-large btn-block">
+            ✓ Create Recurring Transaction
+        </button>
+    `;
+    
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        const type = document.getElementById('recurring-type').value;
+        const name = document.getElementById('recurring-name').value;
+        const amount = parseFloat(document.getElementById('recurring-amount').value);
+        const category = document.getElementById('recurring-category').value;
+        const frequency = document.getElementById('recurring-frequency').value;
+        const startDate = document.getElementById('recurring-start-date').value;
+        const note = document.getElementById('recurring-note').value;
+        
+        if (!name || !amount || !category || !frequency) {
+            showErrorToast('Invalid Input', 'Please fill all required fields');
+            return;
+        }
+        
+        const recurringData = {
+            name: name,
+            amount: amount,
+            category: category,
+            frequency: frequency,
+            startDate: startDate,
+            note: note,
+            transactionType: type,
+            type: type === 'income' ? 'income' : getCategoryType(category)
+        };
+        
+        addRecurringTransaction(recurringData);
+        
+        showSuccessToast(
+            'Recurring Transaction Created!',
+            `${name} will be added ${getFrequencyLabel(frequency).toLowerCase()}`
+        );
+        
+        if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+        }
+        
+        if (currentScreen === 'recurring') {
+            renderScreen('recurring');
+        }
+    };
+    
+    currentModal = createModal('New Recurring Transaction', form, () => {
+        currentModal = null;
+    });
+    
+    document.body.appendChild(currentModal);
+}
+
+// Update categories based on transaction type
+function updateRecurringCategories() {
+    const type = document.getElementById('recurring-type').value;
+    const expenseGroup = document.getElementById('expense-categories');
+    const incomeGroup = document.getElementById('income-categories');
+    const categorySelect = document.getElementById('recurring-category');
+    
+    if (type === 'income') {
+        expenseGroup.style.display = 'none';
+        incomeGroup.style.display = 'block';
+        categorySelect.value = 'salary';
+    } else {
+        expenseGroup.style.display = 'block';
+        incomeGroup.style.display = 'none';
+        categorySelect.value = 'food';
+    }
+}
+
+// ========== RECURRING TRANSACTIONS SCREEN ==========
+function renderRecurringScreen() {
+    const container = document.createElement('div');
+    container.className = 'container-narrow';
+    
+    const header = document.createElement('div');
+    header.style.marginBottom = 'var(--space-xl)';
+    
+    const title = document.createElement('h1');
+    title.textContent = '🔄 Recurring Transactions';
+    title.style.marginBottom = 'var(--space-xs)';
+    
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-secondary';
+    subtitle.textContent = 'Automate your regular income and expenses';
+    
+    header.appendChild(title);
+    header.appendChild(subtitle);
+    container.appendChild(header);
+    
+    const processed = processDueRecurring();
+    if (processed > 0) {
+        showSuccessToast(
+            'Transactions Processed',
+            `${processed} recurring transaction${processed === 1 ? '' : 's'} added`
+        );
+    }
+    
+    const recurring = getRecurringTransactions();
+    
+    if (recurring.length === 0) {
+        const emptyState = createEmptyState({
+            icon: '🔄',
+            title: 'No recurring transactions',
+            description: 'Set up automatic transactions for bills, salary, subscriptions, and more.',
+            actions: [{
+                label: 'Create Recurring',
+                onClick: showAddRecurringModal,
+                variant: 'primary',
+                icon: '+'
+            }]
+        });
+        container.appendChild(emptyState);
+        return container;
+    }
+    
+    const upcoming = getUpcomingRecurring();
+    
+    if (upcoming.length > 0) {
+        const upcomingCard = createCard('📅 Upcoming (Next 7 Days)', null, null);
+        upcomingCard.style.marginBottom = 'var(--space-xl)';
+        
+        const upcomingList = document.createElement('div');
+        upcomingList.className = 'recurring-list';
+        
+        upcoming.forEach(rec => {
+            const daysUntil = Math.ceil((new Date(rec.nextDue) - new Date()) / (1000 * 60 * 60 * 24));
+            const item = createRecurringItem(rec, daysUntil);
+            upcomingList.appendChild(item);
+        });
+        
+        upcomingCard.appendChild(upcomingList);
+        container.appendChild(upcomingCard);
+    }
+    
+    const addBtn = createButton('Create Recurring', showAddRecurringModal, 'primary', 'large', '+');
+    addBtn.style.width = '100%';
+    addBtn.style.marginBottom = 'var(--space-xl)';
+    container.appendChild(addBtn);
+    
+    const allTitle = document.createElement('h2');
+    allTitle.textContent = 'All Recurring Transactions';
+    allTitle.style.marginBottom = 'var(--space-lg)';
+    container.appendChild(allTitle);
+    
+    const tabs = document.createElement('div');
+    tabs.className = 'tabs';
+    tabs.style.marginBottom = 'var(--space-lg)';
+    tabs.innerHTML = `
+        <button class="tab-btn active" onclick="filterRecurring('active')">Active (${recurring.filter(r => r.isActive).length})</button>
+        <button class="tab-btn" onclick="filterRecurring('paused')">Paused (${recurring.filter(r => !r.isActive).length})</button>
+        <button class="tab-btn" onclick="filterRecurring('all')">All (${recurring.length})</button>
+    `;
+    container.appendChild(tabs);
+    
+    const recurringList = document.createElement('div');
+    recurringList.className = 'recurring-list';
+    recurringList.id = 'recurring-list';
+    
+    recurring.forEach(rec => {
+        const item = createRecurringItem(rec);
+        recurringList.appendChild(item);
+    });
+    
+    container.appendChild(recurringList);
+    
+    return container;
+}
+
+// Create recurring item component
+function createRecurringItem(recurring, daysUntil = null) {
+    const item = document.createElement('div');
+    item.className = 'recurring-item';
+    if (!recurring.isActive) {
+        item.classList.add('paused');
+    }
+    
+    const isIncome = recurring.transactionType === 'income';
+    const categoryColor = isIncome 
+        ? getIncomeCategoryColor(recurring.category)
+        : getCategoryColor(recurring.category);
+    
+    const icon = isIncome
+        ? getIncomeCategoryIcon(recurring.category)
+        : getCategoryIcon(recurring.category);
+    
+    item.innerHTML = `
+        <div class="recurring-icon" style="background: ${categoryColor}20; color: ${categoryColor};">
+            ${icon}
+        </div>
+        <div class="recurring-info">
+            <div class="recurring-name">
+                ${recurring.name}
+                ${!recurring.isActive ? '<span class="recurring-badge paused">Paused</span>' : ''}
+            </div>
+            <div class="recurring-meta">
+                <span>${getFrequencyLabel(recurring.frequency)}</span>
+                <span class="transaction-dot">•</span>
+                <span style="text-transform: capitalize;">${recurring.category}</span>
+                ${daysUntil !== null ? `
+                    <span class="transaction-dot">•</span>
+                    <span style="color: var(--color-warning); font-weight: var(--font-semibold);">
+                        ${daysUntil === 0 ? 'Due today' : `In ${daysUntil} day${daysUntil === 1 ? '' : 's'}`}
+                    </span>
+                ` : ''}
+            </div>
+            <div class="recurring-next-due">
+                Next: ${formatDate(recurring.nextDue)}
+            </div>
+        </div>
+        <div class="recurring-amount" style="color: ${isIncome ? 'var(--color-success)' : 'var(--color-text-primary)'};">
+            ${isIncome ? '+' : '-'}${formatCurrency(recurring.amount)}
+        </div>
+        <div class="recurring-actions">
+            <button class="icon-btn" onclick="toggleRecurringStatus(${recurring.id})" title="${recurring.isActive ? 'Pause' : 'Resume'}">
+                ${recurring.isActive ? '⏸️' : '▶️'}
+            </button>
+            <button class="icon-btn" onclick="deleteRecurringWithConfirm(${recurring.id})" title="Delete">
+                🗑️
+            </button>
+        </div>
+    `;
+    
+    return item;
+}
+
+// Toggle recurring status
+function toggleRecurringStatus(id) {
+    const recurring = toggleRecurringActive(id);
+    
+    if (recurring) {
+        showSuccessToast(
+            recurring.isActive ? 'Recurring Resumed' : 'Recurring Paused',
+            recurring.name
+        );
+        renderScreen('recurring');
+    }
+}
+
+// Delete recurring with confirmation
+function deleteRecurringWithConfirm(id) {
+    const recurring = getRecurringTransactions().find(r => r.id === id);
+    
+    if (!recurring) return;
+    
+    const confirmed = confirm(`Delete recurring transaction "${recurring.name}"?\n\nThis will stop automatic transactions but won't delete existing ones.`);
+    
+    if (confirmed) {
+        deleteRecurringTransaction(id);
+        showSuccessToast('Recurring Deleted', recurring.name);
+        renderScreen('recurring');
+    }
+}
+
+// Filter recurring transactions
+function filterRecurring(filter) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const recurring = getRecurringTransactions();
+    const list = document.getElementById('recurring-list');
+    
+    list.innerHTML = '';
+    
+    let filtered;
+    if (filter === 'active') {
+        filtered = recurring.filter(r => r.isActive);
+    } else if (filter === 'paused') {
+        filtered = recurring.filter(r => !r.isActive);
+    } else {
+        filtered = recurring;
+    }
+    
+    if (filtered.length === 0) {
+        list.innerHTML = `<p style="text-align: center; color: var(--color-text-secondary); padding: var(--space-xl);">No ${filter} recurring transactions</p>`;
+    } else {
+        filtered.forEach(rec => {
+            list.appendChild(createRecurringItem(rec));
+        });
+    }
+}
+
 // ========== PROFILE SCREEN ==========
 function renderProfileScreen() {
     const container = document.createElement('div');
@@ -2299,7 +2671,24 @@ function getUserStats() {
 
 // ========== START APP ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // Process recurring transactions if user is logged in
+    if (isLoggedIn()) {
+        const processed = processDueRecurring();
+        
+        if (processed > 0) {
+            setTimeout(() => {
+                showInfoToast(
+                    'Recurring Transactions',
+                    `${processed} transaction${processed === 1 ? '' : 's'} automatically added`
+                );
+            }, 2000);
+        }
+        
+        // Check and start onboarding
+        checkAndStartOnboarding();
+    }
+    
     setupAuthForms();
     initRouter();
-    console.log('App ready with auth!');
+    console.log('✅ App ready with all features!');
 });
