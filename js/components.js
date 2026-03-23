@@ -3,7 +3,8 @@
 // Create a button
 function createButton(text, onClick, variant = 'primary', size = '', icon = null) {
     const button = document.createElement('button');
-    button.className = `btn btn-${variant} ${size ? `btn-${size}` : ''}`;
+    const sizeClass = size ? `btn-${size}` : '';
+    button.className = `btn btn-${variant} ${sizeClass}`;
     
     if (icon) {
         const iconSpan = document.createElement('span');
@@ -311,7 +312,7 @@ function createCategoryPill(category, active, onClick) {
     pill.appendChild(icon);
     pill.appendChild(name);
     
-    pill.onclick = () => onClick(category);
+    pill.onclick = (evt) => onClick(category, evt);
     
     return pill;
 }

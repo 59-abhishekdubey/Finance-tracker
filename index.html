@@ -45,46 +45,46 @@
         <div class="sidebar-section">
             <ul class="sidebar-menu">
                 <li class="sidebar-item">
-                    <a class="sidebar-link active" onclick="navigateTo('home')" data-screen="home">
+                    <button class="sidebar-link active" onclick="navigateTo('home')" data-screen="home" type="button">
                         <span class="sidebar-icon">🏠</span>
                         <span class="sidebar-text">Dashboard</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('stats')" data-screen="stats">
+                    <button class="sidebar-link" onclick="navigateTo('stats')" data-screen="stats" type="button">
                         <span class="sidebar-icon">📊</span>
                         <span class="sidebar-text">Statistics</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('analytics')" data-screen="analytics">
+                    <button class="sidebar-link" onclick="navigateTo('analytics')" data-screen="analytics" type="button">
                         <span class="sidebar-icon">📈</span>
                         <span class="sidebar-text">Analytics</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('reports')" data-screen="reports">
+                    <button class="sidebar-link" onclick="navigateTo('reports')" data-screen="reports" type="button">
                         <span class="sidebar-icon">📑</span>
                         <span class="sidebar-text">Reports</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('recurring')" data-screen="recurring">
+                    <button class="sidebar-link" onclick="navigateTo('recurring')" data-screen="recurring" type="button">
                         <span class="sidebar-icon">🔄</span>
                         <span class="sidebar-text">Recurring</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('income')" data-screen="income">
+                    <button class="sidebar-link" onclick="navigateTo('income')" data-screen="income" type="button">
                         <span class="sidebar-icon">💰</span>
                         <span class="sidebar-text">Income</span>
-                    </a>
+                    </button>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('ai')" data-screen="ai">
+                    <button class="sidebar-link" onclick="navigateTo('ai')" data-screen="ai" type="button">
                         <span class="sidebar-icon">💬</span>
                         <span class="sidebar-text">AI Advisor</span>
-                    </a>
+                    </button>
                 </li>
             </ul>
         </div>
@@ -94,10 +94,10 @@
             <div class="sidebar-section-title">Preferences</div>
             <ul class="sidebar-menu">
                 <li class="sidebar-item">
-                    <a class="sidebar-link" onclick="navigateTo('settings')" data-screen="settings">
+                    <button class="sidebar-link" onclick="navigateTo('settings')" data-screen="settings" type="button">
                         <span class="sidebar-icon">⚙️</span>
                         <span class="sidebar-text">Settings</span>
-                    </a>
+                    </button>
                 </li>
             </ul>
         </div>
@@ -105,7 +105,7 @@
     
     <!-- User Profile (Footer) -->
     <div class="sidebar-footer">
-        <div class="sidebar-user" onclick="navigateTo('profile')">
+        <button class="sidebar-user" onclick="navigateTo('profile')" type="button">
             <div class="sidebar-user-avatar" id="sidebar-avatar">
                 👤
             </div>
@@ -113,12 +113,12 @@
                 <div class="sidebar-user-name" id="sidebar-username">User</div>
                 <div class="sidebar-user-role">Free Plan</div>
             </div>
-        </div>
+        </button>
     </div>
 </aside>
 
 <!-- Mobile Overlay (for sidebar) -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+<button class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()" type="button" style="border: none; background: none; padding: 0; cursor: pointer;"></button>
 
 <!-- Hamburger Menu (Mobile) -->
 <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileSidebar()">
@@ -170,7 +170,7 @@
         
         <!-- Profile Dropdown -->
         <div class="profile-dropdown" id="profile-dropdown">
-            <div class="profile-trigger" onclick="toggleProfileDropdown()">
+            <button class="profile-trigger" onclick="toggleProfileDropdown()" type="button">
                 <div class="profile-avatar" id="header-avatar">
                     👤
                 </div>
@@ -179,7 +179,7 @@
                     <div class="profile-email" id="header-email">user@email.com</div>
                 </div>
                 <span class="profile-arrow">▼</span>
-            </div>
+            </button>
             
             <!-- Dropdown Menu -->
             <div class="dropdown-menu">
@@ -188,22 +188,22 @@
                     <div class="dropdown-user-email" id="dropdown-email">user@email.com</div>
                 </div>
                 
-                <a class="dropdown-item" onclick="navigateTo('profile')">
+                <button class="dropdown-item" onclick="navigateTo('profile')" type="button">
                     <span class="dropdown-icon">👤</span>
                     <span>View Profile</span>
-                </a>
+                </button>
                 
-                <a class="dropdown-item" onclick="navigateTo('settings')">
+                <button class="dropdown-item" onclick="navigateTo('settings')" type="button">
                     <span class="dropdown-icon">⚙️</span>
                     <span>Settings</span>
-                </a>
+                </button>
                 
                 <div class="dropdown-divider"></div>
                 
-                <a class="dropdown-item danger" onclick="handleLogout()">
+                <button class="dropdown-item danger" onclick="handleLogout()" type="button">
                     <span class="dropdown-icon">🚪</span>
                     <span>Logout</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -261,17 +261,17 @@
                     <div class="footer-links">
                         <h4 class="footer-heading">Features</h4>
                         <ul>
-                            <li><a onclick="navigateTo('register')">Dashboard</a></li>
-                            <li><a onclick="navigateTo('register')">Analytics</a></li>
-                            <li><a onclick="navigateTo('register')">AI Advisor</a></li>
-                            <li><a onclick="navigateTo('register')">Budget Goals</a></li>
+                            <li><button onclick="navigateTo('register')" type="button">Dashboard</button></li>
+                            <li><button onclick="navigateTo('register')" type="button">Analytics</button></li>
+                            <li><button onclick="navigateTo('register')" type="button">AI Advisor</button></li>
+                            <li><button onclick="navigateTo('register')" type="button">Budget Goals</button></li>
                         </ul>
                     </div>
                     <div class="footer-links">
                         <h4 class="footer-heading">Account</h4>
                         <ul>
-                            <li><a onclick="navigateTo('login')">Sign In</a></li>
-                            <li><a onclick="navigateTo('register')">Create Account</a></li>
+                            <li><button onclick="navigateTo('login')" type="button">Sign In</button></li>
+                            <li><button onclick="navigateTo('register')" type="button">Create Account</button></li>
                         </ul>
                     </div>
                 </div>
@@ -342,7 +342,7 @@
                     <div class="auth-footer"> 
                         <p class="auth-link"> 
                             Don't have an account?  
-                            <a onclick="navigateTo('register')">Sign up</a> 
+                            <button onclick="navigateTo('register')" type="button">Sign up</button> 
                         </p> 
                     </div> 
                 </div> 
@@ -433,7 +433,7 @@
                     <div class="auth-footer"> 
                         <p class="auth-link"> 
                             Already have an account?  
-                            <a onclick="navigateTo('login')">Sign in</a> 
+                            <button onclick="navigateTo('login')" type="button">Sign in</button> 
                         </p> 
                     </div> 
                 </div> 

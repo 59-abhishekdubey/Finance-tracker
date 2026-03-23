@@ -27,12 +27,12 @@ function exportDataToCSV() {
     
     // Create download link
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download =`finance-tracker-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 }
 
 // Update budget amounts
@@ -40,10 +40,10 @@ function updateBudgetAmounts(total, needsPercent, wantsPercent, savingsPercent) 
     const data = getData();
     
     data.budget = {
-        total: parseFloat(total),
-        needs: (parseFloat(total) * needsPercent) / 100,
-        wants: (parseFloat(total) * wantsPercent) / 100,
-        savings: (parseFloat(total) * savingsPercent) / 100
+        total: Number.parseFloat(total),
+        needs: (Number.parseFloat(total) * needsPercent) / 100,
+        wants: (Number.parseFloat(total) * wantsPercent) / 100,
+        savings: (Number.parseFloat(total) * savingsPercent) / 100
     };
     
     saveData(data);
@@ -90,3 +90,19 @@ function resetToDefaultBudget() {
     saveData(data);
     return data.budget;
 }
+
+// ========== AI SETTINGS MANAGEMENT ==========
+
+// Get AI settings from localStorage
+function getAISettings() {
+    const settings = localStorage.getItem('finance_tracker_ai_settings');
+    return settings ? JSON.parse(settings) : { provider: 'pattern', apiKey: '' };
+}
+
+// Save AI settings to localStorage
+function saveAISettings(provider, apiKey) {
+    const settings = { provider, apiKey };
+    localStorage.setItem('finance_tracker_ai_settings', JSON.stringify(settings));
+}
+
+console.log('✅ Settings module with AI configuration loaded');

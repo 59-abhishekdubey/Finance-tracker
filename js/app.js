@@ -1,5 +1,5 @@
 // ========== GLOBAL ERROR HANDLER ==========
-window.addEventListener('error', function(e) {
+globalThis.addEventListener('error', function(e) {
     console.error('❌ Global Error Caught:', {
         message: e.message,
         filename: e.filename,
@@ -51,216 +51,38 @@ function switchScreen(screenId) {
     updateBottomNav();
 }
 
+function renderScreenContent_home(app) { app.appendChild(createSkeletonDashboard()); setTimeout(() => { app.innerHTML = ''; app.appendChild(renderDashboard()); }, 600); }
+function renderScreenContent_stats(app) { const sk = createSkeletonTransactions(7); app.appendChild(sk); setTimeout(() => { app.innerHTML = ''; app.appendChild(renderStatsScreen()); }, 600); }
+function renderScreenContent_analytics(app) { showLoading('Loading analytics...'); setTimeout(() => { hideLoading(); app.appendChild(renderAnalyticsScreen() || createErrorDiv('Error')); }, 800); }
+function renderScreenContent_income(app) { showLoading('Loading income...'); setTimeout(() => { hideLoading(); app.appendChild(renderIncomeScreen() || createErrorDiv('Error')); }, 600); }
+function renderScreenContent_ai(app) { showLoading('AI analyzing...'); setTimeout(() => { hideLoading(); app.appendChild(renderAIScreen() || createErrorDiv('Error')); }, 1000); }
+function renderScreenContent_reports(app) { showLoading('Loading reports...'); setTimeout(() => { hideLoading(); app.appendChild(renderReportsScreen() || createErrorDiv('Error')); }, 800); }
+function renderScreenContent_profile(app) { showLoading('Loading profile...'); setTimeout(() => { hideLoading(); app.appendChild(renderProfileScreen()); }, 600); }
+
 function renderScreen(screenId) {
-    console.log('🎨 renderScreen called for:', screenId);
     const app = document.getElementById('app');
-    const landingPage = document.getElementById('landing-page');
-    const loginPage = document.getElementById('login-page');
-    const registerPage = document.getElementById('register-page');
+    const pages = { landing: document.getElementById('landing-page'), login: document.getElementById('login-page'), register: document.getElementById('register-page') };
     
-    console.log('🎨 Elements found:', { app: !!app, landingPage: !!landingPage, loginPage: !!loginPage, registerPage: !!registerPage });
-    
-    // Hide all pages first
+    Object.values(pages).forEach(p => { if (p) p.style.display = 'none'; });
     if (app) app.style.display = 'none';
-    if (landingPage) landingPage.style.display = 'none';
-    if (loginPage) loginPage.style.display = 'none';
-    if (registerPage) registerPage.style.display = 'none';
     
-    // Show appropriate page
-    switch(screenId) {
-        case 'landing':
-            if (landingPage) landingPage.style.display = 'block';
-            console.log('🎨 Showing landing page');
-            break;
-            
-        case 'login':
-            if (loginPage) loginPage.style.display = 'block';
-            console.log('🎨 Showing login page');
-            break;
-            
-        case 'register':
-            if (registerPage) registerPage.style.display = 'block';
-            console.log('🎨 Showing register page');
-            break;
-            
-        case 'home':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                // Show skeleton first
-                app.appendChild(createSkeletonDashboard());
-                
-                // Load real content after delay
-                setTimeout(() => {
-                    app.innerHTML = '';
-                    app.appendChild(renderDashboard());
-                }, 600);
-            }
-            break;
-            
-        case 'stats':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                // Show skeleton
-                const skeleton = createSkeletonTransactions(7);
-                app.appendChild(skeleton);
-                
-                // Load real content
-                setTimeout(() => {
-                    app.innerHTML = '';
-                    app.appendChild(renderStatsScreen());
-                }, 600);
-            }
-            break;
-            
-        case 'analytics':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                showLoading('Loading analytics...');
-                setTimeout(() => {
-                    try {
-                        hideLoading();
-                        const analyticsContent = renderAnalyticsScreen();
-                        if (analyticsContent) {
-                            app.appendChild(analyticsContent);
-                            console.log('✅ Analytics screen rendered successfully');
-                        } else {
-                            console.error('❌ renderAnalyticsScreen() returned null/undefined');
-                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading analytics</div>';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error rendering analytics:', error);
-                        hideLoading();
-                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
-                    }
-                }, 800);
-            }
-            break;
-            
-        case 'income':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                showLoading('Loading income...');
-                setTimeout(() => {
-                    try {
-                        hideLoading();
-                        const incomeContent = renderIncomeScreen();
-                        if (incomeContent) {
-                            app.appendChild(incomeContent);
-                            console.log('✅ Income screen rendered successfully');
-                        } else {
-                            console.error('❌ renderIncomeScreen() returned null/undefined');
-                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading income</div>';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error rendering income:', error);
-                        hideLoading();
-                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
-                    }
-                }, 600);
-            }
-            break;
-            
-        case 'recurring':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                app.appendChild(renderRecurringScreen());
-            }
-            break;
-            
-        case 'ai':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                showLoading('AI analyzing your data...');
-                setTimeout(() => {
-                    try {
-                        hideLoading();
-                        const aiContent = renderAIScreen();
-                        if (aiContent) {
-                            app.appendChild(aiContent);
-                            console.log('✅ AI Advisor screen rendered successfully');
-                        } else {
-                            console.error('❌ renderAIScreen() returned null/undefined');
-                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading AI Advisor</div>';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error rendering AI Advisor:', error);
-                        hideLoading();
-                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
-                    }
-                }, 1000);
-            }
-            break;
-            
-        case 'settings':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                app.appendChild(renderSettingsScreen());
-            }
-            break;
-            
-        case 'reports':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                showLoading('Loading reports...');
-                setTimeout(() => {
-                    try {
-                        hideLoading();
-                        const reportsContent = renderReportsScreen();
-                        if (reportsContent) {
-                            app.appendChild(reportsContent);
-                            console.log('✅ Reports screen rendered successfully');
-                        } else {
-                            console.error('❌ renderReportsScreen() returned null/undefined');
-                            app.innerHTML = '<div style="padding: 2rem; text-align: center;">Error loading reports</div>';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error rendering reports:', error);
-                        hideLoading();
-                        app.innerHTML = '<div style="padding: 2rem; text-align: center; color: red;">Error: ' + error.message + '</div>';
-                    }
-                }, 800);
-            }
-            break;
-            
-        case 'profile':
-            if (app) {
-                app.style.display = 'block';
-                app.innerHTML = '';
-                app.className = 'animate-fadeIn';
-                
-                showLoading('Loading profile...');
-                setTimeout(() => {
-                    hideLoading();
-                    app.appendChild(renderProfileScreen());
-                }, 600);
-            }
-            break;
-            
-        default:
-            if (landingPage) landingPage.style.display = 'block';
-    }
+    if (pages[screenId]) { pages[screenId].style.display = 'block'; return; }
+    if (!app) return;
+    
+    app.style.display = 'block';
+    app.innerHTML = '';
+    app.className = 'animate-fadeIn';
+    
+    if (screenId === 'home') renderScreenContent_home(app);
+    else if (screenId === 'stats') renderScreenContent_stats(app);
+    else if (screenId === 'analytics') renderScreenContent_analytics(app);
+    else if (screenId === 'income') renderScreenContent_income(app);
+    else if (screenId === 'recurring') app.appendChild(renderRecurringScreen());
+    else if (screenId === 'ai') renderScreenContent_ai(app);
+    else if (screenId === 'settings') app.appendChild(renderSettingsScreen());
+    else if (screenId === 'reports') renderScreenContent_reports(app);
+    else if (screenId === 'profile') renderScreenContent_profile(app);
+    else pages.landing.style.display = 'block';
 }
 
 function updateBottomNav() {
@@ -295,7 +117,7 @@ function renderDashboard() {
         const insights = createInsightsWidget();
         if (insights) {
             const firstChild = dashboardContent.firstChild;
-            dashboardContent.insertBefore(insights, firstChild);
+            firstChild.before(insights);
             console.log('🏠 App: Insights widget added');
         }
     } catch (e) {
@@ -641,7 +463,7 @@ function initStatsChart(days) {
 function updateStatsChart(days) {
     const allButtons = document.querySelectorAll('.chart-card-filter .filter-btn');
     allButtons.forEach(btn => {
-        if (parseInt(btn.getAttribute('data-days')) === days) {
+        if (Number.parseInt(btn.dataset.days) === days) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -843,8 +665,7 @@ function sendChatMessage(message) {
     // Save to chat history
     const chatHistory = localStorage.getItem('chat_history');
     const messages = chatHistory ? JSON.parse(chatHistory) : [];
-    messages.push({ role: 'user', content: message });
-    messages.push({ role: 'ai', content: aiResponse });
+    messages.push({ role: 'user', content: message }, { role: 'ai', content: aiResponse });
     localStorage.setItem('chat_history', JSON.stringify(messages));
     
     // Scroll to bottom
@@ -899,13 +720,13 @@ function showAddExpenseModal() {
         const pill = createCategoryPill(
             cat,
             cat === selectedCategory,
-            (category) => {
+            (category, evt) => {
                 selectedCategory = category;
                 // Update all pills
                 categoryGrid.querySelectorAll('.category-pill').forEach(p => {
                     p.classList.remove('active');
                 });
-                event.target.closest('.category-pill').classList.add('active');
+                evt.target.closest('.category-pill').classList.add('active');
             }
         );
         categoryGrid.appendChild(pill);
@@ -1070,12 +891,12 @@ function showEditTransactionModal(transaction) {
         const pill = createCategoryPill(
             cat,
             cat === selectedCategory,
-            (category) => {
+            (category, evt) => {
                 selectedCategory = category;
                 categoryGrid.querySelectorAll('.category-pill').forEach(p => {
                     p.classList.remove('active');
                 });
-                event.target.closest('.category-pill').classList.add('active');
+                evt.target.closest('.category-pill').classList.add('active');
             }
         );
         categoryGrid.appendChild(pill);
@@ -1367,10 +1188,10 @@ function renderSettingsScreen() {
     budgetForm.onsubmit = (e) => {
         e.preventDefault();
         
-        const total = parseFloat(totalInput.value);
-        const needs = parseFloat(needsInput.value);
-        const wants = parseFloat(wantsInput.value);
-        const savings = parseFloat(savingsInput.value);
+        const total = Number.parseFloat(totalInput.value);
+        const needs = Number.parseFloat(needsInput.value);
+        const wants = Number.parseFloat(wantsInput.value);
+        const savings = Number.parseFloat(savingsInput.value);
         
         if (needs + wants + savings !== 100) {
             alert('Percentages must add up to 100%!');
@@ -1389,6 +1210,134 @@ function renderSettingsScreen() {
     const spacer1 = document.createElement('div');
     spacer1.style.height = 'var(--space-xl)';
     container.appendChild(spacer1);
+    
+    // ========== AI SETTINGS CARD ==========
+    const aiCard = createCard(
+        '🤖 AI Advisor Settings',
+        'Configure AI integration (optional)',
+        null
+    );
+    
+    const aiForm = document.createElement('form');
+    aiForm.style.display = 'flex';
+    aiForm.style.flexDirection = 'column';
+    aiForm.style.gap = 'var(--space-lg)';
+    
+    // Load current settings
+    const aiSettings = getAISettings();
+    
+    // AI Provider Selection
+    const providerGroup = document.createElement('div');
+    providerGroup.className = 'input-group';
+    
+    const providerLabel = document.createElement('label');
+    providerLabel.className = 'input-label';
+    providerLabel.textContent = 'AI Provider';
+    
+    const providerSelect = document.createElement('select');
+    providerSelect.className = 'input';
+    providerSelect.style.cursor = 'pointer';
+    providerSelect.innerHTML = `
+        <option value="pattern">Pattern Matching (Free, Built-in)</option>
+        <option value="openai">OpenAI GPT (Requires API Key)</option>
+        <option value="anthropic">Anthropic Claude (Requires API Key)</option>
+    `;
+    providerSelect.value = aiSettings.provider || 'pattern';
+    
+    providerGroup.appendChild(providerLabel);
+    providerGroup.appendChild(providerSelect);
+    aiForm.appendChild(providerGroup);
+    
+    // API Key Section (shown when not pattern matching)
+    const apiKeyGroup = document.createElement('div');
+    apiKeyGroup.className = 'input-group';
+    apiKeyGroup.id = 'api-key-section';
+    apiKeyGroup.style.display = aiSettings.provider === 'pattern' ? 'none' : 'block';
+    
+    const apiKeyLabel = document.createElement('label');
+    apiKeyLabel.className = 'input-label';
+    apiKeyLabel.textContent = 'API Key';
+    
+    const apiKeyInput = document.createElement('input');
+    apiKeyInput.type = 'password';
+    apiKeyInput.className = 'input';
+    apiKeyInput.id = 'ai-api-key';
+    apiKeyInput.placeholder = 'sk-... (OpenAI) or sk-ant-... (Claude)';
+    apiKeyInput.value = aiSettings.apiKey || '';
+    apiKeyInput.autocomplete = 'off';
+    
+    const apiKeyHint = document.createElement('small');
+    apiKeyHint.style.cssText = 'color: #6B7280; margin-top: 6px; display: block; line-height: 1.5;';
+    apiKeyHint.innerHTML = '🔒 Your key is stored locally in your browser and never sent anywhere else';
+    
+    apiKeyGroup.appendChild(apiKeyLabel);
+    apiKeyGroup.appendChild(apiKeyInput);
+    apiKeyGroup.appendChild(apiKeyHint);
+    aiForm.appendChild(apiKeyGroup);
+    
+    // Show/hide API key input based on provider selection
+    providerSelect.addEventListener('change', (e) => {
+        const apiKeySection = document.getElementById('api-key-section');
+        if (e.target.value === 'pattern') {
+            apiKeySection.style.display = 'none';
+        } else {
+            apiKeySection.style.display = 'block';
+        }
+    });
+    
+    // Provider Info Box
+    const infoBox = document.createElement('div');
+    infoBox.style.cssText = 'padding: 12px; background: #F0F9FF; border-left: 4px solid #0EA5E9; border-radius: 4px; font-size: 13px; color: #0C4A6E; line-height: 1.6;';
+    
+    if (aiSettings.provider === 'pattern') {
+        infoBox.innerHTML = '💡 <strong>Pattern Matching:</strong> Free, works without API key. Good for basic questions.';
+    } else if (aiSettings.provider === 'openai') {
+        infoBox.innerHTML = '⚡ <strong>OpenAI GPT:</strong> Smart responses, $0.002-0.01 per request. Get key: <a href="https://platform.openai.com/api/keys" target="_blank" style="color: #0EA5E9; text-decoration: underline;">platform.openai.com</a>';
+    } else {
+        infoBox.innerHTML = '⚡ <strong>Claude:</strong> Advanced reasoning, low cost. Get key: <a href="https://console.anthropic.com/keys" target="_blank" style="color: #0EA5E9; text-decoration: underline;">console.anthropic.com</a>';
+    }
+    
+    providerSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'pattern') {
+            infoBox.innerHTML = '💡 <strong>Pattern Matching:</strong> Free, works without API key. Good for basic questions.';
+        } else if (e.target.value === 'openai') {
+            infoBox.innerHTML = '⚡ <strong>OpenAI GPT:</strong> Smart responses, $0.002-0.01 per request. Get key: <a href="https://platform.openai.com/api/keys" target="_blank" style="color: #0EA5E9; text-decoration: underline;">platform.openai.com</a>';
+        } else {
+            infoBox.innerHTML = '⚡ <strong>Claude:</strong> Advanced reasoning, low cost. Get key: <a href="https://console.anthropic.com/keys" target="_blank" style="color: #0EA5E9; text-decoration: underline;">console.anthropic.com</a>';
+        }
+    });
+    
+    aiForm.appendChild(infoBox);
+    
+    // Save button
+    const aiSaveBtn = createButton('Save AI Settings', null, 'primary', 'large');
+    aiSaveBtn.type = 'submit';
+    aiSaveBtn.style.width = '100%';
+    
+    aiForm.appendChild(aiSaveBtn);
+    
+    aiForm.onsubmit = (e) => {
+        e.preventDefault();
+        const provider = providerSelect.value;
+        const apiKey = apiKeyInput.value.trim();
+        
+        if (provider !== 'pattern' && !apiKey) {
+            alert('⚠️ Please enter your API key or select Pattern Matching (free)');
+            return;
+        }
+        
+        saveAISettings(provider, apiKey);
+        showSuccessToast('✅ AI Settings Saved', 'Your AI configuration has been updated');
+        renderScreen('settings');
+    };
+    
+    aiCard.appendChild(aiForm);
+    container.appendChild(aiCard);
+    
+    // Spacing
+    const spacer2 = document.createElement('div');
+    spacer2.style.height = 'var(--space-xl)';
+    container.appendChild(spacer2);
     
     // Data Management Card
     const dataCard = createCard(
@@ -1822,29 +1771,6 @@ function renderIncomeScreen() {
     return container;
 }
 
-// ========== PROFILE SCREEN (Placeholder - Nayan will build this) ==========
-function renderProfileScreen() {
-    const container = document.createElement('div');
-    container.className = 'container-narrow';
-    
-    const header = document.createElement('div');
-    header.style.marginBottom = 'var(--space-xl)';
-    
-    const title = document.createElement('h1');
-    title.textContent = 'Profile';
-    title.style.marginBottom = 'var(--space-xs)';
-    
-    header.appendChild(title);
-    container.appendChild(header);
-    
-    const message = document.createElement('p');
-    message.className = 'text-secondary';
-    message.textContent = 'Profile page coming soon...';
-    container.appendChild(message);
-    
-    return container;
-}
-
 // ========== AUTH FORM HANDLERS ==========
 function setupAuthForms() {
     // Login form handler
@@ -1944,13 +1870,13 @@ function showAddIncomeModal() {
         const pill = createCategoryPill(
             cat,
             cat === selectedCategory,
-            (category) => {
+            (category, evt) => {
                 selectedCategory = category;
                 // Update all pills
                 categoryGrid.querySelectorAll('.category-pill').forEach(p => {
                     p.classList.remove('active');
                 });
-                event.target.closest('.category-pill').classList.add('active');
+                evt.target.closest('.category-pill').classList.add('active');
             }
         );
         pill.style.backgroundColor = getIncomeCategoryColor(cat);
@@ -2153,7 +2079,7 @@ function showAddRecurringModal() {
         
         const type = document.getElementById('recurring-type').value;
         const name = document.getElementById('recurring-name').value;
-        const amount = parseFloat(document.getElementById('recurring-amount').value);
+        const amount = Number.parseFloat(document.getElementById('recurring-amount').value);
         const category = document.getElementById('recurring-category').value;
         const frequency = document.getElementById('recurring-frequency').value;
         const startDate = document.getElementById('recurring-start-date').value;
@@ -2273,7 +2199,7 @@ function renderRecurringScreen() {
         upcomingList.className = 'recurring-list';
         
         upcoming.forEach(rec => {
-            const daysUntil = Math.ceil((new Date(rec.nextDue) - new Date()) / (1000 * 60 * 60 * 24));
+            const daysUntil = Math.ceil((new Date(rec.nextDue) - Date.now()) / (1000 * 60 * 60 * 24));
             const item = createRecurringItem(rec, daysUntil);
             upcomingList.appendChild(item);
         });
@@ -2296,9 +2222,9 @@ function renderRecurringScreen() {
     tabs.className = 'tabs';
     tabs.style.marginBottom = 'var(--space-lg)';
     tabs.innerHTML = `
-        <button class="tab-btn active" onclick="filterRecurring('active')">Active (${recurring.filter(r => r.isActive).length})</button>
-        <button class="tab-btn" onclick="filterRecurring('paused')">Paused (${recurring.filter(r => !r.isActive).length})</button>
-        <button class="tab-btn" onclick="filterRecurring('all')">All (${recurring.length})</button>
+        <button class="tab-btn active" onclick="filterRecurring('active', event)">Active (${recurring.filter(r => r.isActive).length})</button>
+        <button class="tab-btn" onclick="filterRecurring('paused', event)">Paused (${recurring.filter(r => !r.isActive).length})</button>
+        <button class="tab-btn" onclick="filterRecurring('all', event)">All (${recurring.length})</button>
     `;
     container.appendChild(tabs);
     
@@ -2333,6 +2259,22 @@ function createRecurringItem(recurring, daysUntil = null) {
         ? getIncomeCategoryIcon(recurring.category)
         : getCategoryIcon(recurring.category);
     
+    // Build daysUntil display without nested ternaries
+    let daysUntilDisplay = '';
+    if (daysUntil !== null) {
+        let daysLabel;
+        if (daysUntil === 0) {
+            daysLabel = 'Due today';
+        } else {
+            const dayWord = daysUntil === 1 ? 'day' : 'days';
+            daysLabel = `In ${daysUntil} ${dayWord}`;
+        }
+        daysUntilDisplay = `<span class="transaction-dot">•</span><span style="color: var(--color-warning); font-weight: var(--font-semibold);">${daysLabel}</span>`;
+    }    
+    
+    // Extract ternary expressions before template
+    const badgeHtml = recurring.isActive ? '' : '<span class="recurring-badge paused">Paused</span>';
+    
     item.innerHTML = `
         <div class="recurring-icon" style="background: ${categoryColor}20; color: ${categoryColor};">
             ${icon}
@@ -2340,18 +2282,13 @@ function createRecurringItem(recurring, daysUntil = null) {
         <div class="recurring-info">
             <div class="recurring-name">
                 ${recurring.name}
-                ${!recurring.isActive ? '<span class="recurring-badge paused">Paused</span>' : ''}
+                ${badgeHtml}
             </div>
             <div class="recurring-meta">
                 <span>${getFrequencyLabel(recurring.frequency)}</span>
                 <span class="transaction-dot">•</span>
                 <span style="text-transform: capitalize;">${recurring.category}</span>
-                ${daysUntil !== null ? `
-                    <span class="transaction-dot">•</span>
-                    <span style="color: var(--color-warning); font-weight: var(--font-semibold);">
-                        ${daysUntil === 0 ? 'Due today' : `In ${daysUntil} day${daysUntil === 1 ? '' : 's'}`}
-                    </span>
-                ` : ''}
+                ${daysUntilDisplay}
             </div>
             <div class="recurring-next-due">
                 Next: ${formatDate(recurring.nextDue)}
@@ -2361,8 +2298,8 @@ function createRecurringItem(recurring, daysUntil = null) {
             ${isIncome ? '+' : '-'}${formatCurrency(recurring.amount)}
         </div>
         <div class="recurring-actions">
-            <button class="icon-btn" onclick="toggleRecurringStatus(${recurring.id})" title="${recurring.isActive ? 'Pause' : 'Resume'}">
-                ${recurring.isActive ? '⏸️' : '▶️'}
+            <button class="icon-btn" onclick="toggleRecurringStatus(${recurring.id})" title="${toggleBtnTitle}">
+                ${toggleBtnIcon}
             </button>
             <button class="icon-btn" onclick="deleteRecurringWithConfirm(${recurring.id})" title="Delete">
                 🗑️
@@ -2402,11 +2339,11 @@ function deleteRecurringWithConfirm(id) {
 }
 
 // Filter recurring transactions
-function filterRecurring(filter) {
+function filterRecurring(filter, evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    evt.target.classList.add('active');
     
     const recurring = getRecurringTransactions();
     const list = document.getElementById('recurring-list');
@@ -2577,7 +2514,7 @@ function showEditProfileModal() {
             <label style="display: block; margin-bottom: 12px; font-weight: 600;">Avatar</label>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
                 ${avatars.map(avatar => `
-                    <div class="avatar-option ${user.avatar === avatar ? 'selected' : ''}" onclick="selectAvatar('${avatar}')" 
+                    <div class="avatar-option ${user.avatar === avatar ? 'selected' : ''}" onclick="selectAvatar('${avatar}', event)" 
                          style="font-size: 40px; padding: 16px; text-align: center; border: 2px solid ${user.avatar === avatar ? 'var(--color-primary, #6366F1)' : 'var(--color-border, #E5E7EB)'}; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
                         ${avatar}
                     </div>
@@ -2617,14 +2554,14 @@ function showEditProfileModal() {
 }
 
 // Select avatar helper
-function selectAvatar(emoji) {
+function selectAvatar(emoji, evt) {
     document.querySelectorAll('.avatar-option').forEach(option => {
         option.style.borderColor = 'var(--color-border, #E5E7EB)';
         option.classList.remove('selected');
     });
     
-    event.target.style.borderColor = 'var(--color-primary, #6366F1)';
-    event.target.classList.add('selected');
+    evt.target.style.borderColor = 'var(--color-primary, #6366F1)';
+    evt.target.classList.add('selected');
     
     document.getElementById('selected-avatar').value = emoji;
 }
