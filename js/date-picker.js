@@ -38,14 +38,14 @@ function createDateRangePicker(onApply) {
     
     panel.innerHTML = `
         <div class="date-range-presets">
-            <button class="preset-btn active" data-preset="all" onclick="selectPreset('all')">All Time</button>
-            <button class="preset-btn" data-preset="today" onclick="selectPreset('today')">Today</button>
-            <button class="preset-btn" data-preset="yesterday" onclick="selectPreset('yesterday')">Yesterday</button>
-            <button class="preset-btn" data-preset="last7days" onclick="selectPreset('last7days')">Last 7 Days</button>
-            <button class="preset-btn" data-preset="last30days" onclick="selectPreset('last30days')">Last 30 Days</button>
-            <button class="preset-btn" data-preset="thisMonth" onclick="selectPreset('thisMonth')">This Month</button>
-            <button class="preset-btn" data-preset="lastMonth" onclick="selectPreset('lastMonth')">Last Month</button>
-            <button class="preset-btn" data-preset="thisYear" onclick="selectPreset('thisYear')">This Year</button>
+            <button class="preset-btn active" data-preset="all" onclick="selectPreset('all', event)">All Time</button>
+            <button class="preset-btn" data-preset="today" onclick="selectPreset('today', event)">Today</button>
+            <button class="preset-btn" data-preset="yesterday" onclick="selectPreset('yesterday', event)">Yesterday</button>
+            <button class="preset-btn" data-preset="last7days" onclick="selectPreset('last7days', event)">Last 7 Days</button>
+            <button class="preset-btn" data-preset="last30days" onclick="selectPreset('last30days', event)">Last 30 Days</button>
+            <button class="preset-btn" data-preset="thisMonth" onclick="selectPreset('thisMonth', event)">This Month</button>
+            <button class="preset-btn" data-preset="lastMonth" onclick="selectPreset('lastMonth', event)">Last Month</button>
+            <button class="preset-btn" data-preset="thisYear" onclick="selectPreset('thisYear', event)">This Year</button>
         </div>
         
         <div class="date-range-custom">
@@ -99,73 +99,81 @@ function closeDateRangePicker() {
 }
 
 // Select preset
-function selectPreset(preset) {
+function selectPreset(preset, evt) {
     // Update active button
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    evt?.target?.classList.add('active');
     
     // Calculate dates based on preset
     const today = new Date();
     let startDate, endDate, label;
     
     switch(preset) {
-        case 'all':
+        case 'all': {
             startDate = null;
             endDate = null;
             label = 'All Time';
             break;
+        }
             
-        case 'today':
+        case 'today': {
             startDate = getToday();
             endDate = getToday();
             label = 'Today';
             break;
+        }
             
-        case 'yesterday':
+        case 'yesterday': {
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
             startDate = yesterday.toISOString().split('T')[0];
             endDate = startDate;
             label = 'Yesterday';
             break;
+        }
             
-        case 'last7days':
+        case 'last7days': {
             const last7 = new Date(today);
             last7.setDate(last7.getDate() - 6);
             startDate = last7.toISOString().split('T')[0];
             endDate = getToday();
             label = 'Last 7 Days';
             break;
+        }
             
-        case 'last30days':
+        case 'last30days': {
             const last30 = new Date(today);
             last30.setDate(last30.getDate() - 29);
             startDate = last30.toISOString().split('T')[0];
             endDate = getToday();
             label = 'Last 30 Days';
             break;
+        }
             
-        case 'thisMonth':
+        case 'thisMonth': {
             startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
             endDate = getToday();
             label = 'This Month';
             break;
+        }
             
-        case 'lastMonth':
+        case 'lastMonth': {
             const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
             startDate = lastMonth.toISOString().split('T')[0];
             const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
             endDate = lastMonthEnd.toISOString().split('T')[0];
             label = 'Last Month';
             break;
+        }
             
-        case 'thisYear':
+        case 'thisYear': {
             startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
             endDate = getToday();
             label = 'This Year';
             break;
+        }
     }
     
     // Update current range

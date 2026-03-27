@@ -373,7 +373,7 @@ function cleanupOnboarding() {
 // Auto-start onboarding on first login
 function checkAndStartOnboarding() {
     // Only start if user is logged in and hasn't completed onboarding
-    if (isLoggedIn && isLoggedIn() && !isOnboardingCompleted()) {
+    if (isLoggedIn?.() && !isOnboardingCompleted()) {
         // Wait for dashboard to load
         setTimeout(() => {
             startOnboarding();
