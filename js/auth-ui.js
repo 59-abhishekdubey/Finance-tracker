@@ -17,31 +17,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Handle Login
-function handleLogin(e) {
-    e.preventDefault();
+// Handle Login - FIXED with proper event parameter
+function handleLogin(evt) {
+    // Use evt instead of global event
+    evt.preventDefault();
     
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const email = document.getElementById('login-email')?.value?.trim() || '';
+    const password = document.getElementById('login-password')?.value || '';
+    const submitBtn = evt.target?.querySelector('button[type="submit"]');
     const messageDiv = document.getElementById('login-message');
     
+    // Validation
+    if (!email || !password) {
+        if (messageDiv) {
+            showMessage(messageDiv, 'error', 'Please enter email and password');
+        }
+        return;
+    }
+    
     // Show button loading
-    setButtonLoading(submitBtn, true);
+    if (submitBtn) {
+        setButtonLoading(submitBtn, true);
+    }
     
     // Clear previous messages
-    messageDiv.className = 'auth-message';
-    messageDiv.textContent = '';
+    if (messageDiv) {
+        messageDiv.className = 'auth-message';
+        messageDiv.textContent = '';
+    }
     
     // Simulate API delay
     setTimeout(() => {
         const result = loginUser(email, password);
         
         // Remove loading
-        setButtonLoading(submitBtn, false);
+        if (submitBtn) {
+            setButtonLoading(submitBtn, false);
+        }
         
         if (result.success) {
-            showMessage(messageDiv, 'success', 'Login successful! Redirecting...');
+            if (messageDiv) {
+                showMessage(messageDiv, 'success', 'Login successful! Redirecting...');
+            }
             
             // Show full screen loading while redirecting
             showLoading('Loading your dashboard...');
@@ -56,36 +73,59 @@ function handleLogin(e) {
     }, 800); // Realistic loading time
 }
 
-// Handle Register
-function handleRegister(e) {
-    e.preventDefault();
+// Handle Register - FIXED with proper event parameter
+function handleRegister(evt) {
+    // Use evt instead of global event
+    evt.preventDefault();
     
-    const name = document.getElementById('register-name').value.trim();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
-    const confirmPassword = document.getElementById('register-password-confirm').value;
+    const name = document.getElementById('register-name')?.value?.trim() || '';
+    const email = document.getElementById('register-email')?.value?.trim() || '';
+    const password = document.getElementById('register-password')?.value || '';
+    const confirmPassword = document.getElementById('register-password-confirm')?.value || '';
     const avatar = '👤'; // Default avatar for all users
     
-    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const submitBtn = evt.target?.querySelector('button[type="submit"]');
     const messageDiv = document.getElementById('register-message');
     
     // Clear previous messages
-    messageDiv.className = 'auth-message';
-    messageDiv.textContent = '';
+    if (messageDiv) {
+        messageDiv.className = 'auth-message';
+        messageDiv.textContent = '';
+    }
     
     // Validation
+    if (!name || name.length < 2) {
+        if (messageDiv) {
+            showMessage(messageDiv, 'error', 'Please enter a valid name!');
+        }
+        return;
+    }
+    
+    if (!email) {
+        if (messageDiv) {
+            showMessage(messageDiv, 'error', 'Please enter an email!');
+        }
+        return;
+    }
+    
     if (password !== confirmPassword) {
-        showMessage(messageDiv, 'error', 'Passwords do not match!');
+        if (messageDiv) {
+            showMessage(messageDiv, 'error', 'Passwords do not match!');
+        }
         return;
     }
     
     if (password.length < 6) {
-        showMessage(messageDiv, 'error', 'Password must be at least 6 characters long!');
+        if (messageDiv) {
+            showMessage(messageDiv, 'error', 'Password must be at least 6 characters long!');
+        }
         return;
     }
     
     // Show button loading
-    setButtonLoading(submitBtn, true);
+    if (submitBtn) {
+        setButtonLoading(submitBtn, true);
+    }
     
     // Simulate API delay
     setTimeout(() => {
@@ -97,15 +137,19 @@ function handleRegister(e) {
         });
         
         // Remove loading
-        setButtonLoading(submitBtn, false);
+        if (submitBtn) {
+            setButtonLoading(submitBtn, false);
+        }
         
         if (result.success) {
-            showMessage(messageDiv, 'success', 'Account created successfully! Redirecting to login...');
+            if (messageDiv) {
+                showMessage(messageDiv, 'success', 'Account created successfully! Redirecting to login...');
+            }
             
             setTimeout(() => {
                 navigateTo('login');
             }, 1500);
-        } else {
+        } else if (messageDiv) {
             showMessage(messageDiv, 'error', result.error || 'Registration failed. Please try again.');
         }
     }, 800);
@@ -129,7 +173,7 @@ function updatePasswordStrength(e) {
     if (password.length >= 6) strength++;
     if (password.length >= 10) strength++;
     if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
     
     strengthBar.className = 'password-strength-bar';

@@ -33,9 +33,11 @@
 
 <!-- SIDEBAR (Desktop Navigation) -->
 <aside id="sidebar" style="display: none;">
-    <!-- Brand/Logo -->
+<!-- Brand/Logo -->
     <div class="sidebar-brand">
-        <img src="assets/logo.svg" alt="Finance Tracker" class="sidebar-brand-icon" style="width: 40px; height: 40px;">
+        <div style="width: 40px; height: 40px; border-radius: 8px; background: #4338ca; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 20px; flex-shrink: 0; font-weight: bold;">
+            ₹
+        </div>
         <span class="sidebar-brand-text">Finance Tracker</span>
     </div>
     
@@ -291,8 +293,17 @@
         <div id="login-page" style="display: none;"> 
             <div class="auth-container"> 
                 <div class="auth-card"> 
-                    <!-- Header --> 
-                    <div class="auth-header"> 
+                    <!-- Logo at top of login card -->
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <div style="width: 64px; height: 64px; border-radius: 12px; background: #4338ca; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 36px; margin: 0 auto 16px; font-weight: bold;">
+                            ₹
+                        </div>
+                        <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px 0; color: var(--color-text-primary);">Finance Tracker</h1>
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0;">Sign in to continue managing your finances</p>
+                    </div>
+
+                    <!-- Header (hidden - logo moved above)--> 
+                    <div class="auth-header" style="display: none;">
                         <div class="auth-logo"> 
                             <span class="auth-logo-icon">🪙</span> 
                             <h2>Finance Tracker</h2> 
@@ -353,8 +364,17 @@
         <div id="register-page" style="display: none;"> 
             <div class="auth-container"> 
                 <div class="auth-card"> 
-                    <!-- Header --> 
-                    <div class="auth-header"> 
+                    <!-- Logo at top of register card -->
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <div style="width: 64px; height: 64px; border-radius: 12px; background: #4338ca; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 36px; margin: 0 auto 16px; font-weight: bold;">
+                            ₹
+                        </div>
+                        <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px 0; color: var(--color-text-primary);">Finance Tracker</h1>
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0;">Join us to start tracking your finances</p>
+                    </div>
+
+                    <!-- Header (hidden - logo moved above)--> 
+                    <div class="auth-header" style="display: none;">
                         <div class="auth-logo"> 
                             <span class="auth-logo-icon">🪙</span> 
                             <h2>Finance Tracker</h2> 

@@ -78,6 +78,15 @@
     transition: all var(--transition-fast);
     cursor: pointer;
     border-left: 3px solid transparent;
+    
+    /* CRITICAL: Button reset styles for converted <a> elements */
+    background: none;
+    font-family: inherit;
+    text-align: left;
+    width: auto;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .sidebar-link:hover {
