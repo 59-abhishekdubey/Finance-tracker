@@ -17,9 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Handle Login - FIXED with proper event parameter
-function handleLogin(evt) {
-    // Use evt instead of global event
+// Handle Login - Updated for API
+async function handleLogin(evt) {
     evt.preventDefault();
     
     const email = document.getElementById('login-email')?.value?.trim() || '';
@@ -46,36 +45,33 @@ function handleLogin(evt) {
         messageDiv.textContent = '';
     }
     
-    // Simulate API delay
-    setTimeout(() => {
-        const result = loginUser(email, password);
-        
-        // Remove loading
-        if (submitBtn) {
-            setButtonLoading(submitBtn, false);
+    // Call API
+    const result = await loginUser(email, password);
+    
+    // Remove loading
+    if (submitBtn) {
+        setButtonLoading(submitBtn, false);
+    }
+    
+    if (result.success) {
+        if (messageDiv) {
+            showMessage(messageDiv, 'success', 'Login successful! Redirecting...');
         }
         
-        if (result.success) {
-            if (messageDiv) {
-                showMessage(messageDiv, 'success', 'Login successful! Redirecting...');
-            }
-            
-            // Show full screen loading while redirecting
-            showLoading('Loading your dashboard...');
-            
-            setTimeout(() => {
-                hideLoading();
-                navigateTo('home');
-            }, 1000);
-        } else {
-            showMessage(messageDiv, 'error', result.error || 'Login failed. Please try again.');
-        }
-    }, 800); // Realistic loading time
+        // Show full screen loading while redirecting
+        showLoading('Loading your dashboard...');
+        
+        setTimeout(() => {
+            hideLoading();
+            navigateTo('home');
+        }, 800);
+    } else {
+        showMessage(messageDiv, 'error', result.error || 'Login failed. Please try again.');
+    }
 }
 
-// Handle Register - FIXED with proper event parameter
-function handleRegister(evt) {
-    // Use evt instead of global event
+// Handle Register - Updated for API
+async function handleRegister(evt) {
     evt.preventDefault();
     
     const name = document.getElementById('register-name')?.value?.trim() || '';
@@ -127,27 +123,31 @@ function handleRegister(evt) {
         setButtonLoading(submitBtn, true);
     }
     
-    // Simulate API delay
-    setTimeout(() => {
-        const result = registerUser({
-            name: name,
-            email: email,
-            password: password,
-            avatar: avatar
-        });
-        
-        // Remove loading
-        if (submitBtn) {
-            setButtonLoading(submitBtn, false);
+    // Call API
+    const result = await registerUser({
+        name: name,
+        email: email,
+        password: password,
+        avatar: avatar
+    });
+    
+    // Remove loading
+    if (submitBtn) {
+        setButtonLoading(submitBtn, false);
+    }
+    
+    if (result.success) {
+        if (messageDiv) {
+            showMessage(messageDiv, 'success', 'Account created successfully! Logging you in...');
         }
         
-        if (result.success) {
-            if (messageDiv) {
-                showMessage(messageDiv, 'success', 'Account created successfully! Redirecting to login...');
-            }
-            
-            setTimeout(() => {
-                navigateTo('login');
+        // Auto login after registration
+        showLoading('Setting up your account...');
+        
+        setTimeout(() => {
+            hideLoading();
+            navigateTo('home');
+        }, 800);
             }, 1500);
         } else if (messageDiv) {
             showMessage(messageDiv, 'error', result.error || 'Registration failed. Please try again.');

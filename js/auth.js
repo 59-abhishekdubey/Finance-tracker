@@ -1,78 +1,59 @@
-﻿// ========== AUTHENTICATION SYSTEM (localStorage based) ==========
+﻿// ========== AUTHENTICATION SYSTEM (Backend API based) ==========
 
 // Check if user is logged in
 function isLoggedIn() {
-    const session = localStorage.getItem('finance_tracker_session');
-    return session !== null;
+    return !!getAuthToken();
 }
 
 // Get current user data
 function getCurrentUser() {
-    const session = localStorage.getItem('finance_tracker_session');
-    if (session) {
-        return JSON.parse(session);
-    }
-    return null;
+    const userStr = localStorage.getItem('finance_tracker_user');
+    return userStr ? JSON.parse(userStr) : null;
 }
 
-// Register new user
-function registerUser(userData) {
-    const users = getAllUsers();
-    const existingUser = users.find(u => u.email === userData.email);
-    
-    if (existingUser) {
-        return { success: false, error: 'Email already registered' };
-    }
-    
-    const newUser = {
-        id: Date.now(),
-        name: userData.name,
-        email: userData.email,
-        password: userData.password,
-        avatar: userData.avatar,
-        createdAt: new Date().toISOString(),
-        accountType: 'Free Plan'
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('finance_tracker_users', JSON.stringify(users));
-    
-    return { success: true, user: newUser };
-}
-
-// Login user
-function loginUser(email, password) {
-    const users = getAllUsers();
-    const user = users.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-        const session = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-            createdAt: user.createdAt,
-            accountType: user.accountType,
-            loginTime: new Date().toISOString()
+// Register new user (API)
+async function registerUser(userData) {
+    try {
+        const data = await apiRegister(userData.name, userData.email, userData.password);
+        return {
+            success: data.success,
+            user: data.user,
+            error: data.error
         };
-        
-        localStorage.setItem('finance_tracker_session', JSON.stringify(session));
-        return { success: true, user: session };
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message
+        };
     }
-    
-    return { success: false, error: 'Invalid email or password' };
+}
+
+// Login user (API)
+async function loginUser(email, password) {
+    try {
+        const data = await apiLogin(email, password);
+        return {
+            success: data.success,
+            user: data.user,
+            error: data.error
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message
+        };
+    }
 }
 
 // Logout user
 function logoutUser() {
-    localStorage.removeItem('finance_tracker_session');
+    apiLogout();
     localStorage.removeItem('chat_history');
 }
 
-// Get all users
+// Get all users (kept for compatibility, not used with backend)
 function getAllUsers() {
-    const users = localStorage.getItem('finance_tracker_users');
-    return users ? JSON.parse(users) : [];
+    return [];
 }
 
 // Update user profile
