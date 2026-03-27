@@ -1,0 +1,67 @@
+# ===================================
+# ENVIRONMENT & SECURITY
+# ===================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ===================================
+# NODE & DEPENDENCIES
+# ===================================
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-error.log*
+
+# ===================================
+# IDE & EDITOR
+# ===================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===================================
+# BUILD & DIST
+# ===================================
+dist/
+build/
+*.zip
+*.rar
+
+# ===================================
+# LOGS & TEMP FILES
+# ===================================
+logs/
+*.log
+tmp/
+temp/
+
+# ===================================
+# API KEYS & SECRETS
+# ===================================
+js/my_api_key.txt
+secrets.json
+credentials.json
+
+# ===================================
+# DATABASE
+# ===================================
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# ===================================
+# OS FILES
+# ===================================
+.DS_Store
+.AppleDouble
+.LSOverride
+ehthumbs.db
