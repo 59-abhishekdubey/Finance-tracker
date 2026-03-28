@@ -49,8 +49,8 @@ exports.updateBudget = async (req, res) => {
         }
         
         // Validate sum
-        const sum = parseFloat(needs) + parseFloat(wants) + parseFloat(savings);
-        if (Math.abs(sum - parseFloat(total)) > 1) {
+        const sum = Number.parseFloat(needs) + Number.parseFloat(wants) + Number.parseFloat(savings);
+        if (Math.abs(sum - Number.parseFloat(total)) > 1) {
             return res.status(400).json({ 
                 success: false, 
                 error: 'Budget categories must sum to total budget' 
