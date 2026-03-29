@@ -372,7 +372,8 @@ npm run dev             # Start server
 
 | Issue | Solution |
 |-------|----------|
-| `MongoDB Connection Error` | Check MONGODB_SETUP.md, ensure MongoDB is running |
+| `Could not connect to any servers in your MongoDB Atlas cluster` | **See [MONGODB_IP_WHITELIST_GUIDE.md](MONGODB_IP_WHITELIST_GUIDE.md)** - Add your IP to Atlas Network Access. Use `0.0.0.0/0` for development |
+| `MongoDB Connection Error` | Check MONGODB_SETUP.md, ensure MongoDB is running, or verify IP whitelist |
 | `Port 5000 already in use` | Change PORT in .env or kill process |
 | `Cannot find module` | Run `npm install` again |
 | `CORS errors` | Verify FRONTEND_URL in .env |
