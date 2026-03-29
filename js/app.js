@@ -42,6 +42,9 @@ function initApp() {
     
     // Add bottom navigation
     updateBottomNav();
+    
+    // Initialize mobile menu
+    initMobileMenu();
 }
 
 // ========== SCREEN MANAGEMENT ==========

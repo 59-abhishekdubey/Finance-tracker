@@ -1,7 +1,7 @@
 // ========== API CLIENT ==========
 // Communicates with backend server
 
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'http://localhost:5000/api';
 
 // Get auth token
 function getAuthToken() {

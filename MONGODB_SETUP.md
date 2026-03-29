@@ -34,24 +34,7 @@ It will look like:
 mongodb+srv://yourname:yourpassword@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
 ```
 
-#### 4. ⚠️ **CRITICAL: Whitelist Your IP Address** (REQUIRED!)
-
-**IMPORTANT:** Before connecting, you MUST add your IP to MongoDB Atlas's security whitelist!
-
-1. In MongoDB Atlas dashboard, go to **Network Access** (left sidebar)
-2. Click **"Add IP Address"**
-3. **Recommended for Development:** Enter `0.0.0.0/0` (allows all IPs)
-4. Click **"Confirm"** and wait 1-2 minutes for it to apply
-5. Now your app can connect!
-
-**⚠️ If you keep getting "Could not connect to any servers" error:**
-- [ ] Did you whitelist your IP?
-- [ ] Did you wait 2 minutes after adding it?
-- [ ] Restart your server: `npm start`
-
-**See [MONGODB_IP_WHITELIST_GUIDE.md](MONGODB_IP_WHITELIST_GUIDE.md) for permanent solutions if you have dynamic IP!**
-
-#### 5. Update Your `.env` File
+#### 4. Update Your `.env` File
 
 Replace the `MONGODB_URI` line:
 
@@ -64,14 +47,14 @@ MONGODB_URI=mongodb+srv://yourname:yourpassword@cluster0.xxxxx.mongodb.net/finan
 - Replace `yourpassword` with your Atlas password
 - Add `/finance-tracker` at the end (before the `?`)
 
-#### 6. Create Database & Collection (Optional)
+#### 5. Create Database & Collection (Optional)
 In MongoDB Atlas dashboard:
 1. Click "Browse Collections"
 2. Click "Create Database"
 3. Name: `finance-tracker`
 4. Click "Create"
 
-#### 7. Test the Connection
+#### 6. Test the Connection
 ```bash
 npm run dev
 ```
