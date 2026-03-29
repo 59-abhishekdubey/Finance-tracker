@@ -1,46 +1,37 @@
-﻿// ========== AUTHENTICATION SYSTEM (Backend API based) ==========
+// ============================================
+// AUTHENTICATION LOGIC
+// ============================================
 
-// Check if user is logged in
-function isLoggedIn() {
-    return !!getAuthToken();
-}
-
-// Get current user data
-function getCurrentUser() {
-    const userStr = localStorage.getItem('finance_tracker_user');
-    return userStr ? JSON.parse(userStr) : null;
-}
-
-// Register new user (API)
-async function registerUser(userData) {
+// Register user
+async function registerUser(name, email, password) {
     try {
-        const data = await apiRegister(userData.name, userData.email, userData.password);
+        const data = await apiRegister(name, email, password);
         return {
-            success: data.success,
+            success: true,
             user: data.user,
-            error: data.error
+            message: 'Registration successful!'
         };
     } catch (error) {
         return {
             success: false,
-            error: error.message
+            error: error.message || 'Registration failed'
         };
     }
 }
 
-// Login user (API)
+// Login user
 async function loginUser(email, password) {
     try {
         const data = await apiLogin(email, password);
         return {
-            success: data.success,
+            success: true,
             user: data.user,
-            error: data.error
+            message: 'Login successful!'
         };
     } catch (error) {
         return {
             success: false,
-            error: error.message
+            error: error.message || 'Login failed'
         };
     }
 }
@@ -48,58 +39,36 @@ async function loginUser(email, password) {
 // Logout user
 function logoutUser() {
     apiLogout();
-    localStorage.removeItem('chat_history');
+    navigateTo('landing');
 }
 
-// Get all users (kept for compatibility, not used with backend)
-function getAllUsers() {
-    return [];
+// Get current user
+function getCurrentUser() {
+    const userStr = localStorage.getItem('finance_tracker_user');
+    return userStr ? JSON.parse(userStr) : null;
 }
 
-// Update user profile
-function updateUserProfile(updates) {
-    const session = getCurrentUser();
-    if (!session) return { success: false, error: 'Not logged in' };
+// Check if logged in
+function isLoggedIn() {
+    return !!getAuthToken();
+}
+
+// Check auth on protected pages
+function checkAuth() {
+    const publicPages = ['landing', 'login', 'register'];
+    const currentPage = getCurrentPage();
     
-    const updatedSession = { ...session, ...updates };
-    localStorage.setItem('finance_tracker_session', JSON.stringify(updatedSession));
-    
-    const users = getAllUsers();
-    const userIndex = users.findIndex(u => u.id === session.id);
-    if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updates };
-        localStorage.setItem('finance_tracker_users', JSON.stringify(users));
+    if (!publicPages.includes(currentPage) && !isLoggedIn()) {
+        navigateTo('login');
+        return false;
     }
     
-    return { success: true, user: updatedSession };
+    if (publicPages.includes(currentPage) && isLoggedIn()) {
+        navigateTo('home');
+        return false;
+    }
+    
+    return true;
 }
 
-// Get user stats
-function getUserStats() {
-    const transactions = getTransactions();
-    const user = getCurrentUser();
-    
-    if (!user) return null;
-    
-    const memberSince = new Date(user.createdAt);
-    const now = new Date();
-    const daysSince = Math.floor((now - memberSince) / (1000 * 60 * 60 * 24));
-    
-    const totalTransactions = transactions.length;
-    const thisMonth = transactions.filter(t => {
-        const tDate = new Date(t.date);
-        return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
-    });
-    
-    const monthlySpending = thisMonth.reduce((sum, t) => sum + t.amount, 0);
-    const budget = getBudget();
-    const budgetUsed = (monthlySpending / budget.total) * 100;
-    
-    return {
-        totalTransactions,
-        daysSince,
-        monthlySpending,
-        budgetUsed: Math.round(budgetUsed),
-        memberSince: user.createdAt
-    };
-}
+console.log('✅ Auth module loaded');

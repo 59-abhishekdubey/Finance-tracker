@@ -181,7 +181,8 @@ function loadConversationHistory() {
     if (saved) {
         try {
             conversationHistory = JSON.parse(saved);
-        } catch (e) {
+        } catch (error) {
+            console.error('Failed to load conversation history:', error);
             conversationHistory = [];
         }
     }
@@ -195,9 +196,9 @@ function clearConversationHistory() {
 }
 
 // Export for use in other modules
-if (typeof window !== 'undefined') {
-    window.initAIAdvisor = initAIAdvisor;
-    window.clearConversationHistory = clearConversationHistory;
+if (typeof globalThis !== 'undefined') {
+    globalThis.initAIAdvisor = initAIAdvisor;
+    globalThis.clearConversationHistory = clearConversationHistory;
 }
 
 console.log('✅ AI Advisor module loaded');

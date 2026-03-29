@@ -2632,3 +2632,49 @@ document.addEventListener('DOMContentLoaded', () => {
     initRouter();
     console.log('✅ App ready with all features!');
 });
+
+// ============================================
+// DARK THEME TOGGLE (FIX FOR toggleBtnTitle)
+// ============================================
+
+function toggleBtnTitle() {
+    const isDark = document.body.classList.contains('dark-theme');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    
+    if (themeToggle) {
+        themeToggle.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
+    
+    if (themeIcon) {
+        themeIcon.textContent = isDark ? '☀️' : '🌙';
+    }
+}
+
+// Fix theme persistence
+function initTheme() {
+    const savedTheme = localStorage.getItem('finance_tracker_theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+    toggleBtnTitle();
+}
+
+// Theme toggle handler
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('finance_tracker_theme', isDark ? 'dark' : 'light');
+            toggleBtnTitle();
+        });
+    }
+}
+
+// Initialize on load
+initTheme();
+setupThemeToggle();
+
+console.log('✅ Theme module loaded');
