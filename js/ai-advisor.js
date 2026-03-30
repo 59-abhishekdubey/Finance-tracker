@@ -1,49 +1,42 @@
-// AI Advisor functionality
+// ============================================
+// AI ADVISOR - SIMPLIFIED WORKING VERSION
+// ============================================
 
 let conversationHistory = [];
 
 function initAIAdvisor() {
     loadConversationHistory();
     setupAIEventListeners();
-    displayInitialMessage();
+    displayWelcomeMessage();
 }
 
 function setupAIEventListeners() {
     const sendBtn = document.getElementById('ai-send-btn');
     const input = document.getElementById('ai-input');
-    const quickActions = document.querySelectorAll('.ai-quick-action');
     
     if (sendBtn) {
         sendBtn.addEventListener('click', sendMessage);
     }
     
     if (input) {
-        input.addEventListener('keypress', (evt) => {
-            if (evt.key === 'Enter' && !evt.shiftKey) {
-                evt.preventDefault();
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
     }
-    
-    quickActions.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const question = btn.dataset.question;
-            if (question) {
-                document.getElementById('ai-input').value = question;
-                sendMessage();
-            }
-        });
-    });
 }
 
-function displayInitialMessage() {
+function displayWelcomeMessage() {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
+    
     if (conversationHistory.length === 0) {
-        addMessageToChat('ai', '👋 Hi! I\'m your AI Financial Advisor. I can help you with budgeting, saving, spending analysis, and financial decisions. What would you like to know?');
+        addMessageToUI('ai', '👋 Hi! I\'m your AI Financial Advisor. Ask me anything about budgeting, saving, or spending!');
     } else {
-        // Render existing history
         conversationHistory.forEach(msg => {
-            addMessageToChat(msg.type, msg.text, false);
+            addMessageToUI(msg.type, msg.text, false);
         });
     }
 }
@@ -54,35 +47,28 @@ async function sendMessage() {
     
     if (!message) return;
     
-    // Add user message to chat
-    addMessageToChat('user', message);
+    addMessageToUI('user', message);
     input.value = '';
     
-    // Show typing indicator
     showTypingIndicator();
     
     try {
-        // Gather user financial data for context
-        const userData = await gatherUserFinancialData();
-        
-        // Call AI API
+        const userData = await gatherUserData();
         const response = await apiAIChat(message, userData, conversationHistory);
         
-        // Remove typing indicator
         hideTypingIndicator();
+        addMessageToUI('ai', response);
         
-        // Add AI response to chat
-        addMessageToChat('ai', response);
-        
-    } catch (error) {
-        console.error('AI Chat Error:', error);
+    } catch (err) {
         hideTypingIndicator();
-        addMessageToChat('ai', '⚠️ Sorry, I encountered an error. Please try again or rephrase your question.');
+        addMessageToUI('ai', '⚠️ Sorry, I encountered an error. Please try again.');
+        console.error('AI Chat Error:', err);
     }
 }
 
-function addMessageToChat(type, text, saveToHistory = true) {
-    const chatContainer = document.getElementById('ai-chat-messages');
+function addMessageToUI(type, text, saveHistory = true) {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
     
     const messageDiv = document.createElement('div');
     messageDiv.className = `ai-message ai-message-${type}`;
@@ -91,53 +77,45 @@ function addMessageToChat(type, text, saveToHistory = true) {
     bubble.className = 'ai-message-bubble';
     bubble.textContent = text;
     
-    const timestamp = document.createElement('div');
-    timestamp.className = 'ai-message-time';
-    timestamp.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const time = document.createElement('div');
+    time.className = 'ai-message-time';
+    time.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
     messageDiv.appendChild(bubble);
-    messageDiv.appendChild(timestamp);
-    chatContainer.appendChild(messageDiv);
+    messageDiv.appendChild(time);
+    container.appendChild(messageDiv);
     
-    // Scroll to bottom
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    container.scrollTop = container.scrollHeight;
     
-    // Save to history
-    if (saveToHistory) {
+    if (saveHistory) {
         conversationHistory.push({ type, text, timestamp: new Date().toISOString() });
         saveConversationHistory();
     }
 }
 
 function showTypingIndicator() {
-    const chatContainer = document.getElementById('ai-chat-messages');
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
     
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'ai-message ai-message-ai ai-typing-indicator';
-    typingDiv.id = 'ai-typing';
+    const typing = document.createElement('div');
+    typing.id = 'ai-typing';
+    typing.className = 'ai-message ai-message-ai';
+    typing.innerHTML = '<div class="ai-message-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
     
-    const bubble = document.createElement('div');
-    bubble.className = 'ai-message-bubble';
-    bubble.innerHTML = '<span></span><span></span><span></span>';
-    
-    typingDiv.appendChild(bubble);
-    chatContainer.appendChild(typingDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    container.appendChild(typing);
+    container.scrollTop = container.scrollHeight;
 }
 
 function hideTypingIndicator() {
     const typing = document.getElementById('ai-typing');
-    if (typing) {
-        typing.remove();
-    }
+    if (typing) typing.remove();
 }
 
-async function gatherUserFinancialData() {
+async function gatherUserData() {
     try {
         const transactions = await apiGetTransactions();
         const budget = await apiGetBudget();
         
-        // Calculate totals
         const income = transactions
             .filter(t => t.transactionType === 'income')
             .reduce((sum, t) => sum + t.amount, 0);
@@ -146,7 +124,6 @@ async function gatherUserFinancialData() {
             .filter(t => t.transactionType === 'expense')
             .reduce((sum, t) => sum + t.amount, 0);
         
-        // Category breakdown
         const categories = {};
         transactions
             .filter(t => t.transactionType === 'expense')
@@ -162,12 +139,11 @@ async function gatherUserFinancialData() {
         return {
             totalIncome: income,
             totalExpenses: expenses,
-            budget: budget,
-            topCategories: topCategories
+            budget,
+            topCategories
         };
-        
-    } catch (error) {
-        console.error('Error gathering financial data:', error);
+    } catch (err) {
+        console.error('Error gathering data:', err);
         return null;
     }
 }
@@ -179,26 +155,12 @@ function saveConversationHistory() {
 function loadConversationHistory() {
     const saved = localStorage.getItem('finance_tracker_ai_history');
     if (saved) {
-        try {
-            conversationHistory = JSON.parse(saved);
-        } catch (error) {
-            console.error('Failed to load conversation history:', error);
-            conversationHistory = [];
-        }
+        conversationHistory = JSON.parse(saved);
     }
 }
 
-function clearConversationHistory() {
-    conversationHistory = [];
-    localStorage.removeItem('finance_tracker_ai_history');
-    document.getElementById('ai-chat-messages').innerHTML = '';
-    displayInitialMessage();
-}
-
-// Export for use in other modules
 if (typeof globalThis !== 'undefined') {
     globalThis.initAIAdvisor = initAIAdvisor;
-    globalThis.clearConversationHistory = clearConversationHistory;
 }
 
-console.log('✅ AI Advisor module loaded');
+console.log('✅ AI Advisor loaded');
