@@ -33,6 +33,40 @@ function exportDataToCSV() {
     link.download =`finance-tracker-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     globalThis.URL.revokeObjectURL(url);
+    
+    if (typeof showSuccessToast === 'function') {
+        showSuccessToast('Export Complete', 'CSV file downloaded successfully!');
+    }
+}
+
+// Export data to JSON
+function exportDataToJSON() {
+    const transactions = getTransactions();
+    const budget = getBudget();
+    
+    if (transactions.length === 0) {
+        alert('No transactions to export!');
+        return;
+    }
+    
+    const exportData = {
+        exportDate: new Date().toISOString(),
+        transactions: transactions,
+        budget: budget,
+        totalTransactions: transactions.length
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = globalThis.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `finance-tracker-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    globalThis.URL.revokeObjectURL(url);
+    
+    if (typeof showSuccessToast === 'function') {
+        showSuccessToast('Export Complete', 'JSON file downloaded successfully!');
+    }
 }
 
 // Update budget amounts

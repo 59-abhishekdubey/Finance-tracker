@@ -1,78 +1,158 @@
 /* ============================================
-   LANDING PAGE - COMPLETE FIXED VERSION
+   LANDING PAGE - PROFESSIONAL FINTECH DESIGN
    ============================================ */
 
 .landing-page {
+    width: 100%;
     min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     overflow-x: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    position: relative;
 }
 
-/* HERO SECTION */
+/* HERO SECTION - full width bg, centered content */
 .landing-hero {
-    padding: 80px 20px;
+    width: 100%;
+    padding: 100px 40px 80px;
     text-align: center;
-    max-width: 1200px;
-    margin: 0 auto;
+    animation: heroFadeIn 1s ease-out;
+}
+
+/* Inner content constraint for readability */
+.landing-hero > * {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .landing-logo {
     font-size: 72px;
     margin-bottom: 20px;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-weight: 800;
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .landing-title {
-    font-size: 48px;
-    font-weight: 700;
-    margin: 20px 0;
-    line-height: 1.2;
+    font-size: 56px;
+    font-weight: 800;
+    margin: 24px auto 12px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-align: center;
+    animation: slideUp 0.8s ease-out 0.2s both;
 }
 
 .landing-subtitle {
-    font-size: 24px;
-    margin: 15px 0;
+    font-size: 26px;
+    margin: 12px auto;
     opacity: 0.95;
     font-weight: 500;
+    text-align: center;
+    animation: slideUp 0.8s ease-out 0.35s both;
 }
 
 .landing-description {
     font-size: 18px;
     max-width: 700px;
     margin: 20px auto 40px;
-    opacity: 0.9;
-    line-height: 1.6;
+    color: #1a1a2e;
+    opacity: 1;
+    line-height: 1.7;
+    font-weight: 500;
+    text-align: center;
+    animation: slideUp 0.8s ease-out 0.5s both;
 }
 
+/* STATS ROW */
+.landing-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px auto;
+    max-width: 900px;
+    animation: slideUp 0.8s ease-out 0.6s both;
+}
+
+.landing-stat {
+    text-align: center;
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 120px;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.landing-stat:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.landing-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.landing-stat-label {
+    font-size: 13px;
+    opacity: 0.8;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* CTA BUTTONS */
 .landing-cta {
     display: flex;
     gap: 20px;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 48px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: slideUp 0.8s ease-out 0.7s both;
 }
 
 .landing-btn {
-    padding: 16px 48px;
+    padding: 18px 48px;
     font-size: 18px;
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 14px;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: none;
     display: inline-block;
+    letter-spacing: 0.3px;
 }
 
 .landing-btn-primary {
     background: #ff6b6b;
     color: white;
+    box-shadow: 0 8px 30px rgba(255, 107, 107, 0.35);
 }
 
 .landing-btn-primary:hover {
     background: #ff5252;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(255, 107, 107, 0.5);
 }
 
 .landing-btn-secondary {
@@ -83,9 +163,9 @@
 }
 
 .landing-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.28);
     border-color: white;
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.02);
 }
 
 /* FEATURES SECTION */
@@ -99,6 +179,7 @@
     font-size: 42px;
     margin-bottom: 70px;
     font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .features-grid {
@@ -112,17 +193,19 @@
 .feature-card {
     background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 50px 30px;
-    border-radius: 20px;
+    border-radius: 24px;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.25);
-    transition: all 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feature-card:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    transform: translateY(-12px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 .feature-icon {
@@ -140,12 +223,12 @@
 .feature-description {
     font-size: 16px;
     opacity: 0.9;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 /* FOOTER */
 .landing-footer {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.3);
     padding: 50px 20px;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -161,26 +244,34 @@
     align-items: center;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 24px;
     font-weight: 700;
 }
 
 .footer-brand-icon {
     font-size: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    font-weight: 800;
 }
 
 .footer-tagline {
     font-size: 16px;
     opacity: 0.8;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
 .footer-links {
     display: flex;
     justify-content: center;
     gap: 40px;
-    margin: 30px 0;
+    margin: 24px 0;
     flex-wrap: wrap;
 }
 
@@ -190,6 +281,11 @@
     opacity: 0.85;
     font-size: 15px;
     transition: opacity 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    font-family: inherit;
 }
 
 .footer-link:hover {
@@ -198,9 +294,37 @@
 }
 
 .footer-copyright {
-    opacity: 0.7;
+    opacity: 0.6;
     font-size: 14px;
-    margin-top: 30px;
+    margin-top: 24px;
+}
+
+/* ANIMATIONS */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* RESPONSIVE */
@@ -210,7 +334,10 @@
     }
     
     .landing-logo {
-        font-size: 56px;
+        font-size: 48px;
+        width: 90px;
+        height: 90px;
+        border-radius: 20px;
     }
     
     .landing-title {
@@ -225,6 +352,17 @@
         font-size: 16px;
     }
     
+    .landing-stats {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .landing-stat {
+        width: 100%;
+        max-width: 300px;
+    }
+    
     .landing-cta {
         flex-direction: column;
         align-items: stretch;
@@ -235,13 +373,43 @@
     
     .landing-btn {
         width: 100%;
+        text-align: center;
     }
     
     .landing-features h2 {
         font-size: 32px;
+        margin-bottom: 40px;
     }
     
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .feature-card {
+        padding: 36px 24px;
+    }
+    
+    .footer-links {
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-hero {
+        padding: 40px 16px;
+    }
+    
+    .landing-title {
+        font-size: 28px;
+    }
+    
+    .landing-subtitle {
+        font-size: 18px;
+    }
+    
+    .landing-btn {
+        padding: 16px 32px;
+        font-size: 16px;
     }
 }

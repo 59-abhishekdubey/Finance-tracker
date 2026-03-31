@@ -224,77 +224,73 @@
 </header>
 
 <!-- Landing Page -->
-<div id="landing-page" style="display: none;">
-    <div class="landing-container">
-        <section class="hero-section">
-            <div class="hero-content">
-                <div class="logo-large">
-                    <span class="logo-icon">🪙</span>
-                    <h1>Finance Tracker</h1>
-                </div>
-                <h2 class="tagline">Smart Money Management</h2>
-                <p class="subtitle">Track expenses, set budgets, and get AI-powered financial advice</p>
-                <div class="cta-buttons">
-                    <button class="btn btn-primary btn-large" onclick="navigateTo('register')">Get Started</button>
-                    <button class="btn btn-secondary btn-large" onclick="navigateTo('login')">Sign In</button>
-                </div>
+<div id="landing-page" class="landing-page" style="display: none;">
+    <!-- Hero Section -->
+    <div class="landing-hero">
+        <div class="landing-logo">₹</div>
+        <h1 class="landing-title">Finance Tracker</h1>
+        <h2 class="landing-subtitle">Smart Money Management</h2>
+        <p class="landing-description">Track expenses, set budgets, and get AI-powered financial advice. Take control of your finances with beautiful analytics and intelligent insights.</p>
+        
+        <!-- Stats Row -->
+        <div class="landing-stats">
+            <div class="landing-stat">
+                <div class="landing-stat-value">50/30/20</div>
+                <div class="landing-stat-label">Budget Rule</div>
             </div>
-        </section>
-        <section class="features-section">
-            <h2>Why Finance Tracker?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Smart Analytics</h3>
-                    <p>Visualize your spending patterns with beautiful charts and insights</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Budget Goals</h3>
-                    <p>Set and track financial goals with the proven 50/30/20 budgeting rule</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h3>AI Advisor</h3>
-                    <p>Get personalized spending advice and financial recommendations</p>
-                </div>
+            <div class="landing-stat">
+                <div class="landing-stat-value">AI</div>
+                <div class="landing-stat-label">Powered Advice</div>
             </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="landing-footer">
-            <div class="footer-content">
-                <div class="footer-grid">
-                    <div class="footer-brand">
-                        <div class="footer-logo">
-                            <span class="footer-logo-icon">🪙</span>
-                            <span class="footer-logo-text">Finance Tracker</span>
-                        </div>
-                        <p class="footer-description">Smart money management to help you track expenses, set budgets, and achieve your financial goals.</p>
-                    </div>
-                    <div class="footer-links">
-                        <h4 class="footer-heading">Features</h4>
-                        <ul>
-                            <li><button onclick="navigateTo('register')" type="button">Dashboard</button></li>
-                            <li><button onclick="navigateTo('register')" type="button">Analytics</button></li>
-                            <li><button onclick="navigateTo('register')" type="button">AI Advisor</button></li>
-                            <li><button onclick="navigateTo('register')" type="button">Budget Goals</button></li>
-                        </ul>
-                    </div>
-                    <div class="footer-links">
-                        <h4 class="footer-heading">Account</h4>
-                        <ul>
-                            <li><button onclick="navigateTo('login')" type="button">Sign In</button></li>
-                            <li><button onclick="navigateTo('register')" type="button">Create Account</button></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2026 Finance Tracker | Track smart. Spend wiser.</p>
-                </div>
+            <div class="landing-stat">
+                <div class="landing-stat-value">100%</div>
+                <div class="landing-stat-label">Free to Use</div>
             </div>
-        </footer>
+        </div>
+        
+        <div class="landing-cta">
+            <button class="landing-btn landing-btn-primary" onclick="navigateTo('register')">Get Started Free</button>
+            <button class="landing-btn landing-btn-secondary" onclick="navigateTo('login')">Sign In</button>
+        </div>
     </div>
+    
+    <!-- Features Section -->
+    <div class="landing-features">
+        <h2>Why Finance Tracker?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3 class="feature-title">Smart Analytics</h3>
+                <p class="feature-description">Visualize your spending patterns with beautiful charts, category breakdowns, and weekly trend comparisons.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">Budget Goals</h3>
+                <p class="feature-description">Set and track financial goals with the proven 50/30/20 budgeting rule. Get alerts when you're close to limits.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💬</span>
+                <h3 class="feature-title">AI Advisor</h3>
+                <p class="feature-description">Get personalized spending advice and financial recommendations from our AI-powered advisor.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-brand-icon">₹</span>
+                <span>Finance Tracker</span>
+            </div>
+            <p class="footer-tagline">Smart money management for everyone</p>
+            <div class="footer-links">
+                <button class="footer-link" onclick="navigateTo('register')">Get Started</button>
+                <button class="footer-link" onclick="navigateTo('login')">Sign In</button>
+            </div>
+            <p class="footer-copyright">&copy; 2026 Finance Tracker | Track smart. Spend wiser.</p>
+        </div>
+    </footer>
 </div>
 
 <div id="app">
