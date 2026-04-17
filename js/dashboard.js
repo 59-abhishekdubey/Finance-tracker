@@ -859,3 +859,161 @@ function closeFABMenu() {
         fabButton.classList.remove('active');
     }
 }
+
+// Show Add Income Modal
+function showAddIncomeModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'add-income-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 Add Income</h2>
+                <button class="modal-close" onclick="document.getElementById('add-income-modal').remove()">&times;</button>
+            </div>
+            <form onsubmit="handleAddIncome(event)">
+                <div class="form-group">
+                    <label for="income-amount">Amount</label>
+                    <input type="number" id="income-amount" placeholder="₹0" step="0.01" required />
+                </div>
+                <div class="form-group">
+                    <label for="income-category">Category</label>
+                    <input type="text" id="income-category" placeholder="e.g., Salary, Freelance" required />
+                </div>
+                <div class="form-group">
+                    <label for="income-date">Date</label>
+                    <input type="date" id="income-date" required />
+                </div>
+                <div class="form-group">
+                    <label for="income-description">Description</label>
+                    <textarea id="income-description" placeholder="Add notes..." rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('add-income-modal').remove()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Income</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+}
+
+// Show Add Expense Modal
+function showAddExpenseModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'add-expense-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💸 Add Expense</h2>
+                <button class="modal-close" onclick="document.getElementById('add-expense-modal').remove()">&times;</button>
+            </div>
+            <form onsubmit="handleAddExpense(event)">
+                <div class="form-group">
+                    <label for="expense-amount">Amount</label>
+                    <input type="number" id="expense-amount" placeholder="₹0" step="0.01" required />
+                </div>
+                <div class="form-group">
+                    <label for="expense-category">Category</label>
+                    <select id="expense-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Food">🍔 Food</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Utilities">💡 Utilities</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Health">🏥 Health</option>
+                        <option value="Education">📚 Education</option>
+                        <option value="Other">📌 Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expense-date">Date</label>
+                    <input type="date" id="expense-date" required />
+                </div>
+                <div class="form-group">
+                    <label for="expense-description">Description</label>
+                    <textarea id="expense-description" placeholder="Add notes..." rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('add-expense-modal').remove()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+}
+
+// Handle Add Income Form Submission
+function handleAddIncome(event) {
+    event.preventDefault();
+    
+    const amount = parseFloat(document.getElementById('income-amount').value);
+    const category = document.getElementById('income-category').value;
+    const date = document.getElementById('income-date').value;
+    const description = document.getElementById('income-description').value;
+    
+    const transaction = {
+        id: Date.now(),
+        amount: amount,
+        category: category,
+        type: 'income',
+        transactionType: 'income',
+        description: description || 'Income',
+        date: date,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Save transaction
+    let transactions = getTransactions();
+    transactions.push(transaction);
+    localStorage.setItem('finance_tracker_transactions', JSON.stringify(transactions));
+    
+    // Close modal and refresh dashboard
+    document.getElementById('add-income-modal').remove();
+    alert('✅ Income added successfully!');
+    location.reload();
+}
+
+// Handle Add Expense Form Submission
+function handleAddExpense(event) {
+    event.preventDefault();
+    
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const category = document.getElementById('expense-category').value;
+    const date = document.getElementById('expense-date').value;
+    const description = document.getElementById('expense-description').value;
+    
+    const transaction = {
+        id: Date.now(),
+        amount: amount,
+        category: category,
+        type: 'expense',
+        transactionType: 'expense',
+        description: description || category,
+        date: date,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Save transaction
+    let transactions = getTransactions();
+    transactions.push(transaction);
+    localStorage.setItem('finance_tracker_transactions', JSON.stringify(transactions));
+    
+    // Close modal and refresh dashboard
+    document.getElementById('add-expense-modal').remove();
+    alert('✅ Expense added successfully!');
+    location.reload();
+}
