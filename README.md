@@ -465,6 +465,34 @@ This project is licensed under the MIT License - see LICENSE file for details.
 
 **Happy Tracking! 💰🎉**
 
+---
+
+## 👥 Contributors & Commit History
+
+### Divyanshi Tripathi
+
+| Commit | Date | Message |
+|--------|------|---------|
+| `aea555c` | 2026-03-15 | resolve merge conflicts - keep local version *(last commit)* |
+| `73764ed` | 2026-03-15 | update project files |
+| `7fad57c` | 2026-03-09 | Final working version of Finance Tracker |
+| `72d40f2` | 2026-03-09 | Add auth system, analytics page, and UI updates |
+| `04cdaf5` | 2026-03-09 | Add landing page styles |
+| `cb6e3ed` | 2026-03-08 | feat: add authentication system with login and signup pages |
+| `81a47bc` | 2026-03-08 | 3rd commit - AI chat interface implementation with message bubbles and smart responses |
+| `049cd8c` | 2026-03-08 | first commit |
+| `919ba9b` | 2026-03-08 | 2nd commit |
+| `9315099` | 2026-03-08 | First commit |
+| `5c98e8c` | 2026-03-08 | Updated title |
+| `eb771e7` | 2026-03-08 | Updated title |
+| `5640cd9` | 2026-03-08 | Update project title to 'Finance Tracker - minimalist edition' |
+| `08f9f3a` | 2026-03-08 | first commit |
+
+> **Last commit by Divyanshi Tripathi:**
+> - **SHA:** `aea555cb3090bb10f59f6c9cea90a0571b4b36da`
+> - **Date:** 2026-03-15
+> - **Message:** resolve merge conflicts - keep local version
+
 ## 🎨 Design System
 
 ### Colors
