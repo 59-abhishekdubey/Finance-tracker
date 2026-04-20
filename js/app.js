@@ -493,113 +493,75 @@ function getCategoryIcon(category) {
 // ========== AI CHAT SCREEN ==========
 function renderAIScreen() {
     const container = document.createElement('div');
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.height = '100vh';
-    container.style.paddingBottom = '80px'; // Space for bottom nav
+    container.className = 'ai-chat-container';
     
     // Header
     const header = document.createElement('div');
-    header.style.padding = 'var(--space-xl)';
-    header.style.borderBottom = '1px solid var(--color-border)';
-    header.style.backgroundColor = 'var(--color-surface)';
-    
-    const title = document.createElement('h1');
-    title.textContent = '💬 AI Finance Advisor';
-    title.style.marginBottom = 'var(--space-xs)';
-    title.style.fontSize = 'var(--font-size-2xl)';
-    
-    const subtitle = document.createElement('p');
-    subtitle.className = 'text-secondary';
-    subtitle.textContent = 'Ask me anything about your spending';
-    subtitle.style.fontSize = 'var(--font-size-sm)';
-    
-    header.appendChild(title);
-    header.appendChild(subtitle);
+    header.className = 'ai-chat-header';
+    header.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 22px;">🤖</div>
+            <div>
+                <h2 style="font-size: 18px; font-weight: 700; margin: 0;">AI Finance Advisor</h2>
+                <p style="font-size: 13px; opacity: 0.7; margin: 2px 0 0;">Powered by AI • Ask anything about your finances</p>
+            </div>
+        </div>
+    `;
     
     // Chat messages container
     const messagesContainer = document.createElement('div');
-    messagesContainer.id = 'chat-messages';
-    messagesContainer.style.flex = '1';
-    messagesContainer.style.overflowY = 'auto';
-    messagesContainer.style.padding = 'var(--space-xl)';
-    messagesContainer.style.display = 'flex';
-    messagesContainer.style.flexDirection = 'column';
-    messagesContainer.style.gap = 'var(--space-md)';
+    messagesContainer.id = 'ai-chat-messages';
+    messagesContainer.className = 'ai-chat-messages';
     
-    // Check if there are any messages in storage
-    const chatHistory = localStorage.getItem('chat_history');
-    const messages = chatHistory ? JSON.parse(chatHistory) : [];
+    // Suggestion chips
+    const suggestionsDiv = document.createElement('div');
+    suggestionsDiv.className = 'ai-suggestions';
+    suggestionsDiv.id = 'ai-suggestions';
     
-    if (messages.length === 0) {
-        // Show welcome message and suggestions
-        const welcomeDiv = document.createElement('div');
-        welcomeDiv.style.textAlign = 'center';
-        welcomeDiv.style.padding = 'var(--space-2xl) 0';
-        
-        const welcomeText = document.createElement('p');
-        welcomeText.className = 'text-secondary';
-        welcomeText.textContent = 'Try asking me:';
-        welcomeText.style.marginBottom = 'var(--space-lg)';
-        welcomeText.style.fontSize = 'var(--font-size-sm)';
-        
-        welcomeDiv.appendChild(welcomeText);
-        
-        // Suggested questions
-        SUGGESTED_QUESTIONS.forEach(question => {
-            const suggestionBtn = document.createElement('button');
-            suggestionBtn.className = 'btn btn-secondary';
-            suggestionBtn.style.width = '100%';
-            suggestionBtn.style.marginBottom = 'var(--space-sm)';
-            suggestionBtn.style.textAlign = 'left';
-            suggestionBtn.style.justifyContent = 'flex-start';
-            suggestionBtn.textContent = `"${question}"`;
-            suggestionBtn.onclick = () => sendChatMessage(question);
-            welcomeDiv.appendChild(suggestionBtn);
-        });
-        
-        messagesContainer.appendChild(welcomeDiv);
-    } else {
-        // Show existing messages
-        messages.forEach(msg => {
-            messagesContainer.appendChild(createChatBubble(msg.role, msg.content));
-        });
-    }
+    const suggestionsLabel = document.createElement('div');
+    suggestionsLabel.className = 'ai-suggestions-label';
+    suggestionsLabel.textContent = '💡 Try asking:';
+    suggestionsDiv.appendChild(suggestionsLabel);
+    
+    const suggestionsGrid = document.createElement('div');
+    suggestionsGrid.className = 'ai-suggestions-grid';
+    
+    const suggestions = [
+        '💰 How much can I spend today?',
+        '📊 Am I overspending this week?',
+        '🎯 How am I doing with my budget?',
+        '🛒 Should I buy headphones for ₹3000?'
+    ];
+    
+    suggestions.forEach(question => {
+        const chip = document.createElement('button');
+        chip.className = 'ai-suggestion-chip';
+        chip.textContent = question;
+        chip.onclick = () => {
+            const input = document.getElementById('ai-input');
+            if (input) {
+                input.value = question.replace(/^[^\s]+ /, ''); // Remove emoji prefix
+                sendMessage();
+            }
+        };
+        suggestionsGrid.appendChild(chip);
+    });
+    
+    suggestionsDiv.appendChild(suggestionsGrid);
     
     // Input container
     const inputContainer = document.createElement('div');
-    inputContainer.style.padding = 'var(--space-lg)';
-    inputContainer.style.borderTop = '1px solid var(--color-border)';
-    inputContainer.style.backgroundColor = 'var(--color-surface)';
-    inputContainer.style.display = 'flex';
-    inputContainer.style.gap = 'var(--space-md)';
+    inputContainer.className = 'ai-chat-input-container';
     
     const input = document.createElement('input');
     input.type = 'text';
-    input.id = 'chat-input';
-    input.className = 'input';
+    input.id = 'ai-input';
     input.placeholder = 'Ask about your finances...';
-    input.style.flex = '1';
-    input.style.marginBottom = '0';
+    input.autocomplete = 'off';
     
-    const sendBtn = createButton('Send', () => {
-        const message = input.value.trim();
-        if (message) {
-            sendChatMessage(message);
-            input.value = '';
-        }
-    }, 'primary');
-    
-    // Send on Enter key
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const message = input.value.trim();
-            if (message) {
-                sendChatMessage(message);
-                input.value = '';
-            }
-        }
-    });
+    const sendBtn = document.createElement('button');
+    sendBtn.id = 'ai-send-btn';
+    sendBtn.textContent = 'Send';
     
     inputContainer.appendChild(input);
     inputContainer.appendChild(sendBtn);
@@ -607,72 +569,17 @@ function renderAIScreen() {
     // Assemble
     container.appendChild(header);
     container.appendChild(messagesContainer);
+    container.appendChild(suggestionsDiv);
     container.appendChild(inputContainer);
     
-    return container;
-}
-
-// Create chat bubble
-function createChatBubble(role, content) {
-    const bubble = document.createElement('div');
-    bubble.style.display = 'flex';
-    bubble.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
-    bubble.className = 'animate-fadeIn';
-    
-    const messageBox = document.createElement('div');
-    messageBox.style.maxWidth = '80%';
-    messageBox.style.padding = 'var(--space-md) var(--space-lg)';
-    messageBox.style.borderRadius = 'var(--radius-lg)';
-    messageBox.style.fontSize = 'var(--font-size-base)';
-    messageBox.style.lineHeight = '1.5';
-    
-    if (role === 'user') {
-        messageBox.style.backgroundColor = 'var(--color-primary)';
-        messageBox.style.color = 'white';
-    } else {
-        messageBox.style.backgroundColor = 'var(--color-surface)';
-        messageBox.style.border = '1px solid var(--color-border)';
-        messageBox.style.color = 'var(--color-text-primary)';
-    }
-    
-    messageBox.textContent = content;
-    bubble.appendChild(messageBox);
-    
-    return bubble;
-}
-
-// Send message function
-function sendChatMessage(message) {
-    const messagesContainer = document.getElementById('chat-messages');
-    
-    // Clear suggestions if they exist
-    const suggestions = messagesContainer.querySelector('div[style*="text-align: center"]');
-    if (suggestions) {
-        messagesContainer.innerHTML = '';
-    }
-    
-    // Add user message
-    messagesContainer.appendChild(createChatBubble('user', message));
-    
-    // Get AI response
-    const transactions = getTransactions();
-    const budget = getBudget();
-    const aiResponse = getAIResponse(message, transactions, budget);
-    
-    // Add AI response after short delay
+    // Initialize AI advisor after rendering
     setTimeout(() => {
-        messagesContainer.appendChild(createChatBubble('ai', aiResponse));
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }, 500);
+        if (typeof initAIAdvisor === 'function') {
+            initAIAdvisor();
+        }
+    }, 100);
     
-    // Save to chat history
-    const chatHistory = localStorage.getItem('chat_history');
-    const messages = chatHistory ? JSON.parse(chatHistory) : [];
-    messages.push({ role: 'user', content: message }, { role: 'ai', content: aiResponse });
-    localStorage.setItem('chat_history', JSON.stringify(messages));
-    
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return container;
 }
 
 // ========== ADD EXPENSE MODAL ==========
@@ -1354,10 +1261,15 @@ function renderSettingsScreen() {
     dataActions.style.flexDirection = 'column';
     dataActions.style.gap = 'var(--space-md)';
     
-    // Export button
+    // Export buttons
     const exportBtn = createButton('📥 Export Data (CSV)', exportDataToCSV, 'secondary', 'large');
     exportBtn.style.width = '100%';
     exportBtn.style.justifyContent = 'flex-start';
+    
+    // JSON Export button
+    const exportJsonBtn = createButton('📋 Export Data (JSON)', exportDataToJSON, 'secondary', 'large');
+    exportJsonBtn.style.width = '100%';
+    exportJsonBtn.style.justifyContent = 'flex-start';
     
     // Reset budget button
     const resetBudgetBtn = createButton('🔄 Reset to Default Budget', () => {
@@ -1382,6 +1294,7 @@ function renderSettingsScreen() {
     clearBtn.style.color = 'var(--color-danger)';
     
     dataActions.appendChild(exportBtn);
+    dataActions.appendChild(exportJsonBtn);
     dataActions.appendChild(resetBudgetBtn);
     dataActions.appendChild(clearBtn);
     
@@ -1775,53 +1688,13 @@ function renderIncomeScreen() {
 }
 
 // ========== AUTH FORM HANDLERS ==========
+// NOTE: Auth form handling is done by auth-ui.js (initAuthUI)
+// This function is intentionally a no-op to avoid duplicate handlers
+// that caused the "undefined" alert bug.
 function setupAuthForms() {
-    // Login form handler
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            const result = loginUser(email, password);
-            if (result.success) {
-                console.log('✅ Login successful:', result.user);
-                navigateTo('home');
-            } else {
-                alert('❌ ' + result.error);
-                document.getElementById('login-password').value = '';
-            }
-        });
-    }
-    
-    // Register form handler
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            
-            const result = registerUser({
-                name,
-                email,
-                password,
-                avatar: '👤'
-            });
-            
-            if (result.success) {
-                console.log('✅ Registration successful:', result.user);
-                // Auto-login after registration
-                const loginResult = loginUser(email, password);
-                if (loginResult.success) {
-                    navigateTo('home');
-                }
-            } else {
-                alert('❌ ' + result.error);
-            }
-        });
+    // Delegate to auth-ui.js which properly handles async responses
+    if (typeof initAuthUI === 'function') {
+        initAuthUI();
     }
 }
 
@@ -2275,8 +2148,10 @@ function createRecurringItem(recurring, daysUntil = null) {
         daysUntilDisplay = `<span class="transaction-dot">•</span><span style="color: var(--color-warning); font-weight: var(--font-semibold);">${daysLabel}</span>`;
     }    
     
-    // Extract ternary expressions before template
+    // Compute toggle button text and icon based on active status
     const badgeHtml = recurring.isActive ? '' : '<span class="recurring-badge paused">Paused</span>';
+    const recurringToggleTitle = recurring.isActive ? 'Pause' : 'Resume';
+    const recurringToggleIcon = recurring.isActive ? '⏸️' : '▶️';
     
     item.innerHTML = `
         <div class="recurring-icon" style="background: ${categoryColor}20; color: ${categoryColor};">
@@ -2301,8 +2176,8 @@ function createRecurringItem(recurring, daysUntil = null) {
             ${isIncome ? '+' : '-'}${formatCurrency(recurring.amount)}
         </div>
         <div class="recurring-actions">
-            <button class="icon-btn" onclick="toggleRecurringStatus(${recurring.id})" title="${toggleBtnTitle}">
-                ${toggleBtnIcon}
+            <button class="icon-btn" onclick="toggleRecurringStatus(${recurring.id})" title="${recurringToggleTitle}">
+                ${recurringToggleIcon}
             </button>
             <button class="icon-btn" onclick="deleteRecurringWithConfirm(${recurring.id})" title="Delete">
                 🗑️
@@ -2634,47 +2509,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================
-// DARK THEME TOGGLE (FIX FOR toggleBtnTitle)
+// THEME: Handled by theme.js (no duplicate code)
+// The toggleBtnTitle function was removed because
+// it conflicted with theme.js and caused the
+// recurring page crash (variable name collision).
 // ============================================
 
-function toggleBtnTitle() {
-    const isDark = document.body.classList.contains('dark-theme');
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-    
-    if (themeToggle) {
-        themeToggle.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-    }
-    
-    if (themeIcon) {
-        themeIcon.textContent = isDark ? '☀️' : '🌙';
-    }
-}
-
-// Fix theme persistence
-function initTheme() {
-    const savedTheme = localStorage.getItem('finance_tracker_theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    }
-    toggleBtnTitle();
-}
-
-// Theme toggle handler
-function setupThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('finance_tracker_theme', isDark ? 'dark' : 'light');
-            toggleBtnTitle();
-        });
-    }
-}
-
-// Initialize on load
-initTheme();
-setupThemeToggle();
-
-console.log('✅ Theme module loaded');
+console.log('✅ App module fully loaded');

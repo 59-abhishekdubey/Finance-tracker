@@ -1,58 +1,115 @@
 /* ============================================
-   MOBILE RESPONSIVENESS
+   MOBILE RESPONSIVENESS - COMPLETE
    ============================================ */
+
+/* Mobile Menu Toggle Button - hidden by default on desktop */
+.mobile-menu-toggle,
+.hamburger-btn {
+    display: none;
+}
+
+/* Sidebar overlay */
+#sidebar-overlay,
+#mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#sidebar-overlay.active,
+#mobile-overlay.active {
+    display: block;
+    opacity: 1;
+}
 
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
-    /* Navigation */
-    .sidebar {
+    /* Show hamburger button */
+    .hamburger-btn {
+        display: flex !important;
         position: fixed;
-        left: -250px;
-        top: 0;
-        bottom: 0;
-        width: 250px;
-        z-index: 1000;
-        transition: left 0.3s ease;
+        top: 16px;
+        left: 16px;
+        z-index: 999;
+        background: var(--color-primary, #6366F1);
+        color: white;
+        border: none;
+        padding: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 22px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        transition: all 0.2s ease;
     }
     
-    .sidebar.mobile-open {
-        left: 0;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    .hamburger-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
     }
     
     .mobile-menu-toggle {
-        display: block !important;
+        display: flex !important;
         position: fixed;
-        top: 20px;
-        left: 20px;
+        top: 16px;
+        left: 16px;
         z-index: 999;
-        background: var(--primary);
+        background: var(--color-primary, #6366F1);
         color: white;
         border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 12px;
         cursor: pointer;
-        font-size: 20px;
+        font-size: 22px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
     
-    .mobile-overlay {
-        display: none;
-        position: fixed;
+    /* Sidebar slides in from left */
+    #sidebar {
+        position: fixed !important;
+        left: -280px;
         top: 0;
-        left: 0;
-        right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 998;
+        width: 260px;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex !important;
+        flex-direction: column;
+        background: var(--color-surface, white);
+        box-shadow: none;
     }
     
-    .mobile-overlay.active {
-        display: block;
+    #sidebar.mobile-open {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
     }
     
-    .main-content {
-        margin-left: 0;
-        padding: 80px 15px 20px;
+    /* Header adjustments */
+    #header {
+        margin-left: 0 !important;
+        padding-left: 70px !important;
+    }
+    
+    /* Main content adjustments */
+    .main-content,
+    #app {
+        margin-left: 0 !important;
+        padding: 16px;
+        padding-top: 70px;
     }
     
     /* Dashboard Grid */
@@ -118,13 +175,14 @@
         flex-direction: column;
     }
     
-    /* AI Chat */
-    .ai-chat-container {
-        height: calc(100vh - 180px);
+    /* Container narrow */
+    .container-narrow {
+        padding: 16px !important;
     }
     
-    .ai-message-bubble {
-        max-width: 85%;
+    /* Stat cards grid */
+    .stat-card-modern {
+        min-width: auto;
     }
 }
 
@@ -163,11 +221,14 @@
         padding: 8px 12px;
         font-size: 13px;
     }
-}
-
-/* Mobile Menu Toggle Button */
-.mobile-menu-toggle {
-    display: none;
+    
+    .hamburger-btn {
+        top: 12px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
 }
 
 /* Utility classes for mobile */

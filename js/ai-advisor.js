@@ -1,88 +1,120 @@
-// AI Advisor functionality
+// ============================================
+// AI ADVISOR - COMPLETE WORKING VERSION
+// ============================================
 
 let conversationHistory = [];
 
 function initAIAdvisor() {
     loadConversationHistory();
     setupAIEventListeners();
-    displayInitialMessage();
+    displayWelcomeMessage();
 }
 
 function setupAIEventListeners() {
     const sendBtn = document.getElementById('ai-send-btn');
     const input = document.getElementById('ai-input');
-    const quickActions = document.querySelectorAll('.ai-quick-action');
     
     if (sendBtn) {
-        sendBtn.addEventListener('click', sendMessage);
+        // Remove old listeners by cloning
+        const newBtn = sendBtn.cloneNode(true);
+        sendBtn.parentNode.replaceChild(newBtn, sendBtn);
+        newBtn.addEventListener('click', sendMessage);
     }
     
     if (input) {
-        input.addEventListener('keypress', (evt) => {
-            if (evt.key === 'Enter' && !evt.shiftKey) {
-                evt.preventDefault();
+        // Remove old listeners by cloning
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        newInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
     }
-    
-    quickActions.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const question = btn.dataset.question;
-            if (question) {
-                document.getElementById('ai-input').value = question;
-                sendMessage();
-            }
-        });
-    });
 }
 
-function displayInitialMessage() {
+function displayWelcomeMessage() {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
+    
+    // Clear existing messages
+    container.innerHTML = '';
+    
     if (conversationHistory.length === 0) {
-        addMessageToChat('ai', '👋 Hi! I\'m your AI Financial Advisor. I can help you with budgeting, saving, spending analysis, and financial decisions. What would you like to know?');
+        addMessageToUI('ai', '👋 Hi! I\'m your AI Financial Advisor. Ask me anything about budgeting, saving, or your spending habits!', false);
     } else {
-        // Render existing history
         conversationHistory.forEach(msg => {
-            addMessageToChat(msg.type, msg.text, false);
+            addMessageToUI(msg.type, msg.text, false);
         });
     }
 }
 
 async function sendMessage() {
     const input = document.getElementById('ai-input');
-    const message = input.value.trim();
+    if (!input) return;
     
+    const message = input.value.trim();
     if (!message) return;
     
-    // Add user message to chat
-    addMessageToChat('user', message);
+    // Add user message to UI
+    addMessageToUI('user', message);
     input.value = '';
+    
+    // Hide suggestion chips after first message
+    const suggestions = document.getElementById('ai-suggestions');
+    if (suggestions) {
+        suggestions.style.display = 'none';
+    }
     
     // Show typing indicator
     showTypingIndicator();
     
     try {
-        // Gather user financial data for context
-        const userData = await gatherUserFinancialData();
+        let response;
         
-        // Call AI API
-        const response = await apiAIChat(message, userData, conversationHistory);
+        // Try backend API first if user is logged in
+        if (typeof getAuthToken === 'function' && getAuthToken()) {
+            try {
+                const userData = await gatherUserData();
+                response = await apiAIChat(message, userData, conversationHistory);
+            } catch (apiError) {
+                console.warn('Backend AI unavailable, using local fallback:', apiError.message);
+                // Fallback to local pattern matching
+                response = getLocalAIResponse(message);
+            }
+        } else {
+            // No auth token — use local pattern matching
+            response = getLocalAIResponse(message);
+        }
         
-        // Remove typing indicator
         hideTypingIndicator();
+        addMessageToUI('ai', response);
         
-        // Add AI response to chat
-        addMessageToChat('ai', response);
-        
-    } catch (error) {
-        console.error('AI Chat Error:', error);
+    } catch (err) {
         hideTypingIndicator();
-        addMessageToChat('ai', '⚠️ Sorry, I encountered an error. Please try again or rephrase your question.');
+        addMessageToUI('ai', '⚠️ Sorry, I encountered an error. Please try again.');
+        console.error('AI Chat Error:', err);
     }
 }
 
-function addMessageToChat(type, text, saveToHistory = true) {
-    const chatContainer = document.getElementById('ai-chat-messages');
+// Local fallback using pattern matching from ai-chat.js
+function getLocalAIResponse(message) {
+    if (typeof getAIResponse === 'function') {
+        try {
+            const transactions = typeof getTransactions === 'function' ? getTransactions() : [];
+            const budget = typeof getBudget === 'function' ? getBudget() : { total: 15000, needs: 7500, wants: 4500, savings: 3000 };
+            return getAIResponse(message, transactions, budget);
+        } catch (e) {
+            console.warn('Local AI response error:', e);
+        }
+    }
+    return "I'm here to help with your finances! Ask me about saving money, budgeting, managing debt, or specific purchase decisions. 💬";
+}
+
+function addMessageToUI(type, text, saveHistory = true) {
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
     
     const messageDiv = document.createElement('div');
     messageDiv.className = `ai-message ai-message-${type}`;
@@ -91,65 +123,60 @@ function addMessageToChat(type, text, saveToHistory = true) {
     bubble.className = 'ai-message-bubble';
     bubble.textContent = text;
     
-    const timestamp = document.createElement('div');
-    timestamp.className = 'ai-message-time';
-    timestamp.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const time = document.createElement('div');
+    time.className = 'ai-message-time';
+    time.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     
     messageDiv.appendChild(bubble);
-    messageDiv.appendChild(timestamp);
-    chatContainer.appendChild(messageDiv);
+    messageDiv.appendChild(time);
+    container.appendChild(messageDiv);
     
-    // Scroll to bottom
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Smooth scroll to bottom
+    container.scrollTop = container.scrollHeight;
     
-    // Save to history
-    if (saveToHistory) {
+    if (saveHistory) {
         conversationHistory.push({ type, text, timestamp: new Date().toISOString() });
         saveConversationHistory();
     }
 }
 
 function showTypingIndicator() {
-    const chatContainer = document.getElementById('ai-chat-messages');
+    const container = document.getElementById('ai-chat-messages');
+    if (!container) return;
     
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'ai-message ai-message-ai ai-typing-indicator';
-    typingDiv.id = 'ai-typing';
+    // Remove existing typing indicator if any
+    hideTypingIndicator();
     
-    const bubble = document.createElement('div');
-    bubble.className = 'ai-message-bubble';
-    bubble.innerHTML = '<span></span><span></span><span></span>';
+    const typing = document.createElement('div');
+    typing.id = 'ai-typing';
+    typing.className = 'ai-message ai-message-ai';
+    typing.innerHTML = '<div class="ai-message-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
     
-    typingDiv.appendChild(bubble);
-    chatContainer.appendChild(typingDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    container.appendChild(typing);
+    container.scrollTop = container.scrollHeight;
 }
 
 function hideTypingIndicator() {
     const typing = document.getElementById('ai-typing');
-    if (typing) {
-        typing.remove();
-    }
+    if (typing) typing.remove();
 }
 
-async function gatherUserFinancialData() {
+async function gatherUserData() {
     try {
-        const transactions = await apiGetTransactions();
-        const budget = await apiGetBudget();
+        const transactions = typeof getTransactions === 'function' ? getTransactions() : [];
+        const budget = typeof getBudget === 'function' ? getBudget() : null;
         
-        // Calculate totals
         const income = transactions
             .filter(t => t.transactionType === 'income')
             .reduce((sum, t) => sum + t.amount, 0);
         
         const expenses = transactions
-            .filter(t => t.transactionType === 'expense')
+            .filter(t => t.transactionType !== 'income' && t.type === 'expense')
             .reduce((sum, t) => sum + t.amount, 0);
         
-        // Category breakdown
         const categories = {};
         transactions
-            .filter(t => t.transactionType === 'expense')
+            .filter(t => t.type === 'expense')
             .forEach(t => {
                 categories[t.category] = (categories[t.category] || 0) + t.amount;
             });
@@ -162,43 +189,40 @@ async function gatherUserFinancialData() {
         return {
             totalIncome: income,
             totalExpenses: expenses,
-            budget: budget,
-            topCategories: topCategories
+            budget,
+            topCategories
         };
-        
-    } catch (error) {
-        console.error('Error gathering financial data:', error);
+    } catch (err) {
+        console.error('Error gathering data:', err);
         return null;
     }
 }
 
 function saveConversationHistory() {
-    localStorage.setItem('finance_tracker_ai_history', JSON.stringify(conversationHistory));
-}
-
-function loadConversationHistory() {
-    const saved = localStorage.getItem('finance_tracker_ai_history');
-    if (saved) {
-        try {
-            conversationHistory = JSON.parse(saved);
-        } catch (error) {
-            console.error('Failed to load conversation history:', error);
-            conversationHistory = [];
-        }
+    try {
+        // Keep only last 50 messages to prevent localStorage bloat
+        const toSave = conversationHistory.slice(-50);
+        localStorage.setItem('finance_tracker_ai_history', JSON.stringify(toSave));
+    } catch (e) {
+        console.warn('Could not save conversation history:', e);
     }
 }
 
-function clearConversationHistory() {
-    conversationHistory = [];
-    localStorage.removeItem('finance_tracker_ai_history');
-    document.getElementById('ai-chat-messages').innerHTML = '';
-    displayInitialMessage();
+function loadConversationHistory() {
+    try {
+        const saved = localStorage.getItem('finance_tracker_ai_history');
+        if (saved) {
+            conversationHistory = JSON.parse(saved);
+        }
+    } catch (e) {
+        conversationHistory = [];
+    }
 }
 
-// Export for use in other modules
+// Make functions globally accessible
 if (typeof globalThis !== 'undefined') {
     globalThis.initAIAdvisor = initAIAdvisor;
-    globalThis.clearConversationHistory = clearConversationHistory;
+    globalThis.sendMessage = sendMessage;
 }
 
-console.log('✅ AI Advisor module loaded');
+console.log('✅ AI Advisor loaded');
