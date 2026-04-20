@@ -308,7 +308,7 @@ function initSpendingFlowChart(transactions, days = 7) {
 function updateSpendingChart(evt, period) {
     try {
         document.querySelectorAll('.chart-card-filter .filter-btn').forEach(btn => btn.classList.remove('active'));
-        if (evt?.target) evt.
+        if (evt?.target) evt.target.classList.add('active');
         let days;
         if (period === '7days') {
             days = 7;

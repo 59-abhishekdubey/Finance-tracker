@@ -17,7 +17,7 @@ const SCREENS = {
 };
 
 // Public screens (accessible without login)
-const PUBLIC_SCREENS = [SCREENS.LANDING, SCREENS.LOGIN, SCREENS.REGISTER];
+const PUBLIC_SCREENS = new Set([SCREENS.LANDING, SCREENS.LOGIN, SCREENS.REGISTER]);
 
 // Current active screen
 let activeScreen = SCREENS.LANDING;
@@ -112,7 +112,7 @@ function updateSidebarActive(screenId) {
 // Navigate to screen (with protection)
 function navigateTo(screenId) {
     // Check if screen requires authentication
-    if (!PUBLIC_SCREENS.includes(screenId) && !isLoggedIn()) {
+    if (!PUBLIC_SCREENS.has(screenId) && !isLoggedIn()) {
         // Protected screen, user not logged in
         showLoginPage();
         return;
@@ -122,7 +122,7 @@ function navigateTo(screenId) {
     activeScreen = screenId;
     
     // Show appropriate layout
-    if (PUBLIC_SCREENS.includes(screenId)) {
+    if (PUBLIC_SCREENS.has(screenId)) {
         showAuthLayout();
     } else {
         showAppLayout();
@@ -134,7 +134,7 @@ function navigateTo(screenId) {
     renderScreen(screenId);
     
     // Update bottom nav if in app (not auth pages)
-    if (!PUBLIC_SCREENS.includes(screenId)) {
+    if (!PUBLIC_SCREENS.has(screenId)) {
         updateBottomNav(screenId);
     }
 }
@@ -146,8 +146,8 @@ function handleLogout() {
 }
 
 // Override the existing switchScreen function to use router
-if (typeof window !== 'undefined') {
-    window.switchScreen = function(screenId) {
+if (typeof globalThis.window !== 'undefined') {
+    globalThis.switchScreen = function(screenId) {
         navigateTo(screenId);
     };
 }
