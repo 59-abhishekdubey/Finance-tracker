@@ -85,10 +85,6 @@
     transition: all var(--transition-base);
 }
 
-.bottom-nav{
-    display:none !important;
-}
-
 .card:hover {
     box-shadow: var(--shadow-md);
 }
@@ -427,10 +423,6 @@
     color: var(--color-text-tertiary);
     text-align: center;
     font-weight: var(--font-medium);
-}
-/* ========== BOTTOM NAVIGATION ========== */
-.bottom-nav {
-    display: none !important;
 }
 
 .nav-item {

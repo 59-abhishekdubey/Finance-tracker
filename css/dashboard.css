@@ -535,7 +535,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     background: var(--color-surface);
     color: var(--color-text-primary);
-    border: 1px solid var(--color-border);
     animation: slidInUp 0.3s ease backwards;
 }
 
