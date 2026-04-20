@@ -227,8 +227,18 @@ function initSpendingFlowChart(transactions, days = 7) {
 function updateSpendingChart(period) {
     try {
         document.querySelectorAll('.chart-card-filter .filter-btn').forEach(btn => btn.classList.remove('active'));
-        event?.target?.classList.add('active');
-        const days = period === '7days' ? 7 : period === '30days' ? 30 : 90;
+        const target = event?.target;
+        if (target) target.classList.add('active');
+        
+        let days;
+        if (period === '7days') {
+            days = 7;
+        } else if (period === '30days') {
+            days = 30;
+        } else {
+            days = 90;
+        }
+        
         const transactions = getTransactions?.() ?? [];
         initSpendingFlowChart(transactions, days);
     } catch (e) {
@@ -355,9 +365,7 @@ function createRecentTransactionsCard(transactions) {
     
     let listHtml = '<div id="filtered-transactions" class="transaction-list" style="max-height: 300px; overflow-y: auto;">';
     
-    if (!transactions?.length) {
-        listHtml += '<p style="text-align: center; color: var(--color-text-secondary); padding: var(--space-xl);">No transactions</p>';
-    } else {
+    if (transactions?.length) {
         transactions.slice(0, 10).forEach(t => {
             const icon = t.category === 'income' ? '💰' : '📍';
             const fmt = formatCurrency?.(t.amount) ?? '₹' + t.amount;
@@ -365,6 +373,8 @@ function createRecentTransactionsCard(transactions) {
             const sign = t.type === 'income' ? '+' : '-';
             listHtml += `<div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-md); border-bottom: 1px solid var(--color-border);"><div><div style="font-weight: 500;">${icon} ${t.name ?? 'Transaction'}</div><div style="font-size: 0.875rem; color: var(--color-text-secondary);">${t.date ?? 'Today'}</div></div><div style="font-weight: 600; color: ${color};">${sign}${fmt}</div></div>`;
         });
+    } else {
+        listHtml += '<p style="text-align: center; color: var(--color-text-secondary); padding: var(--space-xl);">No transactions</p>';
     }
     
     listHtml += '</div>';
