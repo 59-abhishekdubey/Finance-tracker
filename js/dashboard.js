@@ -167,9 +167,9 @@ function createSpendingFlowChart(transactions) {
         <div class="chart-card-header">
             <h3 class="chart-card-title">Spending Flow</h3>
             <div class="chart-card-filter">
-                <button class="filter-btn active" onclick="updateSpendingChart('7days')">7 Days</button>
-                <button class="filter-btn" onclick="updateSpendingChart('30days')">30 Days</button>
-                <button class="filter-btn" onclick="updateSpendingChart('90days')">90 Days</button>
+                <button class="filter-btn active" onclick="updateSpendingChart(event, '7days')">7 Days</button>
+                <button class="filter-btn" onclick="updateSpendingChart(event, '30days')">30 Days</button>
+                <button class="filter-btn" onclick="updateSpendingChart(event, '90days')">90 Days</button>
             </div>
         </div>
         <div style="position: relative; height: 300px;">
@@ -224,12 +224,10 @@ function initSpendingFlowChart(transactions, days = 7) {
     }
 }
 
-function updateSpendingChart(period) {
+function updateSpendingChart(evt, period) {
     try {
         document.querySelectorAll('.chart-card-filter .filter-btn').forEach(btn => btn.classList.remove('active'));
-        const target = event?.target;
-        if (target) target.classList.add('active');
-        
+        if (evt?.target) evt.
         let days;
         if (period === '7days') {
             days = 7;
