@@ -5,7 +5,6 @@
 function initMobileMenu() {
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-    const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     const mobileOverlay = document.getElementById('mobile-overlay');
     

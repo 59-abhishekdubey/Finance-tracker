@@ -215,6 +215,7 @@ function loadConversationHistory() {
             conversationHistory = JSON.parse(saved);
         }
     } catch (e) {
+        console.warn('Failed to load conversation history:', e);
         conversationHistory = [];
     }
 }

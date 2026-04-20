@@ -23,6 +23,7 @@ function loadRecurringTransactions() {
         try {
             recurringTransactions = JSON.parse(saved);
         } catch (e) {
+            console.warn('Failed to load recurring transactions:', e);
             recurringTransactions = [];
         }
     }

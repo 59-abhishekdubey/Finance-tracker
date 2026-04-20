@@ -55,15 +55,15 @@ function isLoggedIn() {
 
 // Check auth on protected pages
 function checkAuth() {
-    const publicPages = ['landing', 'login', 'register'];
+    const publicPages = new Set(['landing', 'login', 'register']);
     const currentPage = getCurrentPage();
     
-    if (!publicPages.includes(currentPage) && !isLoggedIn()) {
+    if (!publicPages.has(currentPage) && !isLoggedIn()) {
         navigateTo('login');
         return false;
     }
     
-    if (publicPages.includes(currentPage) && isLoggedIn()) {
+    if (publicPages.has(currentPage) && isLoggedIn()) {
         navigateTo('home');
         return false;
     }
