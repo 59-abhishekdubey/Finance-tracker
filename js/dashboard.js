@@ -11,6 +11,10 @@ function renderModernDashboard() {
         const container = document.createElement('div');
         container.className = 'dashboard-container';
         
+        // Add dashboard header with quick-action buttons
+        const headerSection = createDashboardHeader();
+        container.appendChild(headerSection);
+        
         // Get data safely with fallbacks
         const transactions = getTransactions?.() ?? [];
         const budget = getBudget?.() ?? { total: 15000, needs: 7500, wants: 4500, savings: 3000 };
@@ -70,6 +74,83 @@ function renderModernDashboard() {
         err.innerHTML = `<h2>Dashboard Error: ${error.message}</h2>`;
         return err;
     }
+}
+
+// ========== DASHBOARD HEADER WITH QUICK ACTIONS ==========
+
+function createDashboardHeader() {
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'dashboard-header-quick-actions';
+    headerDiv.style.cssText = `
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--color-border, #E5E7EB);
+    `;
+    
+    // Income Toggle Button
+    const incomeBtn = document.createElement('button');
+    incomeBtn.className = 'quick-action-btn income-btn';
+    incomeBtn.style.cssText = `
+        flex: 1;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    `;
+    incomeBtn.innerHTML = '💵 Income';
+    incomeBtn.onmouseover = () => incomeBtn.style.transform = 'translateY(-2px)';
+    incomeBtn.onmouseout = () => incomeBtn.style.transform = 'translateY(0)';
+    incomeBtn.onclick = () => {
+        console.log('📊 Navigating to Income screen...');
+        navigateTo('income');
+    };
+    
+    // Add Expense Button
+    const expenseBtn = document.createElement('button');
+    expenseBtn.className = 'quick-action-btn expense-btn';
+    expenseBtn.style.cssText = `
+        flex: 1;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    `;
+    expenseBtn.innerHTML = '💸 Add Expense';
+    expenseBtn.onmouseover = () => expenseBtn.style.transform = 'translateY(-2px)';
+    expenseBtn.onmouseout = () => expenseBtn.style.transform = 'translateY(0)';
+    expenseBtn.onclick = () => {
+        console.log('📝 Opening Add Expense modal...');
+        if (typeof showAddExpenseModal === 'function') {
+            showAddExpenseModal();
+        } else {
+            console.warn('⚠️ showAddExpenseModal function not found');
+        }
+    };
+    
+    headerDiv.appendChild(incomeBtn);
+    headerDiv.appendChild(expenseBtn);
+    
+    return headerDiv;
 }
 
 // ========== STAT CARDS ==========
