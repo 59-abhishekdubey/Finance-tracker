@@ -1,13 +1,19 @@
 // ============================================
-// AI ADVISOR - COMPLETE WORKING VERSION
+// AI ADVISOR - ENHANCED RELIABLE VERSION
 // ============================================
 
 let conversationHistory = [];
+let messageInFlight = false;
+let abortController = null;
+const MAX_HISTORY_LENGTH = 10;
+const HISTORY_STORAGE_KEY = 'finance_tracker_ai_history';
+const MESSAGE_TIMEOUT = 15000; // 15 second timeout
 
 function initAIAdvisor() {
     loadConversationHistory();
     setupAIEventListeners();
     displayWelcomeMessage();
+    console.log('✅ AI Advisor initialized with enhanced reliability');
 }
 
 function setupAIEventListeners() {
@@ -15,30 +21,38 @@ function setupAIEventListeners() {
     const input = document.getElementById('ai-input');
     
     if (sendBtn) {
-        // Remove old listeners by cloning
         const newBtn = sendBtn.cloneNode(true);
         sendBtn.parentNode.replaceChild(newBtn, sendBtn);
-        newBtn.addEventListener('click', sendMessage);
+        newBtn.addEventListener('click', debounceMessage);
     }
     
     if (input) {
-        // Remove old listeners by cloning
         const newInput = input.cloneNode(true);
         input.parentNode.replaceChild(newInput, input);
         newInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                debounceMessage();
             }
         });
     }
+}
+
+// Debounce to prevent rapid duplicate submissions
+let sendTimeout = null;
+function debounceMessage() {
+    clearTimeout(sendTimeout);
+    sendTimeout = setTimeout(() => {
+        if (!messageInFlight) {
+            sendMessage();
+        }
+    }, 100);
 }
 
 function displayWelcomeMessage() {
     const container = document.getElementById('ai-chat-messages');
     if (!container) return;
     
-    // Clear existing messages
     container.innerHTML = '';
     
     if (conversationHistory.length === 0) {
@@ -52,40 +66,53 @@ function displayWelcomeMessage() {
 
 async function sendMessage() {
     const input = document.getElementById('ai-input');
-    if (!input) return;
+    if (!input || messageInFlight) return;
     
     const message = input.value.trim();
     if (!message) return;
     
-    // Add user message to UI
-    addMessageToUI('user', message);
-    input.value = '';
-    
-    // Hide suggestion chips after first message
-    const suggestions = document.getElementById('ai-suggestions');
-    if (suggestions) {
-        suggestions.style.display = 'none';
-    }
-    
-    // Show typing indicator
-    showTypingIndicator();
+    // Prevent duplicate sends
+    messageInFlight = true;
+    input.disabled = true;
     
     try {
+        // Add user message to UI
+        addMessageToUI('user', message);
+        input.value = '';
+        
+        // Hide suggestions after first message
+        const suggestions = document.getElementById('ai-suggestions');
+        if (suggestions) suggestions.style.display = 'none';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Create abort controller for this request
+        abortController = new AbortController();
+        const timeoutId = setTimeout(() => abortController.abort(), MESSAGE_TIMEOUT);
+        
         let response;
         
-        // Try backend API first if user is logged in
-        if (typeof getAuthToken === 'function' && getAuthToken()) {
-            try {
+        try {
+            // Try backend API first if authenticated
+            if (typeof getAuthToken === 'function' && getAuthToken()) {
                 const userData = await gatherUserData();
-                response = await apiAIChat(message, userData, conversationHistory);
-            } catch (apiError) {
-                console.warn('Backend AI unavailable, using local fallback:', apiError.message);
-                // Fallback to local pattern matching
+                response = await apiAIChat(message, userData, conversationHistory, { signal: abortController.signal });
+            } else {
+                // Use local pattern matching
                 response = getLocalAIResponse(message);
             }
-        } else {
-            // No auth token — use local pattern matching
-            response = getLocalAIResponse(message);
+        } catch (apiError) {
+            // Handle abort or timeout
+            if (apiError.name === 'AbortError') {
+                response = '⏱️ Request timed out. Please try a shorter message or try again.';
+                console.warn('AI request timeout');
+            } else {
+                console.warn('Backend AI error, using fallback:', apiError.message);
+                response = getLocalAIResponse(message);
+            }
+        } finally {
+            clearTimeout(timeoutId);
         }
         
         hideTypingIndicator();
@@ -95,10 +122,13 @@ async function sendMessage() {
         hideTypingIndicator();
         addMessageToUI('ai', '⚠️ Sorry, I encountered an error. Please try again.');
         console.error('AI Chat Error:', err);
+    } finally {
+        messageInFlight = false;
+        if (input) input.disabled = false;
     }
 }
 
-// Local fallback using pattern matching from ai-chat.js
+// Local AI response with better pattern matching
 function getLocalAIResponse(message) {
     if (typeof getAIResponse === 'function') {
         try {
@@ -132,10 +162,19 @@ function addMessageToUI(type, text, saveHistory = true) {
     container.appendChild(messageDiv);
     
     // Smooth scroll to bottom
-    container.scrollTop = container.scrollHeight;
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 50);
     
     if (saveHistory) {
-        conversationHistory.push({ type, text, timestamp: new Date().toISOString() });
+        const historyEntry = { type, text, timestamp: new Date().toISOString() };
+        conversationHistory.push(historyEntry);
+        
+        // Keep only last N messages for performance
+        if (conversationHistory.length > MAX_HISTORY_LENGTH) {
+            conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH);
+        }
+        
         saveConversationHistory();
     }
 }
@@ -144,7 +183,6 @@ function showTypingIndicator() {
     const container = document.getElementById('ai-chat-messages');
     if (!container) return;
     
-    // Remove existing typing indicator if any
     hideTypingIndicator();
     
     const typing = document.createElement('div');
@@ -198,32 +236,53 @@ async function gatherUserData() {
     }
 }
 
+// ========== PERSISTENT STORAGE WITH SIZE MANAGEMENT ==========
+
 function saveConversationHistory() {
     try {
-        // Keep only last 50 messages to prevent localStorage bloat
-        const toSave = conversationHistory.slice(-50);
-        localStorage.setItem('finance_tracker_ai_history', JSON.stringify(toSave));
+        const data = JSON.stringify(conversationHistory);
+        // Limit to ~30KB per conversation history
+        if (data.length > 30000) {
+            conversationHistory = conversationHistory.slice(-5);
+        }
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(conversationHistory));
     } catch (e) {
-        console.warn('Could not save conversation history:', e);
+        console.warn('Failed to save conversation history:', e);
+        // If quota exceeded, clear and save only recent messages
+        if (e.name === 'QuotaExceededError') {
+            conversationHistory = conversationHistory.slice(-5);
+            try {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(conversationHistory));
+            } catch (error_) {
+                console.error('Storage quota still exceeded:', error_);
+            }
+        }
     }
 }
 
 function loadConversationHistory() {
     try {
-        const saved = localStorage.getItem('finance_tracker_ai_history');
-        if (saved) {
-            conversationHistory = JSON.parse(saved);
-        }
+        const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+        conversationHistory = stored ? JSON.parse(stored) : [];
+        console.log(`📝 Loaded ${conversationHistory.length} messages from chat history`);
     } catch (e) {
         console.warn('Failed to load conversation history:', e);
         conversationHistory = [];
     }
 }
 
+function clearConversationHistory() {
+    conversationHistory = [];
+    localStorage.removeItem(HISTORY_STORAGE_KEY);
+    displayWelcomeMessage();
+    console.log('🗑️ Chat history cleared');
+}
+
 // Make functions globally accessible
 if (typeof globalThis !== 'undefined') {
     globalThis.initAIAdvisor = initAIAdvisor;
     globalThis.sendMessage = sendMessage;
+    globalThis.clearConversationHistory = clearConversationHistory;
 }
 
-console.log('✅ AI Advisor loaded');
+console.log('✅ AI Advisor loaded with enhanced reliability & persistence');

@@ -13,12 +13,15 @@ const aiRoutes = require('./backend/routes/ai');
 // Initialize express
 const app = express();
 
+// Disable version disclosure
+app.disable('x-powered-by');
+
 // Connect to MongoDB
 connectDB();
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://127.0.0.1:5501',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true
 }));
 

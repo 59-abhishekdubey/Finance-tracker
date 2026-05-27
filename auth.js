@@ -22,7 +22,7 @@ localStorage.setItem("user", JSON.stringify(user));
 
 alert("Signup successful");
 
-window.location.replace("login.html");
+globalThis.location.replace("login.html");
 });
 
 }
@@ -47,7 +47,7 @@ if(savedUser && email === savedUser.email && password === savedUser.password){
 
 alert("Login successful");
 
-window.location.replace("index.html");
+globalThis.location.replace("index.html");
 }else{
 
 alert("Invalid email or password");

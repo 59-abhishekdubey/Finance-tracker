@@ -1,7 +1,15 @@
 // ========== API CLIENT ==========
 // Communicates with backend server
 
-const API_URL = 'http://localhost:5000/api';
+// Dynamically set API URL based on environment
+const API_URL = (() => {
+    // In development: use localhost
+    if (globalThis.window?.location.hostname === 'localhost') {
+        return 'http://localhost:5000/api';
+    }
+    // In production (Vercel): use relative path to same origin
+    return '/api';
+})();
 
 // Get auth token
 function getAuthToken() {

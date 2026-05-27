@@ -46,10 +46,17 @@ function showAppLayout() {
     const sidebar = document.getElementById('sidebar');
     const header = document.getElementById('header');
     const bottomNav = document.querySelector('.bottom-nav');
+    const footer = document.getElementById('global-footer');
     
     if (sidebar) sidebar.style.display = 'flex';
     if (header) header.style.display = 'flex';
     if (bottomNav) bottomNav.style.display = 'flex';
+    if (footer) footer.style.display = 'block';
+    
+    // Initialize footer on first app load
+    if (typeof initFooter === 'function') {
+        initFooter();
+    }
 }
 
 // Show landing/auth layout (no sidebar)
@@ -146,7 +153,7 @@ function handleLogout() {
 }
 
 // Override the existing switchScreen function to use router
-if (typeof globalThis.window !== 'undefined') {
+if (globalThis.window !== undefined) {
     globalThis.switchScreen = function(screenId) {
         navigateTo(screenId);
     };
